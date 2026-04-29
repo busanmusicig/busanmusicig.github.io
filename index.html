@@ -501,7 +501,7 @@ body.force-portrait #page{grid-column:auto !important;}
   </div>
   <!-- 단체수업 필드 -->
   <div id="grpf" style="display:none">
-    <div class="fg"><label class="fl">선생님</label><select class="fi" id="mteachG"></select></div>
+    <div class="fg"><label class="fl">선생님</label><select class="fi" id="mteachG" onchange="if(parseInt(this.value)===${DTI}){document.getElementById('mdayG').value='41';}"></select></div>
     <div class="fg"><label class="fl">수업명</label><input class="fi" id="mgrp" placeholder="성인밴드" autocomplete="off"/></div>
     <div class="fg2">
       <div class="fg"><label class="fl">요일</label>
@@ -1818,7 +1818,17 @@ function closeMk(){document.getElementById('mmk').classList.remove('on');mkTgt=n
 
 // ── 수업 추가/수정 ───────────────────────────────────────
 function openAddIndiv(day,time,ti){ openAdd(day,time,ti,'individual'); }
-function openAddGroup(day,time,ti){ openAdd(day,time,ti,'group'); }
+function openAddGroup(day,time,ti){
+  openAdd(day,time,ti,'group');
+  // 댄스조(DTI)면 요일 자동으로 금(댄)=41로 설정
+  const tiVal = ti!==null&&ti!==undefined ? parseInt(ti) : gTi();
+  if(tiVal===DTI){
+    setTimeout(()=>{
+      const mdayG=document.getElementById('mdayG');
+      if(mdayG) mdayG.value=41;
+    },50);
+  }
+}
 
 function openAdd(day,time,ti,forceType){
   try{
@@ -1847,6 +1857,12 @@ function openAdd(day,time,ti,forceType){
     if(day!==null&&day!==undefined){
       const md=document.getElementById('mday');if(md)md.value=day;
       const md2a=document.getElementById('mday2a');if(md2a)md2a.value=day;
+      const mdG=document.getElementById('mdayG');if(mdG)mdG.value=day;
+    }
+    // 댄스조(DTI)면 금댄(41) 자동 설정
+    const curTi=ti!==null&&ti!==undefined?parseInt(ti):gTi();
+    if(curTi===DTI){
+      const mdG=document.getElementById('mdayG');if(mdG)mdG.value=41;
     }
     if(time!==null&&time!==undefined){
       const mti=document.getElementById('mtime');if(mti)mti.value=time;
