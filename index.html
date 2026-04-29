@@ -1514,9 +1514,8 @@ function rMyTT(){
         cells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
           if(l.type==='group')row+=`<div class="gb">${l.groupname}</div>`;
           else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
-            <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
-            <div style="font-size:9px;opacity:.75">${l.course||''}${l.level?' · '+l.level:''}${l.gender?' · '+l.gender:''}</div>
-            <div style="opacity:.7">${l.course||''}·${l.level||''}</div></div>`;});
+            <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
+            <div style="font-size:9px;opacity:.75">${[l.course,l.level,l.gender].filter(Boolean).join(' · ')}</div></div>`;});
       } else {
         row+=`<div style="min-height:20px;border-radius:3px;border:1px dashed #e8e8e8;cursor:pointer" onclick="openAdd(${d},'${time}',${ti})"></div>`;
       }
@@ -1530,8 +1529,8 @@ function rMyTT(){
       friCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
         if(l.type==='group')row+=`<div class="gb">${l.groupname}</div>`;
         else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
-          <div style="font-weight:600">${l.student}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
-          <div style="opacity:.7">${l.course||''}·${l.level||''}</div></div>`;});
+          <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
+          <div style="font-size:9px;opacity:.75">${[l.course,l.level,l.gender].filter(Boolean).join(' · ')}</div></div>`;});
     } else {
       row+=`<div style="min-height:20px;border-radius:3px;border:1px dashed #e0e0e0;cursor:pointer" onclick="openAdd(${friDay},'${time}',${ti})"></div>`;
     }
@@ -1545,8 +1544,8 @@ function rMyTT(){
       satCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
         if(l.type==='group')row+=`<div class="gb">${l.groupname}</div>`;
         else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
-          <div style="font-weight:600">${l.student}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
-          <div style="opacity:.7">${l.course||''}·${l.level||''}</div></div>`;});
+          <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
+          <div style="font-size:9px;opacity:.75">${[l.course,l.level,l.gender].filter(Boolean).join(' · ')}</div></div>`;});
     } else {
       row+=`<div style="min-height:20px;border-radius:3px;border:1px dashed #e8e8e8;cursor:pointer" onclick="openAdd(5,'${satTime||time}',${ti})"></div>`;
     }
