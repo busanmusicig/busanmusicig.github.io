@@ -522,8 +522,9 @@ body.force-portrait #page{grid-column:auto !important;}
   </div>
   <div class="br">
     <button class="btn-c" onclick="closeLsn()">취소</button>
+    <button class="btn-s" id="bsave" onclick="(window._saveLsn||saveLsn)()">저장</button>
+    <button class="btn-s" id="bedit" style="display:none;background:#1565C0" onclick="(window._saveLsn||saveLsn)()">수정</button>
     <button class="btn-d" id="bdel" style="display:none" onclick="(window._delLsn||delLsn)()">삭제</button>
-    <button class="btn-s" onclick="(window._saveLsn||saveLsn)()">저장</button>
   </div>
 </div>
 </div>
@@ -1824,8 +1825,9 @@ function openAdd(day,time,ti,forceType){
     editIdx=null;
     const ltitle=document.getElementById('ltitle');
     if(ltitle) ltitle.textContent='학생 관리';
-    const bdel=document.getElementById('bdel');
-    if(bdel) bdel.style.display='none';
+    const bdel=document.getElementById('bdel');if(bdel)bdel.style.display='none';
+    const bsave=document.getElementById('bsave');if(bsave)bsave.style.display='';
+    const bedit=document.getElementById('bedit');if(bedit)bedit.style.display='none';
     ['mstud','mlevel','mmemo','mgrp','mgrpstud'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.value='';
     });
@@ -1860,6 +1862,8 @@ function openEdit(idx){
   editIdx=idx;
   document.getElementById('ltitle').textContent=l.type==='group'?'단체수업 수정':'학생 관리';
   document.getElementById('bdel').style.display='';
+  document.getElementById('bsave').style.display='none';
+  document.getElementById('bedit').style.display='';
   document.getElementById('mtype').value=l.type||'individual';
   toggleType(l.type||'individual');
   if(l.type==='group'){
