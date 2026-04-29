@@ -387,66 +387,132 @@ body.force-portrait #page{grid-column:auto !important;}
 <div class="overlay" id="mlsn" onclick="if(event.target===this)closeLsn()">
 <div class="sheet">
   <div class="sh"></div>
-  <div class="st" id="ltitle">수업 추가</div>
-  <div class="fg"><label class="fl">유형</label>
-    <select class="fi" id="mtype" onchange="toggleType(this.value)">
-      <option value="individual">개인 레슨</option><option value="group">밴드/합주/특강</option>
-    </select>
-  </div>
-  <div class="fg"><label class="fl">선생님</label><select class="fi" id="mteach"></select></div>
-  <div class="fg2">
-    <div class="fg"><label class="fl">요일</label>
-      <select class="fi" id="mday">
-        <option value="0">월요일</option><option value="1">화요일</option><option value="2">수요일</option>
-        <option value="3">목요일</option><option value="4">금</option><option value="41">금(댄)</option>
-        <option value="5">토요일</option>
-      </select>
-    </div>
-    <div class="fg"><label class="fl">시간</label>
-      <select class="fi" id="mtime">
-        <option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option>
-        <option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
-        <option>19:00</option><option>20:00</option><option>21:00</option>
-      </select>
-    </div>
-  </div>
+  <div class="st" id="ltitle">학생 관리</div>
+  <input type="hidden" id="mtype" value="individual"/>
+  <!-- 개인레슨 필드 -->
   <div id="indf">
     <div class="fg"><label class="fl">학생 이름</label><input class="fi" id="mstud" placeholder="홍길동" autocomplete="off"/></div>
-    <div class="fg2">
-      <div class="fg"><label class="fl">과정</label>
-        <select class="fi" id="mcourse"><option value="취미">취미</option><option value="입시">입시</option></select>
-      </div>
-      <div class="fg"><label class="fl">레벨</label><input class="fi" id="mlevel" placeholder="예: 기1, 중2" autocomplete="off"/></div>
+    <div class="fg"><label class="fl">선생님</label><select class="fi" id="mteach"></select></div>
+    <div class="fg"><label class="fl">수업 과정</label>
+      <select class="fi" id="mcourse">
+        <option value="취미">취미</option><option value="입시">입시</option><option value="전문">전문</option>
+      </select>
     </div>
     <div class="fg2">
-      <div class="fg"><label class="fl">주 회수</label>
-        <select class="fi" id="mfreq"><option value="1">주 1회</option><option value="2">주 2회</option></select>
+      <div class="fg"><label class="fl">학년</label><input class="fi" id="mlevel" placeholder="중2, 고1, 성인" autocomplete="off"/></div>
+      <div class="fg"><label class="fl">성별</label>
+        <select class="fi" id="mgender"><option value="">선택</option><option value="남">남</option><option value="여">여</option></select>
       </div>
-      <div class="fg"><label class="fl">총 주차 수</label>
-        <select class="fi" id="mmaxw"><option value="4">4주차</option><option value="8">8주차</option></select>
+    </div>
+    <div class="fg"><label class="fl">수업 회수</label>
+      <select class="fi" id="mfreq" onchange="toggleFreq(this.value)">
+        <option value="1">주 1회</option><option value="2">주 2회</option><option value="0">단기</option>
+      </select>
+    </div>
+    <!-- 주1회 -->
+    <div id="freq1box">
+      <div class="fg2">
+        <div class="fg"><label class="fl">요일</label>
+          <select class="fi" id="mday">
+            <option value="0">월</option><option value="1">화</option><option value="2">수</option>
+            <option value="3">목</option><option value="4">금</option><option value="5">토</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">시간</label>
+          <select class="fi" id="mtime">
+            <option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option>
+            <option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
+            <option>19:00</option><option>20:00</option><option>21:00</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <!-- 주2회 -->
+    <div id="freq2box" style="display:none">
+      <div style="font-size:11px;color:#8e8e93;padding:2px 0 4px;font-weight:600">1회차</div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">요일</label>
+          <select class="fi" id="mday2a">
+            <option value="0">월</option><option value="1">화</option><option value="2">수</option>
+            <option value="3">목</option><option value="4">금</option><option value="5">토</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">시간</label>
+          <select class="fi" id="mtime2a">
+            <option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option>
+            <option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
+            <option>19:00</option><option>20:00</option><option>21:00</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#8e8e93;padding:2px 0 4px;font-weight:600">2회차</div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">요일</label>
+          <select class="fi" id="mday2b">
+            <option value="0">월</option><option value="1">화</option><option value="2">수</option>
+            <option value="3">목</option><option value="4">금</option><option value="5">토</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">시간</label>
+          <select class="fi" id="mtime2b">
+            <option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option>
+            <option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
+            <option>19:00</option><option>20:00</option><option>21:00</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <!-- 단기 -->
+    <div id="freqSbox" style="display:none">
+      <div class="fg2">
+        <div class="fg"><label class="fl">날짜</label><input class="fi" type="date" id="mshortdate"/></div>
+        <div class="fg"><label class="fl">시간</label>
+          <select class="fi" id="mtimeS">
+            <option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option>
+            <option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
+            <option>19:00</option><option>20:00</option><option>21:00</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="fg2">
-      <div class="fg"><label class="fl">차시 수업</label>
-        <select class="fi" id="msession">
-          <option value="0">없음</option>
-          <option value="4">4차시</option>
-          <option value="8">8차시</option>
-          <option value="12">12차시</option>
-          <option value="16">16차시</option>
-          <option value="24">24차시</option>
-          <option value="32">32차시</option>
+      <div class="fg"><label class="fl">총 월차시</label>
+        <select class="fi" id="mmaxw">
+          <option value="4">4회차</option><option value="8">8회차</option>
+          <option value="101">단 1회차</option><option value="102">단 2회차</option><option value="103">단 3회차</option>
         </select>
       </div>
       <div class="fg"><label class="fl">현재 차시</label>
-        <input class="fi" type="number" id="mcurrsession" placeholder="0" min="0" style="text-align:center"/>
+        <select class="fi" id="mcurrsession">
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          <option value="6">6</option><option value="7">7</option><option value="8">8</option>
+        </select>
       </div>
     </div>
     <div class="fg"><label class="fl">등록일</label><input class="fi" type="date" id="mstart"/></div>
-    <div class="fg"><label class="fl">메모 (선택)</label><input class="fi" id="mmemo" placeholder="특이사항" autocomplete="off"/></div>
+    <div class="fg"><label class="fl">특이사항</label><input class="fi" id="mmemo" placeholder="특이사항" autocomplete="off"/></div>
   </div>
+  <!-- 단체수업 필드 -->
   <div id="grpf" style="display:none">
+    <div class="fg"><label class="fl">선생님</label><select class="fi" id="mteachG"></select></div>
     <div class="fg"><label class="fl">수업명</label><input class="fi" id="mgrp" placeholder="성인밴드" autocomplete="off"/></div>
+    <div class="fg2">
+      <div class="fg"><label class="fl">요일</label>
+        <select class="fi" id="mdayG">
+          <option value="0">월</option><option value="1">화</option><option value="2">수</option>
+          <option value="3">목</option><option value="4">금</option><option value="41">금(댄)</option><option value="5">토</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">시간</label>
+        <select class="fi" id="mtimeG">
+          <option>11:00</option><option>12:00</option><option>13:00</option><option>14:00</option>
+          <option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
+          <option>19:00</option><option>20:00</option><option>21:00</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">참여 학생 (쉼표 구분)</label><input class="fi" id="mgrpstud" placeholder="홍길동, 김철수" autocomplete="off"/></div>
   </div>
   <div class="br">
     <button class="btn-c" onclick="closeLsn()">취소</button>
@@ -734,7 +800,7 @@ function buildTabs(){
     `<button class="tb" onclick="showView('tt',this)">전체 시간표</button>
      <button class="tb" onclick="showView('day',this)">요일별</button>
      <button class="tb" onclick="showView('stud',this)">전체 학생</button>
-     <button class="tb" onclick="showView('att',this)">출석 현황</button>
+     <button class="tb" onclick="showView('att',this)">출결 관리</button>
      <button class="tb" onclick="showView('ntc',this)">수강 공지</button>
      <button class="tb" onclick="showView('alert',this)">📣 출석 알림</button>
      <button class="tb" onclick="showView('mgr',this)">선생님 관리</button>
@@ -751,7 +817,7 @@ function showView(n,btn){
   if(btn)btn.classList.add('on');
   else document.querySelectorAll('.tb').forEach(b=>{if((b.getAttribute('onclick')||'').includes(`'${n}'`))b.classList.add('on');});
   updCnt();
-  ({tt:rTT,day:rDay,stud:rStud,att:rAtt,ntc:rNtc,mgr:rMgr,alert:rAlert,set:rSet,stat:rStat,'my-tt':rMyTT,'my-day':rMyDay,'my-stud':rMyStud})[n]?.();
+  ({tt:rTT,day:rDay,stud:rStud,att:rAtt,ntc:rNtc,mgr:rMgr,alert:rAlert,set:rSet,stat:rStat,'my-tt':rMyTT,'my-day':rMyDay,'my-stud':rMyStud,'student-detail':rStudentDetail})[n]?.();
 }
 
 // ── 전체 시간표 (선생님만) ──────────────────────────────
@@ -775,7 +841,7 @@ function rTT(){
     </div>
     <div style="display:flex;align-items:center;gap:6px">
       <span style="font-size:10px;color:#8e8e93">🗓토요일 13~17시</span>
-      ${isLoginAdm()?'<button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px" onclick="openAdd(null,null,null)">+ 추가</button>':''}
+      ${isLoginAdm()?'<button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,null)">+ 개인레슨 추가</button>&nbsp;<button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px;background:#1565C0" onclick="openAddGroup(null,null,null)">+ 단체수업 추가</button>':''}
     </div>
   </div>
   <div class="tt-scroll"><table class="tt" id="main-tt">
@@ -922,7 +988,8 @@ function liH(l,ntc){
   const pct=Math.min(100,Math.round(w/mw*100));
   const wc=w>=mw?'#C00000':w>=(mw*.7)?'#854F0B':'#3B6D11';
   const wbg=w>=mw?'#FFEBEE':w>=(mw*.7)?'#FAEEDA':'#EAF3DE';
-  return `<div class="li" style="border-left-color:${t.c||'#ccc'}">
+  const idx=lessons.indexOf(l);
+  return `<div class="li" style="border-left-color:${t.c||'#ccc'};cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">
     <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px">
       ${l.student}${mk.length?`<span class="upd">보강</span>`:''}
       ${l.course==='입시'?`<span class="course-i">입시</span>`:''}${isN?'<span class="ntc">안내필요</span>':''}
@@ -936,26 +1003,246 @@ function liH(l,ntc){
   </div>`;
 }
 
-// ── 출석 현황 ────────────────────────────────────────────
+// ── 출결 관리 ────────────────────────────────────────────
+let _attView='list'; // 'list' | 'monthly'
+let _attMonth='';
+
 function rAtt(){
-  const isDanceT2=(gTi()===DTI),isAdV2=isAdm();
-  const TABS=[{id:0,l:'월'},{id:1,l:'화'},{id:2,l:'수'},{id:3,l:'목'},
-    ...(isAdV2||!isDanceT2?[{id:4,l:'금'}]:[]),
-    ...(isAdV2||isDanceT2?[{id:41,l:'금(댄)'}]:[]),
-    {id:5,l:'토'}];
-  let h=`<div class="chip-bar">`;TABS.forEach(tab=>{h+=`<button class="chip${selDay===tab.id?' on':''}" onclick="selDay=${tab.id};rAtt()">${tab.l}</button>`;});h+=`</div>`;
-  const dates=DD[selDay]||[];const tio=T.map((_,i)=>i);
-  const dayL=lessons.filter(l=>l.day===selDay&&l.type==='individual').sort((a,b)=>tio.indexOf(a.ti)-tio.indexOf(b.ti));
-  if(!dayL.length){h+=`<div class="empty">이 요일 수업이 없습니다</div>`;document.getElementById('page').innerHTML=h;return;}
-  let tp=0,ta=0,tm=0;
-  dayL.forEach(l=>dates.forEach(d=>{const v=((att[l.ti]||{})[l.student]||{})[d]||'';if(v==='present')tp++;else if(v==='absent')ta++;else if(v==='makeup')tm++;}));
-  h+=`<div class="stat-grid"><div class="stat-c"><div class="stat-n" style="color:#2E7D32">${tp}</div><div class="stat-l">출석</div></div><div class="stat-c"><div class="stat-n" style="color:#C00000">${ta}</div><div class="stat-l">결석</div></div><div class="stat-c"><div class="stat-n" style="color:#1565C0">${tm}</div><div class="stat-l">보강</div></div></div>
-  <div class="att-wrap"><table class="at"><thead><tr><th style="text-align:left">학생</th><th>선생</th>`;
-  dates.forEach(d=>h+=`<th>${d}</th>`);h+=`<th>출</th><th>결</th></tr></thead><tbody>`;
-  dayL.forEach(l=>{const t=T[l.ti]||{};let pc=0,ac=0;h+=`<tr><td style="text-align:left;font-weight:600;white-space:nowrap">${l.student}</td><td style="color:${t.c||'#888'};font-weight:600;white-space:nowrap">${t.s||''}</td>`;
-    dates.forEach(date=>{const v=((att[l.ti]||{})[l.student]||{})[date]||'';const dc=v==='present'?'#E8F5E9':v==='absent'?'#FFEBEE':v==='makeup'?'#E3F2FD':'';const tc=v==='present'?'#2E7D32':v==='absent'?'#C00000':v==='makeup'?'#1565C0':'';const lb=v==='present'?'출':v==='absent'?'결':v==='makeup'?'보':'';if(v==='present')pc++;if(v==='absent')ac++;h+=`<td><div class="mdot" style="background:${dc};color:${tc}">${lb}</div></td>`;});
-    h+=`<td style="color:#2E7D32;font-weight:700">${pc}</td><td style="color:#C00000;font-weight:700">${ac}</td></tr>`;});
-  h+=`</tbody></table></div>`;document.getElementById('page').innerHTML=h;
+  if(!isAdm()){
+    // 선생님: 기존 요일별 출석체크
+    const isDanceT2=(gTi()===DTI);
+    const TABS=[{id:0,l:'월'},{id:1,l:'화'},{id:2,l:'수'},{id:3,l:'목'},
+      ...(!isDanceT2?[{id:4,l:'금'}]:[]),
+      ...(isDanceT2?[{id:41,l:'금(댄)'}]:[]),
+      {id:5,l:'토'}];
+    let h=`<div class="chip-bar">`;TABS.forEach(tab=>{h+=`<button class="chip${selDay===tab.id?' on':''}" onclick="selDay=${tab.id};rAtt()">${tab.l}</button>`;});h+=`</div>`;
+    const dates=DD[selDay]||[];const tio=T.map((_,i)=>i);
+    const dayL=lessons.filter(l=>l.day===selDay&&l.type==='individual').sort((a,b)=>tio.indexOf(a.ti)-tio.indexOf(b.ti));
+    if(!dayL.length){h+=`<div class="empty">이 요일 수업이 없습니다</div>`;document.getElementById('page').innerHTML=h;return;}
+    let tp=0,ta=0,tm=0;
+    dayL.forEach(l=>dates.forEach(d=>{const v=((att[l.ti]||{})[l.student]||{})[d]||'';if(v==='present')tp++;else if(v==='absent')ta++;else if(v==='makeup')tm++;}));
+    h+=`<div class="stat-grid"><div class="stat-c"><div class="stat-n" style="color:#2E7D32">${tp}</div><div class="stat-l">출석</div></div><div class="stat-c"><div class="stat-n" style="color:#C00000">${ta}</div><div class="stat-l">결석</div></div><div class="stat-c"><div class="stat-n" style="color:#1565C0">${tm}</div><div class="stat-l">보강</div></div></div>
+    <div class="att-wrap"><table class="at"><thead><tr><th style="text-align:left">학생</th><th>선생</th>`;
+    dates.forEach(d=>h+=`<th>${d}</th>`);h+=`<th>출</th><th>결</th></tr></thead><tbody>`;
+    dayL.forEach(l=>{const t=T[l.ti]||{};let pc=0,ac=0;h+=`<tr><td style="text-align:left;font-weight:600;white-space:nowrap">${l.student}</td><td style="color:${t.c||'#888'};font-weight:600;white-space:nowrap">${t.s||''}</td>`;
+      dates.forEach(date=>{const v=((att[l.ti]||{})[l.student]||{})[date]||'';const dc=v==='present'?'#E8F5E9':v==='absent'?'#FFEBEE':v==='makeup'?'#E3F2FD':'';const tc=v==='present'?'#2E7D32':v==='absent'?'#C00000':v==='makeup'?'#1565C0':'';const lb=v==='present'?'출':v==='absent'?'결':v==='makeup'?'보':'';if(v==='present')pc++;if(v==='absent')ac++;h+=`<td><div class="mdot" style="background:${dc};color:${tc}">${lb}</div></td>`;});
+      h+=`<td style="color:#2E7D32;font-weight:700">${pc}</td><td style="color:#C00000;font-weight:700">${ac}</td></tr>`;});
+    h+=`</tbody></table></div>`;document.getElementById('page').innerHTML=h;
+    return;
+  }
+
+  // 관리자: 탭 전환 (학생목록 | 월별출결)
+  const now=new Date();
+  if(!_attMonth) _attMonth=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  let h=`<div style="display:flex;gap:0;margin:12px 12px 0;background:#f2f2f7;border-radius:10px;padding:3px">
+    <button onclick="_attView='list';rAtt()" style="flex:1;padding:7px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:${_attView==='list'?'#fff':'transparent'};color:${_attView==='list'?'#C00000':'#8e8e93'};box-shadow:${_attView==='list'?'0 1px 3px rgba(0,0,0,.1)':'none'}">📋 학생 목록</button>
+    <button onclick="_attView='monthly';rAtt()" style="flex:1;padding:7px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:${_attView==='monthly'?'#fff':'transparent'};color:${_attView==='monthly'?'#C00000':'#8e8e93'};box-shadow:${_attView==='monthly'?'0 1px 3px rgba(0,0,0,.1)':'none'}">📅 월별 출결</button>
+  </div>`;
+
+  if(_attView==='list'){
+    // 기존 선생님별 학생 목록
+    T.forEach((t,ti)=>{
+      const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
+      const uniqS=[...new Map(myL.map(l=>[l.student,l])).values()];
+      if(!uniqS.length) return;
+      h+=`<div style="margin:10px 12px 4px;padding:10px 14px;background:${bg(t.c||'#888')};border-radius:12px 12px 0 0;border-left:3px solid ${t.c||'#888'}">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${t.c||'#888'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${t.s||''}</div>
+          <div style="font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''}</div>
+          <div style="font-size:11px;color:#8e8e93;margin-left:auto">${uniqS.length}명</div>
+        </div>
+      </div>
+      <div style="margin:0 12px 4px;background:#fff;border-radius:0 0 12px 12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">`;
+      uniqS.forEach((l,i)=>{
+        const attD=(att[ti]||{})[l.student]||{};
+        const allD=Object.keys(attD);
+        const present=allD.filter(d=>attD[d]==='present'||attD[d]==='makeup').length;
+        const absent=allD.filter(d=>attD[d]==='absent').length;
+        const maxW=l.maxWeek||4;
+        const total=maxW*((l.freq||1)>=2?2:1);
+        const pct=Math.min(100,Math.round(present/total*100));
+        const border=i<uniqS.length-1?'border-bottom:.5px solid #f0f0f0':'';
+        h+=`<div style="padding:10px 14px;${border};cursor:pointer;display:flex;align-items:center;gap:10px" onclick="_detailTi=${ti};_detailStudent='${l.student}';rStudentDetail()">
+          <div style="width:32px;height:32px;border-radius:50%;background:${bg(t.c||'#888')};color:${t.c||'#888'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:#1c1c1e">${l.student} ${l.course==='입시'?'<span class="course-i">입시</span>':''}<span style="font-size:10px;color:#8e8e93;font-weight:400"> ${l.level||''} ${l.gender||''}</span></div>
+            <div style="font-size:10px;color:#8e8e93;margin-top:2px">${DL[l.day]||''} ${l.time} · ${(l.freq||1)>=2?'주2회':'주1회'}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+              <div style="flex:1;height:4px;background:#f0f0f0;border-radius:2px"><div style="height:4px;background:${t.c||'#888'};border-radius:2px;width:${pct}%"></div></div>
+              <span style="font-size:10px;color:#2E7D32;font-weight:600">${present}출</span>
+              <span style="font-size:10px;color:#C00000;font-weight:600">${absent}결</span>
+              <span style="font-size:10px;color:#8e8e93">${present}/${total}</span>
+            </div>
+          </div>
+          <div style="font-size:16px;color:#ccc">›</div>
+        </div>`;
+      });
+      h+=`</div>`;
+    });
+  } else {
+    // 월별 출결 다운로드
+    // 전체 출결 데이터에서 월 목록 추출
+    const months=new Set();
+    Object.values(att).forEach(byTeacher=>{
+      Object.values(byTeacher).forEach(byStudent=>{
+        Object.keys(byStudent).forEach(d=>{if(d.length>=7)months.add(d.slice(0,7));});
+      });
+    });
+    // 현재 월도 추가
+    months.add(_attMonth);
+    const sortedMonths=[...months].sort().reverse();
+
+    h+=`<div style="margin:12px 12px 0;padding:12px 14px;background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+      <div style="font-size:12px;font-weight:700;color:#1c1c1e;margin-bottom:10px">📅 월 선택</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">`;
+    sortedMonths.forEach(m=>{
+      const [y,mo]=m.split('-');
+      h+=`<button onclick="_attMonth='${m}';rAtt()" style="padding:6px 12px;border-radius:8px;border:1.5px solid ${_attMonth===m?'#C00000':'#e5e5e5'};background:${_attMonth===m?'#fff5f5':'#fff'};color:${_attMonth===m?'#C00000':'#1c1c1e'};font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">${y}년 ${parseInt(mo)}월</button>`;
+    });
+    h+=`</div></div>`;
+
+    // 선택 월 표시
+    const [sy,sm]=_attMonth.split('-');
+    h+=`<div style="margin:10px 12px 4px;font-size:13px;font-weight:700;color:#1c1c1e;padding:0 2px">${sy}년 ${parseInt(sm)}월 출결부</div>`;
+
+    // 선생님별 다운로드 버튼
+    T.forEach((t,ti)=>{
+      const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
+      const uniqS=[...new Map(myL.map(l=>[l.student,l])).values()];
+      if(!uniqS.length) return;
+      h+=`<div style="margin:0 12px 8px;background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;border-radius:50%;background:${t.c||'#888'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${t.s||''}</div>
+            <div style="font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''} (${uniqS.length}명)</div>
+          </div>
+          <button onclick="downloadMonthlyAtt(${ti},'${_attMonth}')" style="background:#C00000;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">⬇ HTML 다운로드</button>
+        </div>`;
+      // 미리보기: 학생 이름 + 해당월 출석 요약
+      uniqS.forEach(l=>{
+        const attD=(att[ti]||{})[l.student]||{};
+        const mDates=Object.keys(attD).filter(d=>d.startsWith(_attMonth)).sort();
+        const p=mDates.filter(d=>attD[d]==='present').length;
+        const mk=mDates.filter(d=>attD[d]==='makeup').length;
+        const ab=mDates.filter(d=>attD[d]==='absent').length;
+        h+=`<div style="display:flex;align-items:center;padding:5px 0;border-top:.5px solid #f5f5f5">
+          <div style="font-size:12px;font-weight:600;color:#1c1c1e;width:80px;flex-shrink:0">${l.student}</div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">`;
+        mDates.forEach(d=>{
+          const st=attD[d];
+          const lab=st==='present'?'출':st==='makeup'?'보':'결';
+          const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':'#C00000';
+          const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':'#FFEBEE';
+          h+=`<span style="font-size:10px;background:${bg2};color:${col};padding:1px 5px;border-radius:4px">${d.slice(5)} ${lab}</span>`;
+        });
+        if(!mDates.length) h+=`<span style="font-size:10px;color:#ccc">기록 없음</span>`;
+        h+=`</div><div style="margin-left:auto;font-size:10px;color:#8e8e93;white-space:nowrap">${p}출${mk?` ${mk}보`:''}${ab?` ${ab}결`:''}</div></div>`;
+      });
+      h+=`</div>`;
+    });
+  }
+
+  document.getElementById('page').innerHTML=h;
+}
+
+// ── 월별 출결부 다운로드 ──────────────────────────────────
+function downloadMonthlyAtt(ti, month){
+  const t=T[ti]||{};
+  const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
+  const uniqS=[...new Map(myL.map(l=>[l.student,l])).values()];
+  const [y,m]=month.split('-');
+  const monthLabel=`${y}년 ${parseInt(m)}월`;
+
+  let html=`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"/>
+  <title>${t.name||''} ${monthLabel} 출결부</title>
+  <style>
+    body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;font-size:12px;padding:20px;color:#1c1c1e;}
+    h1{font-size:18px;margin-bottom:4px;}
+    h2{font-size:14px;color:#C00000;margin:0 0 16px;}
+    table{border-collapse:collapse;width:100%;margin-bottom:24px;}
+    th{background:#f2f2f7;padding:7px 10px;border:1px solid #ddd;font-size:11px;white-space:nowrap;}
+    td{padding:7px 10px;border:1px solid #ddd;font-size:11px;white-space:nowrap;}
+    .present{background:#E8F5E9;color:#2E7D32;font-weight:700;text-align:center;}
+    .makeup{background:#E3F2FD;color:#1565C0;font-weight:700;text-align:center;}
+    .absent{background:#FFEBEE;color:#C00000;font-weight:700;text-align:center;}
+    .name{font-weight:700;}
+    .summary{color:#8e8e93;font-size:10px;}
+    @media print{body{padding:10px;}}
+  </style></head><body>
+  <h1>부산뮤직 일광점 출결부</h1>
+  <h2>${t.name||''} 선생님 · ${monthLabel}</h2>`;
+
+  uniqS.forEach(l=>{
+    const attD=(att[ti]||{})[l.student]||{};
+    const mDates=Object.keys(attD).filter(d=>d.startsWith(month)).sort();
+    const maxW=l.maxWeek||4;
+    const total=maxW*((l.freq||1)>=2?2:1);
+    let sess=0;
+
+    html+=`<table>
+      <thead>
+        <tr>
+          <th colspan="${mDates.length+3}" style="background:#${t.c?.slice(1)||'C00000'}22;color:#1c1c1e;text-align:left;font-size:12px">
+            ${l.student} · ${l.course||''} · ${l.level||''} ${l.gender||''} · ${(l.freq||1)>=2?'주2회':'주1회'} · 총${total}차시
+          </th>
+        </tr>
+        <tr>
+          <th>차시</th>
+          <th>날짜</th>
+          <th>상태</th>
+          <th>비고</th>
+        </tr>
+      </thead><tbody>`;
+
+    mDates.forEach(date=>{
+      const st=attD[date];
+      const ok=st==='present'||st==='makeup';
+      if(ok)sess++;
+      const lab=st==='present'?'출석':st==='makeup'?'보강':st==='absent'?'결석':'-';
+      const cls=st==='present'?'present':st==='makeup'?'makeup':st==='absent'?'absent':'';
+      html+=`<tr>
+        <td style="text-align:center;font-weight:700">${ok?sess+'차시':'-'}</td>
+        <td>${date}</td>
+        <td class="${cls}">${lab}</td>
+        <td></td>
+      </tr>`;
+    });
+
+    // 남은 차시
+    for(let i=sess;i<total;i++){
+      html+=`<tr>
+        <td style="text-align:center;color:#ccc">${i+1}차시</td>
+        <td style="color:#ccc">-</td>
+        <td style="color:#ccc;text-align:center">예정</td>
+        <td></td>
+      </tr>`;
+    }
+
+    const present=mDates.filter(d=>attD[d]==='present').length;
+    const makeup=mDates.filter(d=>attD[d]==='makeup').length;
+    const absent=mDates.filter(d=>attD[d]==='absent').length;
+    html+=`<tr style="background:#f9f9f9">
+      <td colspan="4" class="summary">
+        출석 ${present}회 · 보강 ${makeup}회 · 결석 ${absent}회 · 완료 ${sess}/${total}차시
+      </td>
+    </tr>
+    </tbody></table>`;
+  });
+
+  html+=`<div style="margin-top:20px;font-size:10px;color:#8e8e93;border-top:1px solid #eee;padding-top:8px">
+    출력일: ${new Date().toLocaleDateString('ko-KR')} · 부산뮤직 일광점
+  </div></body></html>`;
+
+  // 다운로드
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`${t.name||'선생님'}_${monthLabel}_출결부.html`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showToast(`⬇ ${t.name||''} ${monthLabel} 출결부 다운로드 완료`);
 }
 
 // ── 수강 공지 ────────────────────────────────────────────
@@ -1171,7 +1458,7 @@ function rMyTT(){
     <div class="av" style="width:36px;height:36px;background:${bg(t.c||'#888')};color:${t.c||'#888'};font-size:14px">${t.s||''}</div>
     <div><div style="font-size:14px;font-weight:700;color:${t.c||'#888'}">${t.name||''}</div>
     <div style="font-size:11px;color:#8e8e93">${t.sub||''} · 담당 ${myL.length}명</div></div>
-    <button class="add-btn" style="width:auto;padding:6px 12px;font-size:11px;margin:0 0 0 auto;border-radius:8px" onclick="openAdd(null,null,${ti})">+ 추가</button>
+    <button class="add-btn" style="width:auto;padding:6px 12px;font-size:11px;margin:0 0 0 auto;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 12px;background:#fff;border-bottom:.5px solid #e5e5e5;flex-shrink:0">
     <div style="display:flex;align-items:center;gap:4px">
@@ -1221,7 +1508,8 @@ function rMyTT(){
         cells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
           if(l.type==='group')row+=`<div class="gb">${l.groupname}</div>`;
           else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
-            <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
+            <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
+            <div style="font-size:9px;opacity:.75">${l.course||''}${l.level?' · '+l.level:''}${l.gender?' · '+l.gender:''}</div>
             <div style="opacity:.7">${l.course||''}·${l.level||''}</div></div>`;});
       } else {
         row+=`<div style="min-height:20px;border-radius:3px;border:1px dashed #e8e8e8;cursor:pointer" onclick="openAdd(${d},'${time}',${ti})"></div>`;
@@ -1370,6 +1658,60 @@ function showToast(msg){
 }
 
 // ── 선생님: 출석 체크 ────────────────────────────────────
+// 출석체크 - 전체학생 목록 (요일별 학생 나열, 클릭 → 출석부)
+function rMyAllStud(){
+  const ti=gTi(),t=T[ti]||{};
+  const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
+  const DAYS=[{id:0,l:'월'},{id:1,l:'화'},{id:2,l:'수'},{id:3,l:'목'},{id:4,l:'금'},{id:5,l:'토'}];
+
+  let h=`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-bottom:.5px solid #e5e5e5;position:sticky;top:0;z-index:10">
+    <button onclick="showView('my-day')" style="background:none;border:none;font-size:22px;cursor:pointer;padding:0 4px;color:#1c1c1e">‹</button>
+    <div style="font-size:15px;font-weight:700;color:${t.c||'#888'}">${t.name||''} 전체학생</div>
+    <div style="margin-left:auto;font-size:12px;color:#8e8e93">${myL.length}명</div>
+  </div>`;
+
+  DAYS.forEach(day=>{
+    const dayL=myL.filter(l=>l.day===day.id);
+    if(!dayL.length) return;
+
+    h+=`<div style="padding:8px 14px 4px;font-size:11px;font-weight:700;color:#8e8e93;background:#f9f9f9;border-bottom:.5px solid #e5e5e5">${day.l}요일</div>`;
+
+    dayL.sort((a,b)=>a.time.localeCompare(b.time)).forEach(l=>{
+      const attD=(att[ti]||{})[l.student]||{};
+      const allD=Object.keys(attD).sort();
+      const present=allD.filter(d=>attD[d]==='present'||attD[d]==='makeup').length;
+      const absent=allD.filter(d=>attD[d]==='absent').length;
+      const maxW=l.maxWeek||4;
+      const total=maxW*((l.freq||1)>=2?2:1);
+      const pct=Math.min(100,Math.round(present/total*100));
+      const wc=present>=total?'#C00000':present>=(total*.7)?'#854F0B':'#2E7D32';
+
+      h+=`<div style="display:flex;align-items:center;padding:11px 14px;border-bottom:.5px solid #f0f0f0;cursor:pointer;background:#fff"
+        onclick="_detailTi=${ti};_detailStudent='${l.student}';rStudentDetail()">
+        <div style="width:34px;height:34px;border-radius:50%;background:${bg(t.c||'#888')};color:${t.c||'#888'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;margin-right:10px">${l.student[0]}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#1c1c1e">${l.student}
+            ${l.course==='입시'?'<span class="course-i">입시</span>':''}
+            <span style="font-size:10px;color:#8e8e93;font-weight:400">${l.level||''} ${l.gender||''}</span>
+          </div>
+          <div style="font-size:10px;color:#8e8e93;margin-top:2px">${l.time} · ${(l.freq||1)>=2?'주2회':'주1회'}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+            <div style="flex:1;height:3px;background:#f0f0f0;border-radius:2px">
+              <div style="height:3px;background:${t.c||'#888'};border-radius:2px;width:${pct}%"></div>
+            </div>
+            <span style="font-size:10px;color:${wc};font-weight:600">${present}/${total}차</span>
+            ${absent?`<span style="font-size:10px;color:#C00000">결${absent}</span>`:''}
+          </div>
+        </div>
+        <div style="font-size:16px;color:#ccc;margin-left:6px">›</div>
+      </div>`;
+    });
+  });
+
+  document.getElementById('page').innerHTML=h;
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+}
+
 function rMyDay(){
   const ti=gTi(),t=T[ti]||{};
   const isDanceT2=(gTi()===DTI),isAdV2=isAdm();
@@ -1378,7 +1720,8 @@ function rMyDay(){
     ...(isAdV2||isDanceT2?[{id:41,l:'금(댄)'}]:[]),
     {id:5,l:'토'}];
   let h=`<div style="padding:10px 14px 6px;font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''} 출석 체크</div>
-  <div class="chip-bar">`;
+  <div class="chip-bar" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+  <button class="chip" style="background:#1c1c1e;color:#fff;border-color:#1c1c1e;font-weight:700" onclick="rMyAllStud()">👥 전체학생</button>`;
   TABS.forEach(tab=>{const on=selDay===tab.id,dance=tab.id===41;h+=`<button class="chip${on?' on':''}${on&&dance?' dance':''}" onclick="selDay=${tab.id};selDate=null;rMyDay()">${tab.l}</button>`;});
   h+=`</div>`;
   const dates=DD[selDay]||[];
@@ -1398,7 +1741,7 @@ function rMyDay(){
       <div class="c-left">
         <div class="av" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1.5px solid ${t.c||'#888'}40">${(l.student||' ')[0]}</div>
         <div>
-          <div class="c-name">${l.time} ${l.student}${mk.length?`<span class="upd">보강${mk.length}</span>`:''}${l.course==='입시'?`<span class="course-i">입시</span>`:''}</div>
+          <div class="c-name" style="cursor:pointer" onclick="goToStudent(${ti},'${l.student}')">${l.time} ${l.student}${mk.length?`<span class="upd">보강${mk.length}</span>`:''}${l.course==='입시'?`<span class="course-i">입시</span>`:''}</div>
           <div class="c-sub">${l.level||''} · 주${l.freq}회 · ${w}/${mw}주차</div>
         </div>
       </div>
@@ -1420,7 +1763,7 @@ function rMyStud(){
   const ntc=getNtc().filter(l=>l.ti===ti);
   let h=`<div style="padding:10px 14px 4px;display:flex;align-items:center;justify-content:space-between">
     <div style="font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''} 담당 (${uniq.length}명)</div>
-    <button class="add-btn" style="width:auto;padding:5px 12px;font-size:11px;margin:0;border-radius:8px" onclick="openAdd(null,null,${ti})">+ 추가</button>
+    <button class="add-btn" style="width:auto;padding:5px 12px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
   </div>`;
   if(ntc.length){h+=`<div class="nbar"><div class="nt">📢 수강 안내 필요</div>`;ntc.forEach(l=>h+=`<div class="nr">• ${l.student} — ${calcW(l)}/${l.maxWeek||4}주차 완료</div>`);h+=`</div>`;}
   uniq.forEach(l=>{
@@ -1429,7 +1772,7 @@ function rMyStud(){
     h+=`<div class="li" style="border-left-color:${t.c||'#ccc'}">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px">
+          <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px;cursor:pointer" onclick="openEdit(${idx})">
             ${l.student}${mk.length?`<span class="upd">보강</span>`:''}${l.course==='입시'?`<span class="course-i">입시</span>`:''}${isN?'<span class="ntc">안내필요</span>':''}
           </div>
           <div style="font-size:10px;color:#8e8e93;margin-top:2px">${DL[l.day]||''} ${l.time} · ${l.level||''} · 주${l.freq}회</div>
@@ -1468,17 +1811,43 @@ function saveMk(){if(mkTgt===null)return;const l=lessons[mkTgt],date=document.ge
 function closeMk(){document.getElementById('mmk').classList.remove('on');mkTgt=null;}
 
 // ── 수업 추가/수정 ───────────────────────────────────────
-function openAdd(day,time,ti){
-  editIdx=null;document.getElementById('ltitle').textContent='수업 추가';document.getElementById('bdel').style.display='none';
-  ['mstud','mlevel','mmemo','mgrp'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('mstart').value='';
-  document.getElementById('mtype').value='individual';document.getElementById('mcourse').value='취미';
-  document.getElementById('mfreq').value='1';document.getElementById('mmaxw').value='4';
-  document.getElementById('msession').value='0';document.getElementById('mcurrsession').value='0';
-  toggleType('individual');fillT(ti!==null&&ti!==undefined?parseInt(ti):gTi());
-  if(day!==null&&day!==undefined)document.getElementById('mday').value=day;
-  if(time!==null&&time!==undefined)document.getElementById('mtime').value=time;
-  document.getElementById('mlsn').classList.add('on');
+function openAddIndiv(day,time,ti){ openAdd(day,time,ti,'individual'); }
+function openAddGroup(day,time,ti){ openAdd(day,time,ti,'group'); }
+
+function openAdd(day,time,ti,forceType){
+  try{
+    editIdx=null;
+    const ltitle=document.getElementById('ltitle');
+    if(ltitle) ltitle.textContent='학생 관리';
+    const bdel=document.getElementById('bdel');
+    if(bdel) bdel.style.display='none';
+    ['mstud','mlevel','mmemo','mgrp','mgrpstud'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.value='';
+    });
+    const today=new Date().toISOString().split('T')[0];
+    const ms=document.getElementById('mstart');if(ms)ms.value=today;
+    const tp=forceType||'individual';
+    const mt=document.getElementById('mtype');if(mt)mt.value=tp;
+    toggleType(tp);
+    const mc=document.getElementById('mcourse');if(mc)mc.value='취미';
+    const fq=document.getElementById('mfreq');if(fq){fq.value='1';toggleFreq('1');}
+    const mw=document.getElementById('mmaxw');if(mw)mw.value='4';
+    const cs=document.getElementById('mcurrsession');if(cs)cs.value='0';
+    const mg=document.getElementById('mgender');if(mg)mg.value='';
+    fillT(ti!==null&&ti!==undefined?parseInt(ti):gTi());
+    if(day!==null&&day!==undefined){
+      const md=document.getElementById('mday');if(md)md.value=day;
+      const md2a=document.getElementById('mday2a');if(md2a)md2a.value=day;
+    }
+    if(time!==null&&time!==undefined){
+      const mti=document.getElementById('mtime');if(mti)mti.value=time;
+      const mt2a=document.getElementById('mtime2a');if(mt2a)mt2a.value=time;
+    }
+    document.getElementById('mlsn').classList.add('on');
+  }catch(e){
+    console.error('openAdd 오류:', e);
+    document.getElementById('mlsn').classList.add('on');
+  }
 }
 function openEdit(idx){
   const l=lessons[idx],myTi=gTi();
@@ -1490,10 +1859,20 @@ function openEdit(idx){
     document.getElementById('mstud').value=l.student||'';
     document.getElementById('mcourse').value=l.course||'취미';
     document.getElementById('mlevel').value=l.level||'';
-    document.getElementById('mfreq').value=l.freq||1;
+    const fv=String(l.freq||1);
+    const fqEl=document.getElementById('mfreq');if(fqEl)fqEl.value=fv;
+    toggleFreq(fv);
+    const mgEl=document.getElementById('mgender');if(mgEl)mgEl.value=l.gender||'';
     document.getElementById('mmaxw').value=l.maxWeek||4;
-    document.getElementById('msession').value=l.totalSession||0;
-    document.getElementById('mcurrsession').value=l.currSession||0;
+    const csEl=document.getElementById('mcurrsession');if(csEl)csEl.value=l.currSession||0;
+    // 주2회 두번째 요일/시간
+    if(fv==='2'&&l.day2!==undefined){
+      const d2a=document.getElementById('mday2a');if(d2a)d2a.value=l.day||0;
+      const t2a=document.getElementById('mtime2a');if(t2a)t2a.value=l.time||'15:00';
+      const d2b=document.getElementById('mday2b');if(d2b)d2b.value=l.day2||0;
+      const t2b=document.getElementById('mtime2b');if(t2b)t2b.value=l.time2||'15:00';
+    }
+    const ses=document.getElementById('msession');if(ses)ses.value=l.totalSession||0;
     document.getElementById('mstart').value=l.startDate||'';
     document.getElementById('mmemo').value=l.memo||'';
   }
@@ -1501,29 +1880,51 @@ function openEdit(idx){
   document.getElementById('mlsn').classList.add('on');
 }
 function saveLsn(){
-  // _saveLsn이 있으면 그걸 사용 (Firebase 저장), 없으면 직접 저장
   if(window._saveLsn){ window._saveLsn(); return; }
-  const type=document.getElementById('mtype').value,ti=parseInt(document.getElementById('mteach').value),day=parseInt(document.getElementById('mday').value),time=document.getElementById('mtime').value;
+  const type=document.getElementById('mtype').value;
+  const ti=parseInt(document.getElementById('mteach').value);
   let obj;
-  if(type==='group'){const gn=document.getElementById('mgrp').value.trim();if(!gn){alert('수업명을 입력해 주세요');return;}obj={type:'group',day,time,ti,groupname:gn};}
-  else{
-    const s=document.getElementById('mstud').value.trim();if(!s){alert('학생 이름을 입력해 주세요');return;}
-    obj={type:'individual',day,time,ti,student:s,
+  if(type==='group'){
+    const gn=document.getElementById('mgrp').value.trim();
+    if(!gn){alert('수업명을 입력해 주세요');return;}
+    const dG=parseInt(document.getElementById('mdayG')?.value||document.getElementById('mday').value)||0;
+    const tG=document.getElementById('mtimeG')?.value||document.getElementById('mtime').value||'15:00';
+    obj={type:'group',day:dG,time:tG,ti,groupname:gn};
+  } else {
+    const s=document.getElementById('mstud').value.trim();
+    if(!s){alert('학생 이름을 입력해 주세요');return;}
+    const freq=parseInt(document.getElementById('mfreq').value)||1;
+    let lday, ltime, day2, time2;
+    if(freq===2){
+      lday=parseInt(document.getElementById('mday2a')?.value)||0;
+      ltime=document.getElementById('mtime2a')?.value||'15:00';
+      day2=parseInt(document.getElementById('mday2b')?.value)||0;
+      time2=document.getElementById('mtime2b')?.value||'15:00';
+    } else if(freq===0){
+      const sd=document.getElementById('mshortdate')?.value;
+      lday=sd?new Date(sd).getDay():0;
+      ltime=document.getElementById('mtimeS')?.value||'15:00';
+    } else {
+      lday=parseInt(document.getElementById('mday')?.value)||0;
+      ltime=document.getElementById('mtime')?.value||'15:00';
+    }
+    obj={type:'individual',day:lday,time:ltime,ti,student:s,
       course:document.getElementById('mcourse').value,
       level:document.getElementById('mlevel').value.trim(),
-      freq:parseInt(document.getElementById('mfreq').value),
-      maxWeek:parseInt(document.getElementById('mmaxw').value),
-      totalSession:parseInt(document.getElementById('msession').value)||0,
-      currSession:parseInt(document.getElementById('mcurrsession').value)||0,
+      gender:document.getElementById('mgender')?.value||'',
+      freq:freq,
+      ...(day2!==undefined?{day2,time2}:{}),
+      maxWeek:parseInt(document.getElementById('mmaxw').value)||4,
+      currSession:parseInt(document.getElementById('mcurrsession')?.value)||0,
       startDate:document.getElementById('mstart').value,
       memo:document.getElementById('mmemo').value.trim()};
   }
-  const id = (editIdx!==null&&lessons[editIdx]?._id) ? lessons[editIdx]._id : ('L'+Date.now());
+  const id=(editIdx!==null&&lessons[editIdx]?._id)?lessons[editIdx]._id:('L'+Date.now());
   closeLsn();
   if(window._db){
     const {_id,...data}={...obj,_id:id};
     window._db.collection('lessons').doc(id).set(data)
-      .then(()=>{showToast('✅ 저장됐습니다');updCnt();})
+      .then(()=>{showToast('✅ 저장됐습니다');updCnt();const at=document.querySelector('.tb.on');if(at)at.click();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
   } else {
     if(editIdx!==null)lessons[editIdx]=obj;else lessons.push(obj);
@@ -1545,17 +1946,41 @@ function delLsn(){
   }
 }
 function closeLsn(){document.getElementById('mlsn').classList.remove('on');editIdx=null;}
-function toggleType(v){document.getElementById('indf').style.display=v==='individual'?'block':'none';document.getElementById('grpf').style.display=v==='group'?'block':'none';}
-function fillT(sel){
-  const s=document.getElementById('mteach');s.innerHTML='';
-  const myTi=gTi();
-  // 관리자(로그인)도 전체 선생님 선택 가능
-  const canAll=isLoginAdm();
+function fillT(selectedTi){
+  // mteach 선생님 드롭다운 채우기
+  const sel = document.getElementById('mteach');
+  const selG = document.getElementById('mteachG');
+  if(!sel) return;
+  sel.innerHTML = '';
   T.forEach((t,i)=>{
-    if(!canAll&&myTi!==null&&i!==myTi)return;
-    const o=document.createElement('option');o.value=i;o.textContent=t.name;
-    if(sel===i)o.selected=true;s.appendChild(o);
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = t.name + ' (' + t.sub + ')';
+    if(selectedTi !== null && selectedTi !== undefined && i === parseInt(selectedTi)) opt.selected = true;
+    sel.appendChild(opt);
   });
+  // 단체수업 선생님 드롭다운도 채우기
+  if(selG){
+    selG.innerHTML = '';
+    T.forEach((t,i)=>{
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = t.name + ' (' + t.sub + ')';
+      if(selectedTi !== null && selectedTi !== undefined && i === parseInt(selectedTi)) opt.selected = true;
+      selG.appendChild(opt);
+    });
+  }
+}
+
+function toggleType(v){
+  document.getElementById('indf').style.display = v==='individual'?'':'none';
+  document.getElementById('grpf').style.display = v==='group'?'':'none';
+}
+
+function toggleFreq(v){
+  document.getElementById('freq1box').style.display = v==='1'?'':'none';
+  document.getElementById('freq2box').style.display = v==='2'?'':'none';
+  document.getElementById('freqSbox').style.display = v==='0'?'':'none';
 }
 
 // 서비스워커 - 기존 모두 해제 후 새로 등록
@@ -1782,19 +2207,211 @@ function showLoading(msg){
 
 
 // 학생 이름 클릭 → 해당 선생님 학생 페이지로
-function goToStudent(ti, studentName){
+let _detailTi=null,_detailStudent=null;
+
+function goToStudent(ti,studentName){
   if(isLoginAdm()){
-    // 관리자: 해당 선생님 페이지로 전환
-    switchToTeacher(ti);
-    showView('my-stud');
+    const idx=lessons.findIndex(l=>l.student===studentName&&l.ti===ti&&l.type==='individual');
+    if(idx>=0)openEdit(idx);
+    else openAddIndiv(null,null,ti);
   } else {
-    // 선생님: 본인 학생탭으로
-    showView('my-stud');
+    _detailTi=ti;_detailStudent=studentName;
+    document.getElementById('page').innerHTML='';
+    document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+    rStudentDetail();
   }
 }
 
+function infoRow(label,val){
+  return `<div style="padding:10px 14px;border-bottom:.5px solid #f5f5f5">
+    <div style="font-size:10px;color:#8e8e93">${label}</div>
+    <div style="font-size:13px;font-weight:600;color:#1c1c1e;margin-top:2px">${val||'-'}</div>
+  </div>`;
+}
 
-// 전체 시간표 셀 크기 조절
+function rStudentDetail(){
+  const ti=_detailTi,studentName=_detailStudent;
+  if(!studentName){showView('my-stud');return;}
+  const t=T[ti]||{};
+  const ls=lessons.filter(l=>l.student===studentName&&l.ti===ti&&l.type==='individual');
+  if(!ls.length){showView('my-stud');return;}
+  const l=ls[0];
+  const attData=((att[ti]||{})[studentName])||{};
+  const allDates=Object.keys(attData).sort();
+  const freqLabel=(l.freq||1)>=2?'주 2회':(l.freq||1)===0?'단기':'주 1회';
+  const maxW=parseInt(l.maxWeek)||4;
+  const totalSession=maxW*((l.freq||1)>=2?2:1);
+  const dayLabel=(l.freq||1)>=2?`${DL[l.day]||''} ${l.time} / ${DL[l.day2]||''} ${l.time2||''}`:`${DL[l.day]||''} ${l.time}`;
+  const presentCount=allDates.filter(d=>attData[d]==='present'||attData[d]==='makeup').length;
+
+  let h=`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-bottom:.5px solid #e5e5e5;position:sticky;top:0;z-index:10">
+    <button onclick="${isAdm()?"showView('att')":"showView('my-day')"}" style="background:none;border:none;font-size:22px;cursor:pointer;padding:0 4px;color:#1c1c1e">‹</button>
+    <div style="flex:1"><div style="font-size:16px;font-weight:700">${studentName}</div>
+    <div style="font-size:11px;color:${t.c||'#888'}">${t.name||''} 선생님</div></div>
+    ${isAdm()?`<button onclick="const idx=lessons.findIndex(l=>l.student==='${studentName}'&&l.ti===${ti});if(idx>=0)openEdit(idx);" style="background:#f2f2f7;border:none;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;font-family:inherit">✏️ 수정</button>`:''}
+  </div>
+
+  <div style="margin:12px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+    <div style="background:${t.c||'#888'};padding:14px 16px;display:flex;align-items:center;gap:12px">
+      <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0">${studentName[0]}</div>
+      <div><div style="font-size:17px;font-weight:800;color:#fff">${studentName}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.8)">${l.course||''} · ${l.level||''} ${l.gender||''}</div></div>
+      <div style="margin-left:auto;text-align:right">
+        <div style="font-size:20px;font-weight:800;color:#fff">${presentCount}<span style="font-size:11px">/${totalSession}</span></div>
+        <div style="font-size:10px;color:rgba(255,255,255,.8)">차시 완료</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr">
+      ${infoRow('담당 선생님',t.name||'-')}
+      ${infoRow('수업 과정',l.course||'-')}
+      ${infoRow('학년/성별',(l.level||'-')+' '+(l.gender||''))}
+      ${infoRow('수업 회수',freqLabel)}
+      ${infoRow('요일/시간',dayLabel)}
+      ${infoRow('총 월차시',maxW+'회차')}
+      ${infoRow('현재 차시',presentCount+'/'+totalSession+'차시')}
+      ${infoRow('최초 등록일',l.startDate||'-')}
+      ${l.memo?infoRow('특이사항',l.memo):'<div></div>'}
+    </div>
+  </div>
+
+  <div style="padding:0 12px 6px;font-size:11px;font-weight:700;color:#8e8e93">출석 기록</div>
+  <div style="margin:0 12px 20px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">`;
+
+  if(allDates.length===0 && totalSession===0){
+    h+=`<div style="padding:24px;text-align:center;color:#8e8e93;font-size:13px">출석 기록이 없습니다</div>`;
+  } else {
+    // 모든 날짜 정렬 (출석+보강+결석 전체)
+    const sortedDates=[...allDates].sort();
+    // 출석/보강 날짜만 순서대로 차시 번호 부여
+    let sn=0;
+    const sessToDate={}; // 차시번호 → date
+    const dateToSess={}; // date → 차시번호
+    sortedDates.forEach(d=>{
+      const st=attData[d];
+      if(st==='present'||st==='makeup'){
+        sn++;
+        sessToDate[sn]=d;
+        dateToSess[d]=sn;
+      }
+    });
+
+    // 결석 날짜 (차시 번호 없음)
+    const absentDates=sortedDates.filter(d=>attData[d]==='absent');
+
+    // 총 차시 칸 = totalSession
+    // 각 칸에는 출석/보강 날짜를 순서대로 배치
+    // 결석은 별도 표시
+    const slots=Array.from({length:totalSession},(_,i)=>i+1);
+
+    h+=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding:10px 12px 4px">
+    <table style="border-collapse:collapse;font-size:11px;white-space:nowrap">
+    <thead><tr>`;
+
+    // 헤더: 1차~N차
+    let prevMonth='';
+    slots.forEach(s=>{
+      const date=sessToDate[s]||'';
+      const month=date?date.slice(0,7):'';
+      const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
+      if(month&&month!==prevMonth) prevMonth=month;
+      h+=`<th style="padding:5px 6px;text-align:center;color:${t.c||'#888'};font-weight:700;min-width:46px;${bl}">${s}차</th>`;
+    });
+    h+=`</tr></thead><tbody>`;
+
+    // 날짜 행 - 클릭하면 날짜 수정
+    h+=`<tr>`;
+    prevMonth='';
+    slots.forEach(s=>{
+      const date=sessToDate[s]||'';
+      const month=date?date.slice(0,7):'';
+      const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
+      if(month&&month!==prevMonth) prevMonth=month;
+      h+=`<td style="padding:2px 4px;text-align:center;${bl}">
+        <span style="font-size:10px;color:#8e8e93;cursor:pointer;text-decoration:underline;text-decoration-style:dotted"
+          onclick="editAttDate(${ti},'${studentName}',${s},'${date}')">${date?date.slice(5):'-'}</span>
+      </td>`;
+    });
+    h+=`</tr>`;
+
+    // 출결 행 - 클릭하면 출/보/결 토글
+    h+=`<tr>`;
+    prevMonth='';
+    slots.forEach(s=>{
+      const date=sessToDate[s]||'';
+      const st=date?attData[date]:'';
+      const month=date?date.slice(0,7):'';
+      const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
+      if(month&&month!==prevMonth) prevMonth=month;
+      const lab=st==='present'?'출':st==='makeup'?'보':st==='absent'?'결':'';
+      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':'#ccc';
+      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':date?'#f5f5f5':'#fafafa';
+      const clickFn=date?`cycleAtt(${ti},'${studentName}','${date}','${st}')`:'';
+      h+=`<td style="padding:4px 4px;text-align:center;${bl}">
+        <span style="display:inline-block;min-width:26px;padding:3px 2px;background:${bg2};color:${col};border-radius:6px;font-weight:700;font-size:12px;cursor:${date?'pointer':'default'}"
+          onclick="${clickFn}">${lab||'○'}</span>
+      </td>`;
+    });
+    h+=`</tr>`;
+
+    // 결석 표시
+    if(absentDates.length){
+      h+=`<tr><td colspan="${totalSession}" style="padding:5px 4px;font-size:10px;color:#C00000;text-align:left">
+        결석: ${absentDates.map(d=>`<span style="cursor:pointer;text-decoration:underline" onclick="cycleAtt(${ti},'${studentName}','${d}','absent')">${d.slice(5)}</span>`).join(', ')}
+      </td></tr>`;
+    }
+
+    h+=`</tbody></table></div>`;
+
+    h+=`<div style="padding:4px 14px 12px;font-size:11px;color:#8e8e93;display:flex;gap:10px">
+      <span style="color:#2E7D32;font-weight:600">출석 ${allDates.filter(d=>attData[d]==='present').length}</span>
+      <span style="color:#1565C0;font-weight:600">보강 ${allDates.filter(d=>attData[d]==='makeup').length}</span>
+      <span style="color:#C00000;font-weight:600">결석 ${absentDates.length}</span>
+      <span style="margin-left:auto">완료 ${sn}/${totalSession}차시</span>
+    </div>`;
+  }
+  h+=`</div>`;
+  document.getElementById('page').innerHTML=h;
+}
+
+
+// 출결 상태 순환 (출석→보강→결석→삭제)
+function cycleAtt(ti,student,date,cur){
+  const next=cur==='present'?'makeup':cur==='makeup'?'absent':cur==='absent'?null:'present';
+  if(next){
+    setAtt(ti,student,date,next);
+  } else {
+    // 삭제 (null = 기록 제거)
+    if(!att[ti])att[ti]={};
+    if(!att[ti][student])att[ti][student]={};
+    delete att[ti][student][date];
+    if(window._db) fbSaveAtt(ti,student,date,null);
+  }
+  // 페이지 새로고침
+  setTimeout(()=>rStudentDetail(),100);
+}
+
+// 날짜 수정 팝업
+function editAttDate(ti,student,sess,oldDate){
+  const newDate=prompt('날짜를 입력하세요 (YYYY-MM-DD)',oldDate||new Date().toISOString().slice(0,10));
+  if(!newDate||newDate===oldDate)return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(newDate)){alert('날짜 형식이 올바르지 않습니다\n예: 2026-04-29');return;}
+  // 기존 날짜 데이터 이전
+  if(oldDate){
+    const oldSt=((att[ti]||{})[student]||{})[oldDate];
+    if(oldSt){
+      setAtt(ti,student,newDate,oldSt);
+      // 기존 날짜 삭제
+      if(!att[ti])att[ti]={};
+      if(!att[ti][student])att[ti][student]={};
+      delete att[ti][student][oldDate];
+      if(window._db) fbSaveAtt(ti,student,oldDate,null);
+    }
+  } else {
+    // 새 출석 추가
+    setAtt(ti,student,newDate,'present');
+  }
+  setTimeout(()=>rStudentDetail(),200);
+}
 let _ttW = parseInt(localStorage.getItem('bm_ttW')||'48');
 let _ttF = parseInt(localStorage.getItem('bm_ttF')||'10');
 
@@ -1833,7 +2450,14 @@ function applyTTDim(){
   applyTTDim();
 })();
 
+let _fbInit = false;
+
 function initFirebase(){
+  if(_fbInit) return; // 중복 방지
+  _fbInit = true;
+  _unsub.forEach(u=>{try{u();}catch(e){}});
+  _unsub = [];
+
   const db = window._db;
   let tLoaded=false, lLoaded=false;
 
@@ -1940,37 +2564,47 @@ function _checkDB(){
 window._saveLsn = function(){
   if(!_checkDB()) return;
   const type=document.getElementById('mtype').value;
-  const ti=parseInt(document.getElementById('mteach').value);
-  const day=parseInt(document.getElementById('mday').value);
-  const time=document.getElementById('mtime').value;
+  const ti=parseInt(document.getElementById('mteach')?.value)||0;
   let obj;
   if(type==='group'){
-    const gn=document.getElementById('mgrp').value.trim();
+    const gn=document.getElementById('mgrp')?.value.trim();
     if(!gn){alert('수업명을 입력해 주세요');return;}
-    obj={type:'group',day,time,ti,groupname:gn};
+    const dG=parseInt(document.getElementById('mdayG')?.value??document.getElementById('mday')?.value)||0;
+    const tG=document.getElementById('mtimeG')?.value||document.getElementById('mtime')?.value||'15:00';
+    obj={type:'group',day:dG,time:tG,ti,groupname:gn};
   } else {
-    const s=document.getElementById('mstud').value.trim();
+    const s=document.getElementById('mstud')?.value.trim();
     if(!s){alert('학생 이름을 입력해 주세요');return;}
-    obj={type:'individual',day,time,ti,student:s,
-      course:document.getElementById('mcourse').value,
-      level:document.getElementById('mlevel').value.trim(),
-      freq:parseInt(document.getElementById('mfreq').value)||1,
-      maxWeek:parseInt(document.getElementById('mmaxw').value)||4,
-      totalSession:parseInt(document.getElementById('msession').value)||0,
-      currSession:parseInt(document.getElementById('mcurrsession').value)||0,
-      startDate:document.getElementById('mstart').value||'',
-      memo:document.getElementById('mmemo').value.trim()||''};
+    const freq=parseInt(document.getElementById('mfreq')?.value)||1;
+    let lday,ltime,day2,time2;
+    if(freq===2){
+      lday=parseInt(document.getElementById('mday2a')?.value)||0;
+      ltime=document.getElementById('mtime2a')?.value||'15:00';
+      day2=parseInt(document.getElementById('mday2b')?.value)||0;
+      time2=document.getElementById('mtime2b')?.value||'15:00';
+    } else if(freq===0){
+      const sd=document.getElementById('mshortdate')?.value;
+      lday=sd?new Date(sd).getDay():0;
+      ltime=document.getElementById('mtimeS')?.value||'15:00';
+    } else {
+      lday=parseInt(document.getElementById('mday')?.value)||0;
+      ltime=document.getElementById('mtime')?.value||'15:00';
+    }
+    obj={type:'individual',day:lday,time:ltime,ti,student:s,
+      course:document.getElementById('mcourse')?.value||'취미',
+      level:document.getElementById('mlevel')?.value.trim()||'',
+      gender:document.getElementById('mgender')?.value||'',
+      freq,
+      ...(day2!==undefined?{day2,time2}:{}),
+      maxWeek:parseInt(document.getElementById('mmaxw')?.value)||4,
+      currSession:parseInt(document.getElementById('mcurrsession')?.value)||0,
+      startDate:document.getElementById('mstart')?.value||'',
+      memo:document.getElementById('mmemo')?.value.trim()||''};
   }
-  // editIdx로 기존 수업 수정인지 확인
-  let id;
-  if(editIdx!==null && lessons[editIdx]){
-    id = lessons[editIdx]._id || ('L'+Date.now());
-  } else {
-    id = 'L'+Date.now();
-  }
+  const id=(editIdx!==null&&lessons[editIdx]?._id)?lessons[editIdx]._id:('L'+Date.now());
   const {_id,...data}=({...obj,_id:id});
 
-  // 즉시 팝업 닫기 (Firebase 응답 전에)
+  // 즉시 팝업 닫기
   closeLsn();
 
   window._db.collection('lessons').doc(id).set(data)
@@ -1980,7 +2614,6 @@ window._saveLsn = function(){
       const at=document.querySelector('.tb.on');if(at)at.click();
     })
     .catch(e=>{
-      console.error('저장 실패:', e);
       showToast('❌ 저장 실패: '+e.message);
     });
 };
