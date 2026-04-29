@@ -1836,12 +1836,14 @@ function openAdd(day,time,ti,forceType){
     const tp=forceType||'individual';
     const mt=document.getElementById('mtype');if(mt)mt.value=tp;
     toggleType(tp);
+    // toggleType 후 fillT 호출 (grpf 표시된 후에 mteachG 채워짐)
+    fillT(ti!==null&&ti!==undefined?parseInt(ti):gTi());
     const mc=document.getElementById('mcourse');if(mc)mc.value='취미';
     const fq=document.getElementById('mfreq');if(fq){fq.value='1';toggleFreq('1');}
     const mw=document.getElementById('mmaxw');if(mw)mw.value='4';
     const cs=document.getElementById('mcurrsession');if(cs)cs.value='0';
     const mg=document.getElementById('mgender');if(mg)mg.value='';
-    fillT(ti!==null&&ti!==undefined?parseInt(ti):gTi());
+    // fillT는 위에서 이미 호출됨
     if(day!==null&&day!==undefined){
       const md=document.getElementById('mday');if(md)md.value=day;
       const md2a=document.getElementById('mday2a');if(md2a)md2a.value=day;
@@ -1974,7 +1976,6 @@ function delLsn(){
 }
 function closeLsn(){document.getElementById('mlsn').classList.remove('on');editIdx=null;}
 function fillT(selectedTi){
-  // mteach + mteachG 선생님 드롭다운 채우기
   ['mteach','mteachG'].forEach(selId=>{
     const sel = document.getElementById(selId);
     if(!sel) return;
@@ -1982,7 +1983,7 @@ function fillT(selectedTi){
     T.forEach((t,i)=>{
       const opt = document.createElement('option');
       opt.value = i;
-      opt.textContent = t.name + ' (' + t.sub + ')';
+      opt.textContent = t.name; // 이름 전체 표시
       if(selectedTi !== null && selectedTi !== undefined && i === parseInt(selectedTi)) opt.selected = true;
       sel.appendChild(opt);
     });
