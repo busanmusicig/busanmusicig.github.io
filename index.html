@@ -903,7 +903,7 @@ function rTT(){
         row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:9px;font-weight:700;width:32px;white-space:nowrap;vertical-align:middle">${satTime||''}</td>`;
         row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:2px;min-width:52px">`;
         satIndiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);const idx=lessons.indexOf(l);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
-        satGrps.forEach(l=>{const t=T[l.ti]||{};row+=`<div class="gb"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
+        satGrps.forEach(l=>{const t=T[l.ti]||{},idx=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx})"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
         if(!satIndiv.length&&!satGrps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(5,'${time}',null)"></div>`;
         row+=`</td>`;return;
       }
@@ -912,7 +912,7 @@ function rTT(){
       let tdStyle=dance?'':'';
       row+=`<td style="${tdStyle}vertical-align:top;padding:2px;min-width:${dance?52:48}px">`;
       indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
-      grps.forEach(l=>{const t=T[l.ti]||{};row+=`<div class="gb"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
+      grps.forEach(l=>{const t=T[l.ti]||{},idx=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx})"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
       if(!indiv.length&&!grps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(${d},'${time}',null)"></div>`;
       row+=`</td>`;
     });
@@ -1512,7 +1512,7 @@ function rMyTT(){
       row+=`<td style="vertical-align:top;padding:1.5px;min-width:50px">`;
       if(cells.length){
         cells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
-          if(l.type==='group')row+=`<div class="gb">${l.groupname}</div>`;
+          if(l.type==='group'){const idx2=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx2})">${l.groupname}</div>`;}
           else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
             <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
             <div style="font-size:9px;opacity:.75">${[l.course,l.level,l.gender].filter(Boolean).join(' · ')}</div></div>`;});
@@ -1527,7 +1527,7 @@ function rMyTT(){
     row+=`<td style="vertical-align:top;padding:1.5px;min-width:54px">`;
     if(friCells.length){
       friCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
-        if(l.type==='group')row+=`<div class="gb">${l.groupname}</div>`;
+        if(l.type==='group'){const idx2=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx2})">${l.groupname}</div>`;}
         else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
           <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
           <div style="font-size:9px;opacity:.75">${[l.course,l.level,l.gender].filter(Boolean).join(' · ')}</div></div>`;});
@@ -1542,7 +1542,7 @@ function rMyTT(){
     row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:1.5px;min-width:54px">`;
     if(satCells.length){
       satCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
-        if(l.type==='group')row+=`<div class="gb">${l.groupname}</div>`;
+        if(l.type==='group'){const idx2=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx2})">${l.groupname}</div>`;}
         else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
           <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
           <div style="font-size:9px;opacity:.75">${[l.course,l.level,l.gender].filter(Boolean).join(' · ')}</div></div>`;});
@@ -1857,10 +1857,28 @@ function openAdd(day,time,ti,forceType){
 function openEdit(idx){
   const l=lessons[idx],myTi=gTi();
   if(!isLoginAdm()&&myTi!==l.ti)return;
-  editIdx=idx;document.getElementById('ltitle').textContent='수업 수정';document.getElementById('bdel').style.display='';
-  document.getElementById('mtype').value=l.type||'individual';toggleType(l.type||'individual');
-  if(l.type==='group')document.getElementById('mgrp').value=l.groupname||'';
-  else{
+  editIdx=idx;
+  document.getElementById('ltitle').textContent=l.type==='group'?'단체수업 수정':'학생 관리';
+  document.getElementById('bdel').style.display='';
+  document.getElementById('mtype').value=l.type||'individual';
+  toggleType(l.type||'individual');
+  if(l.type==='group'){
+    // 단체수업 필드 채우기
+    const mgrp=document.getElementById('mgrp');if(mgrp)mgrp.value=l.groupname||'';
+    const mdayG=document.getElementById('mdayG');if(mdayG)mdayG.value=l.day||0;
+    const mtimeG=document.getElementById('mtimeG');if(mtimeG)mtimeG.value=l.time||'15:00';
+    // 선생님 드롭다운 채우기
+    const selG=document.getElementById('mteachG');
+    if(selG){
+      selG.innerHTML='';
+      T.forEach((t,i)=>{
+        const opt=document.createElement('option');
+        opt.value=i;opt.textContent=t.name+' ('+t.sub+')';
+        if(i===l.ti)opt.selected=true;
+        selG.appendChild(opt);
+      });
+    }
+  } else {
     document.getElementById('mstud').value=l.student||'';
     document.getElementById('mcourse').value=l.course||'취미';
     document.getElementById('mlevel').value=l.level||'';
@@ -1870,18 +1888,18 @@ function openEdit(idx){
     const mgEl=document.getElementById('mgender');if(mgEl)mgEl.value=l.gender||'';
     document.getElementById('mmaxw').value=l.maxWeek||4;
     const csEl=document.getElementById('mcurrsession');if(csEl)csEl.value=l.currSession||0;
-    // 주2회 두번째 요일/시간
-    if(fv==='2'&&l.day2!==undefined){
+    if(fv==='2'){
       const d2a=document.getElementById('mday2a');if(d2a)d2a.value=l.day||0;
       const t2a=document.getElementById('mtime2a');if(t2a)t2a.value=l.time||'15:00';
       const d2b=document.getElementById('mday2b');if(d2b)d2b.value=l.day2||0;
       const t2b=document.getElementById('mtime2b');if(t2b)t2b.value=l.time2||'15:00';
     }
-    const ses=document.getElementById('msession');if(ses)ses.value=l.totalSession||0;
     document.getElementById('mstart').value=l.startDate||'';
     document.getElementById('mmemo').value=l.memo||'';
+    fillT(l.ti);
+    const md=document.getElementById('mday');if(md)md.value=l.day;
+    const mt=document.getElementById('mtime');if(mt)mt.value=l.time;
   }
-  fillT(l.ti);document.getElementById('mday').value=l.day;document.getElementById('mtime').value=l.time;
   document.getElementById('mlsn').classList.add('on');
 }
 function saveLsn(){
