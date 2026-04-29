@@ -1970,29 +1970,19 @@ function delLsn(){
 }
 function closeLsn(){document.getElementById('mlsn').classList.remove('on');editIdx=null;}
 function fillT(selectedTi){
-  // mteach 선생님 드롭다운 채우기
-  const sel = document.getElementById('mteach');
-  const selG = document.getElementById('mteachG');
-  if(!sel) return;
-  sel.innerHTML = '';
-  T.forEach((t,i)=>{
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = t.name + ' (' + t.sub + ')';
-    if(selectedTi !== null && selectedTi !== undefined && i === parseInt(selectedTi)) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  // 단체수업 선생님 드롭다운도 채우기
-  if(selG){
-    selG.innerHTML = '';
+  // mteach + mteachG 선생님 드롭다운 채우기
+  ['mteach','mteachG'].forEach(selId=>{
+    const sel = document.getElementById(selId);
+    if(!sel) return;
+    sel.innerHTML = '';
     T.forEach((t,i)=>{
       const opt = document.createElement('option');
       opt.value = i;
       opt.textContent = t.name + ' (' + t.sub + ')';
       if(selectedTi !== null && selectedTi !== undefined && i === parseInt(selectedTi)) opt.selected = true;
-      selG.appendChild(opt);
+      sel.appendChild(opt);
     });
-  }
+  });
 }
 
 function toggleType(v){
