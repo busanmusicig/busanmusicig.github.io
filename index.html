@@ -2318,7 +2318,7 @@ function rStudentDetail(){
     });
     h+=`</tr></thead><tbody>`;
 
-    // 날짜 행 - 클릭하면 날짜 수정
+    // 날짜 행 - 클릭하면 날짜 변경
     h+=`<tr>`;
     prevMonth='';
     slots.forEach(s=>{
@@ -2327,13 +2327,13 @@ function rStudentDetail(){
       const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
       if(month&&month!==prevMonth) prevMonth=month;
       h+=`<td style="padding:2px 4px;text-align:center;${bl}">
-        <span style="font-size:10px;color:#8e8e93;cursor:pointer;text-decoration:underline;text-decoration-style:dotted"
-          onclick="editAttDate(${ti},'${studentName}',${s},'${date}')">${date?date.slice(5):'-'}</span>
+        <span style="font-size:10px;color:#1565C0;cursor:pointer;font-weight:600"
+          onclick="showDatePop(event,${ti},'${studentName}','${date}')">${date?date.slice(5):'✏'}</span>
       </td>`;
     });
     h+=`</tr>`;
 
-    // 출결 행 - 클릭하면 출/보/결 토글
+    // 출결 행 - 클릭 시 출/보/결 선택 팝업
     h+=`<tr>`;
     prevMonth='';
     slots.forEach(s=>{
@@ -2343,20 +2343,18 @@ function rStudentDetail(){
       const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
       if(month&&month!==prevMonth) prevMonth=month;
       const lab=st==='present'?'출':st==='makeup'?'보':st==='absent'?'결':'';
-      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':'#ccc';
-      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':date?'#f5f5f5':'#fafafa';
-      const clickFn=date?`cycleAtt(${ti},'${studentName}','${date}','${st}')`:'';
+      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':'#aaa';
+      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':'#f5f5f5';
       h+=`<td style="padding:4px 4px;text-align:center;${bl}">
-        <span style="display:inline-block;min-width:26px;padding:3px 2px;background:${bg2};color:${col};border-radius:6px;font-weight:700;font-size:12px;cursor:${date?'pointer':'default'}"
-          onclick="${clickFn}">${lab||'○'}</span>
+        <span style="display:inline-block;min-width:28px;padding:4px 2px;background:${bg2};color:${col};border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;border:1.5px solid ${col}30"
+          onclick="showAttPop(event,${ti},'${studentName}','${date||''}','${st}',${s})">${lab||'○'}</span>
       </td>`;
     });
     h+=`</tr>`;
 
-    // 결석 표시
     if(absentDates.length){
       h+=`<tr><td colspan="${totalSession}" style="padding:5px 4px;font-size:10px;color:#C00000;text-align:left">
-        결석: ${absentDates.map(d=>`<span style="cursor:pointer;text-decoration:underline" onclick="cycleAtt(${ti},'${studentName}','${d}','absent')">${d.slice(5)}</span>`).join(', ')}
+        결석: ${absentDates.map(d=>`<span style="cursor:pointer" onclick="showAttPop(event,${ti},'${studentName}','${d}','absent',0)">${d.slice(5)}</span>`).join(', ')}
       </td></tr>`;
     }
 
@@ -2373,6 +2371,147 @@ function rStudentDetail(){
   document.getElementById('page').innerHTML=h;
 }
 
+
+// 날짜 변경 팝업
+function showDatePop(e, ti, student, oldDate){
+  e.stopPropagation();
+  const old=document.getElementById('_date_pop');
+  if(old){old.remove();return;}
+
+  const pop=document.createElement('div');
+  pop.id='_date_pop';
+  pop.style.cssText=`position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.22);padding:12px;min-width:200px`;
+
+  const today=new Date().toISOString().slice(0,10);
+  pop.innerHTML=`
+    <div style="font-size:11px;color:#8e8e93;margin-bottom:8px">날짜 ${oldDate?'변경':'입력'}</div>
+    <input type="date" id="_pop_dt" value="${oldDate||today}"
+      style="width:100%;background:#f2f2f7;border:none;border-radius:10px;padding:10px;font-size:14px;font-family:inherit;box-sizing:border-box;color:#1c1c1e"/>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button onclick="confirmDatePop(${ti},'${student}','${oldDate}')"
+        style="flex:1;padding:9px;border:none;border-radius:10px;background:#C00000;color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">확인</button>
+      <button onclick="document.getElementById('_date_pop').remove()"
+        style="padding:9px 14px;border:none;border-radius:10px;background:#f2f2f7;color:#8e8e93;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">취소</button>
+    </div>`;
+
+  const rect=e.target.getBoundingClientRect();
+  let left=rect.left, top=rect.bottom+6;
+  if(left+210>window.innerWidth) left=window.innerWidth-218;
+  if(top+130>window.innerHeight) top=rect.top-138;
+  pop.style.left=left+'px';
+  pop.style.top=top+'px';
+  document.body.appendChild(pop);
+
+  // 달력 자동 열기
+  setTimeout(()=>{const inp=document.getElementById('_pop_dt');if(inp)inp.showPicker?.();},50);
+
+  setTimeout(()=>{
+    document.addEventListener('click',function cl(ev){
+      if(!pop.contains(ev.target)){pop.remove();document.removeEventListener('click',cl);}
+    },{once:false});
+  },100);
+}
+
+function confirmDatePop(ti, student, oldDate){
+  const newDate=document.getElementById('_pop_dt')?.value;
+  const pop=document.getElementById('_date_pop');
+  if(pop) pop.remove();
+  if(!newDate) return;
+  if(newDate===oldDate) return;
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(newDate)){alert('날짜 형식이 올바르지 않습니다');return;}
+
+  if(oldDate){
+    // 기존 날짜 상태 이전
+    const oldSt=((att[ti]||{})[student]||{})[oldDate];
+    if(oldSt){
+      setAtt(ti,student,newDate,oldSt);
+      if(att[ti]&&att[ti][student]) delete att[ti][student][oldDate];
+      if(window._db) fbSaveAtt(ti,student,oldDate,null);
+    }
+  } else {
+    setAtt(ti,student,newDate,'present');
+  }
+  setTimeout(()=>rStudentDetail(),200);
+}
+function showAttPop(e, ti, student, date, cur, sess){
+  e.stopPropagation();
+  // 기존 팝업 제거
+  const old=document.getElementById('_att_pop');
+  if(old){old.remove();if(old._date===date&&old._ti===ti&&old._st===cur)return;}
+
+  const pop=document.createElement('div');
+  pop.id='_att_pop';
+  pop._date=date;_ti=ti;pop._st=cur;
+  pop.style.cssText=`position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.22);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:120px`;
+
+  // 날짜가 없으면 날짜 입력 먼저
+  if(!date){
+    const today=new Date().toISOString().slice(0,10);
+    pop.innerHTML=`
+      <div style="font-size:11px;color:#8e8e93;margin-bottom:2px">${sess}차시 날짜</div>
+      <input type="date" id="_pop_date" value="${today}" style="background:#f2f2f7;border:none;border-radius:8px;padding:8px;font-size:13px;font-family:inherit;width:100%;box-sizing:border-box"/>
+      <div style="display:flex;gap:4px">
+        <button onclick="quickAttPop(${ti},'${student}','present')" style="flex:1;padding:7px 4px;border:none;border-radius:8px;background:#E8F5E9;color:#2E7D32;font-weight:700;font-size:13px;cursor:pointer">출</button>
+        <button onclick="quickAttPop(${ti},'${student}','makeup')" style="flex:1;padding:7px 4px;border:none;border-radius:8px;background:#E3F2FD;color:#1565C0;font-weight:700;font-size:13px;cursor:pointer">보</button>
+        <button onclick="quickAttPop(${ti},'${student}','absent')" style="flex:1;padding:7px 4px;border:none;border-radius:8px;background:#FFEBEE;color:#C00000;font-weight:700;font-size:13px;cursor:pointer">결</button>
+      </div>`;
+  } else {
+    pop.innerHTML=`
+      <div style="font-size:11px;color:#8e8e93;margin-bottom:2px">${date.slice(5)}</div>
+      <div style="display:flex;gap:4px">
+        <button onclick="setAttPop(${ti},'${student}','${date}','present')" style="flex:1;padding:8px 4px;border:none;border-radius:8px;background:${cur==='present'?'#2E7D32':'#E8F5E9'};color:${cur==='present'?'#fff':'#2E7D32'};font-weight:700;font-size:14px;cursor:pointer">출</button>
+        <button onclick="setAttPop(${ti},'${student}','${date}','makeup')" style="flex:1;padding:8px 4px;border:none;border-radius:8px;background:${cur==='makeup'?'#1565C0':'#E3F2FD'};color:${cur==='makeup'?'#fff':'#1565C0'};font-weight:700;font-size:14px;cursor:pointer">보</button>
+        <button onclick="setAttPop(${ti},'${student}','${date}','absent')" style="flex:1;padding:8px 4px;border:none;border-radius:8px;background:${cur==='absent'?'#C00000':'#FFEBEE'};color:${cur==='absent'?'#fff':'#C00000'};font-weight:700;font-size:14px;cursor:pointer">결</button>
+      </div>
+      ${cur?`<button onclick="setAttPop(${ti},'${student}','${date}',null)" style="width:100%;padding:6px;border:none;border-radius:8px;background:#f2f2f7;color:#8e8e93;font-size:11px;cursor:pointer">🗑 삭제</button>`:''}`;
+  }
+
+  // 위치 설정
+  const rect=e.target.getBoundingClientRect();
+  const pw=140;
+  let left=rect.left;
+  let top=rect.bottom+4;
+  if(left+pw>window.innerWidth)left=window.innerWidth-pw-8;
+  if(top+120>window.innerHeight)top=rect.top-130;
+  pop.style.left=left+'px';
+  pop.style.top=top+'px';
+
+  document.body.appendChild(pop);
+  // 외부 클릭 시 닫기
+  setTimeout(()=>{
+    document.addEventListener('click',function cl(){pop.remove();document.removeEventListener('click',cl);},{once:true});
+  },10);
+}
+
+function quickAttPop(ti,student,status){
+  const dateEl=document.getElementById('_pop_date');
+  const date=dateEl?dateEl.value:'';
+  if(!date){alert('날짜를 선택해 주세요');return;}
+  setAttPop(ti,student,date,status);
+}
+
+function setAttPop(ti,student,date,status){
+  const pop=document.getElementById('_att_pop');
+  if(pop)pop.remove();
+  if(status){
+    setAtt(ti,student,date,status);
+  } else {
+    // 삭제
+    if(att[ti]&&att[ti][student]){delete att[ti][student][date];}
+    if(window._db) fbSaveAtt(ti,student,date,null);
+  }
+  setTimeout(()=>rStudentDetail(),200);
+}
+
+// 출결 기록 페이지에서 빠른 출결 입력
+function quickAtt(ti, student, status){
+  const dateEl = document.getElementById('att-date-input');
+  const date = dateEl ? dateEl.value : new Date().toISOString().slice(0,10);
+  if(!date){alert('날짜를 선택해 주세요');return;}
+  setAtt(ti, student, date, status);
+  showToast(`✅ ${date.slice(5)} ${status==='present'?'출석':status==='makeup'?'보강':'결석'} 기록됨`);
+  setTimeout(()=>rStudentDetail(), 300);
+}
 
 // 출결 상태 순환 (출석→보강→결석→삭제)
 function cycleAtt(ti,student,date,cur){
