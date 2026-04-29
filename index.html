@@ -858,7 +858,7 @@ function rTT(){
         <th style="min-width:48px">수</th><th style="min-width:48px">목</th>
         ${showFri?'<th style="min-width:52px;font-weight:600;color:#444;font-size:9px">금</th>':''}
         ${showDance?'<th class="fri-dh" style="min-width:52px;font-size:9px">금(댄)</th>':''}
-        <th style="width:32px;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px">시간</th>
+        <th style="width:16px;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px">시간</th>
         <th style="min-width:26px;background:#e8f4fb;color:#1565C0;font-weight:700">토요일</th>
       </tr>
     </thead>
@@ -901,7 +901,7 @@ function rTT(){
         const satTime=wkIdx>=0&&wkIdx<SAT_T.length?SAT_T[wkIdx]:null;
         const satIndiv=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='individual'):[];
         const satGrps=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='group'):[];
-        row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:9px;font-weight:700;width:32px;white-space:nowrap;vertical-align:middle">${satTime||''}</td>`;
+        row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:8px;font-weight:700;width:16px;white-space:nowrap;vertical-align:middle">${satTime||''}</td>`;
         row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:1px;min-width:26px">`;
         satIndiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);const idx=lessons.indexOf(l);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
         satGrps.forEach(l=>{const t=T[l.ti]||{},idx=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx})"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
@@ -1491,7 +1491,7 @@ function rMyTT(){
   } else {
     h+=`<th style="min-width:54px;background:#f8f8f8;color:#555">금</th>`;
   }
-  h+=`<th style="width:32px;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px">시간</th>
+  h+=`<th style="width:16px;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px">시간</th>
       <th style="min-width:27px;background:#e8f4fb;color:#1565C0;font-weight:700">토요일</th>
     </tr></thead>
     <tbody id="my-ttb"></tbody>
@@ -1539,7 +1539,7 @@ function rMyTT(){
 
     // 토요일 시간 + 내용
     const satCells=satTime?lessons.filter(l=>l.ti===ti&&l.day===5&&l.time===satTime):[];
-    row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:9px;font-weight:700;width:32px;vertical-align:middle">${satTime||''}</td>`;
+    row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:8px;font-weight:700;width:16px;vertical-align:middle">${satTime||''}</td>`;
     row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:1px;min-width:27px">`;
     if(satCells.length){
       satCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
@@ -2640,6 +2640,7 @@ function initFirebase(){
     const appEl = document.getElementById('app');
     if(!appEl || appEl.style.display==='none') return;
     updCnt();
+    // 페이지 이동 없이 데이터만 업데이트
   }
 
   // teachers 실시간
@@ -2653,15 +2654,15 @@ function initFirebase(){
     tryShow();
   }, e=>{console.warn('teachers:',e);tLoaded=true;tryShow();}));
 
-  // lessons 실시간 - 다른 기기에서 변경 시 즉시 반영
+  // lessons 실시간 - 데이터만 업데이트, 페이지 이동 없음
   _unsub.push(db.collection('lessons').onSnapshot(snap=>{
     lessons=snap.docs.map(d=>{const v=d.data();v._id=d.id;return v;});
     lLoaded=true;
     tryShow();
-    refreshCurrentView();
+    updCnt();
   }, e=>{console.warn('lessons:',e);lLoaded=true;tryShow();}));
 
-  // attendance 실시간 - 출석 변경 즉시 반영
+  // attendance 실시간 - 데이터만 업데이트
   _unsub.push(db.collection('attendance').onSnapshot(snap=>{
     att={};
     snap.docs.forEach(d=>{
@@ -2672,12 +2673,7 @@ function initFirebase(){
         att[v.ti][v.student][v.date]=v.status;
       }
     });
-    // 출석 탭 열려있으면 새로고침
-    const appEl = document.getElementById('app');
-    if(appEl && appEl.style.display!=='none'){
-      const at = document.querySelector('.tb.on');
-      if(at && (at.textContent.includes('출석')||at.textContent.includes('체크'))) at.click();
-    }
+    updCnt();
   }, e=>console.warn('att:',e)));
 
   // passwords 로드
@@ -2725,9 +2721,10 @@ function _checkDB(){
 window._saveLsn = function(){
   if(!_checkDB()) return;
   const type=document.getElementById('mtype').value;
-  const ti=parseInt(document.getElementById('mteach')?.value)||0;
 
   if(type==='group'){
+    // 단체수업: mteachG에서 선생님 읽기
+    const ti=parseInt(document.getElementById('mteachG')?.value??document.getElementById('mteach')?.value)||0;
     const gn=document.getElementById('mgrp')?.value.trim();
     if(!gn){alert('수업명을 입력해 주세요');return;}
     const dG=parseInt(document.getElementById('mdayG')?.value??document.getElementById('mday')?.value)||0;
@@ -2741,7 +2738,8 @@ window._saveLsn = function(){
     return;
   }
 
-  // 개인레슨
+  // 개인레슨: mteach에서 선생님 읽기
+  const ti=parseInt(document.getElementById('mteach')?.value)||0;
   const s=document.getElementById('mstud')?.value.trim();
   if(!s){alert('학생 이름을 입력해 주세요');return;}
   const freq=parseInt(document.getElementById('mfreq')?.value)||1;
