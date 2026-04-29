@@ -859,7 +859,7 @@ function rTT(){
         ${showFri?'<th style="min-width:52px;font-weight:600;color:#444;font-size:9px">금</th>':''}
         ${showDance?'<th class="fri-dh" style="min-width:52px;font-size:9px">금(댄)</th>':''}
         <th style="width:32px;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px">시간</th>
-        <th style="min-width:52px;background:#e8f4fb;color:#1565C0;font-weight:700">토요일</th>
+        <th style="min-width:26px;background:#e8f4fb;color:#1565C0;font-weight:700">토요일</th>
       </tr>
     </thead>
     <tbody id="ttb"></tbody>
@@ -902,7 +902,7 @@ function rTT(){
         const satIndiv=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='individual'):[];
         const satGrps=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='group'):[];
         row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:9px;font-weight:700;width:32px;white-space:nowrap;vertical-align:middle">${satTime||''}</td>`;
-        row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:2px;min-width:52px">`;
+        row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:1px;min-width:26px">`;
         satIndiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);const idx=lessons.indexOf(l);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
         satGrps.forEach(l=>{const t=T[l.ti]||{},idx=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx})"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
         if(!satIndiv.length&&!satGrps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(5,'${time}',null)"></div>`;
@@ -1492,7 +1492,7 @@ function rMyTT(){
     h+=`<th style="min-width:54px;background:#f8f8f8;color:#555">금</th>`;
   }
   h+=`<th style="width:32px;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px">시간</th>
-      <th style="min-width:54px;background:#e8f4fb;color:#1565C0;font-weight:700">토요일</th>
+      <th style="min-width:27px;background:#e8f4fb;color:#1565C0;font-weight:700">토요일</th>
     </tr></thead>
     <tbody id="my-ttb"></tbody>
   </table></div>`;
@@ -1540,7 +1540,7 @@ function rMyTT(){
     // 토요일 시간 + 내용
     const satCells=satTime?lessons.filter(l=>l.ti===ti&&l.day===5&&l.time===satTime):[];
     row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:9px;font-weight:700;width:32px;vertical-align:middle">${satTime||''}</td>`;
-    row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:1.5px;min-width:54px">`;
+    row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:1px;min-width:27px">`;
     if(satCells.length){
       satCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
         if(l.type==='group'){const idx2=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx2})">${l.groupname}</div>`;}
