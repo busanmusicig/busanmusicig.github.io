@@ -902,7 +902,7 @@ function rTT(){
         const satGrps=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='group'):[];
         row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:9px;font-weight:700;width:32px;white-space:nowrap;vertical-align:middle">${satTime||''}</td>`;
         row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:2px;min-width:52px">`;
-        satIndiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);const idx=lessons.indexOf(l);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
+        satIndiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);const idx=lessons.indexOf(l);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
         satGrps.forEach(l=>{const t=T[l.ti]||{};row+=`<div class="gb"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
         if(!satIndiv.length&&!satGrps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(5,'${time}',null)"></div>`;
         row+=`</td>`;return;
@@ -911,7 +911,7 @@ function rTT(){
       const grps=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='group');
       let tdStyle=dance?'':'';
       row+=`<td style="${tdStyle}vertical-align:top;padding:2px;min-width:${dance?52:48}px">`;
-      indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
+      indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
       grps.forEach(l=>{const t=T[l.ti]||{};row+=`<div class="gb"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
       if(!indiv.length&&!grps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(${d},'${time}',null)"></div>`;
       row+=`</td>`;
