@@ -1398,7 +1398,17 @@ function rStat(){
   const w2=uniq(indiv.filter(l=>(l.freq||1)>=2));
   const ips=uniq(indiv.filter(l=>l.course==='입시'));
   const hby=uniq(indiv.filter(l=>l.course==='취미'));
-  const totalHrs=indiv.reduce((a,l)=>a+(l.freq||1),0);
+  // 주간 총 수업시간: 개인레슨만, 단체수업 제외, 고유 학생 기준
+  const indivOnly=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI&&l.day!==41);
+  // 고유 학생별 freq 합산 (주2회 학생은 pairId로 2개 저장되므로 중복 방지)
+  const studentMap={};
+  indivOnly.forEach(l=>{
+    const key=l.student+'_'+l.ti;
+    if(!studentMap[key]||(l.freq||1)>(studentMap[key].freq||1)){
+      studentMap[key]=l;
+    }
+  });
+  const totalHrs=Object.values(studentMap).reduce((a,l)=>a+(l.freq||1),0);
   const card=(icon,label,val,color)=>`<div style="background:#fff;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.07)">
     <div style="font-size:26px">${icon}</div>
     <div><div style="font-size:11px;color:#8e8e93">${label}</div>
