@@ -1,0 +1,16 @@
+{
+  "name": "부산뮤직 일광점",
+  "short_name": "부산뮤직",
+  "description": "부산뮤직 실용음악학원 일광점 시간표 관리",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#C00000",
+  "theme_color": "#C00000",
+  "orientation": "any",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "prefer_related_applications": false
+}
