@@ -1947,7 +1947,7 @@ function saveLsn(){
   if(window._db){
     const {_id,...data}={...obj,_id:id};
     window._db.collection('lessons').doc(id).set(data)
-      .then(()=>{showToast('✅ 저장됐습니다');updCnt();const at=document.querySelector('.tb.on');if(at)at.click();})
+      .then(()=>{showToast('✅ 저장됐습니다');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
   } else {
     if(editIdx!==null)lessons[editIdx]=obj;else lessons.push(obj);
@@ -2743,7 +2743,7 @@ window._saveLsn = function(){
     const id=(editIdx!==null&&lessons[editIdx]?._id)?lessons[editIdx]._id:('L'+Date.now());
     closeLsn();
     window._db.collection('lessons').doc(id).set(obj)
-      .then(()=>{showToast('✅ 저장됐습니다');updCnt();const at=document.querySelector('.tb.on');if(at)at.click();})
+      .then(()=>{showToast('✅ 저장됐습니다');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
     return;
   }
@@ -2780,11 +2780,9 @@ window._saveLsn = function(){
     const obj1={...common,day:day1,time:time1,pairId:id2};
     const obj2={...common,day:day2,time:time2,pairId:id1};
 
-    const batch=window._db.batch();
-    batch.set(window._db.collection('lessons').doc(id1), obj1);
-    batch.set(window._db.collection('lessons').doc(id2), obj2);
-    batch.commit()
-      .then(()=>{showToast('✅ 주2회 수업이 등록됐습니다 (2개 요일)');updCnt();const at=document.querySelector('.tb.on');if(at)at.click();})
+  window._db.collection('lessons').doc(id1).set(obj1).then(()=>{});
+    window._db.collection('lessons').doc(id2).set(obj2)
+      .then(()=>{showToast('✅ 주2회 수업이 등록됐습니다 (2개 요일)');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
 
   } else if(freq===0){
@@ -2795,7 +2793,7 @@ window._saveLsn = function(){
     const obj={...common,day:lday,time:ltime,shortDate:sd||''};
     const id=(editIdx!==null&&lessons[editIdx]?._id)?lessons[editIdx]._id:('L'+Date.now());
     window._db.collection('lessons').doc(id).set(obj)
-      .then(()=>{showToast('✅ 저장됐습니다');updCnt();const at=document.querySelector('.tb.on');if(at)at.click();})
+      .then(()=>{showToast('✅ 저장됐습니다');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
 
   } else {
@@ -2805,7 +2803,7 @@ window._saveLsn = function(){
     const obj={...common,day:lday,time:ltime};
     const id=(editIdx!==null&&lessons[editIdx]?._id)?lessons[editIdx]._id:('L'+Date.now());
     window._db.collection('lessons').doc(id).set(obj)
-      .then(()=>{showToast('✅ 저장됐습니다');updCnt();const at=document.querySelector('.tb.on');if(at)at.click();})
+      .then(()=>{showToast('✅ 저장됐습니다');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
   }
 };
@@ -2826,7 +2824,7 @@ window._delLsn = function(){
     const delIds=[l._id];
     if(l.pairId) delIds.push(l.pairId);
     Promise.all(delIds.map(id=>db.collection('lessons').doc(id).delete()))
-      .then(()=>{showToast('🗑 삭제됐습니다');updCnt();const at=document.querySelector('.tb.on');if(at)at.click();})
+      .then(()=>{showToast('🗑 삭제됐습니다');updCnt();})
       .catch(e=>showToast('❌ 삭제 실패: '+e.message));
   } else {
     let q=db.collection('lessons').where('ti','==',l.ti).where('day','==',l.day).where('time','==',l.time);
@@ -2836,7 +2834,7 @@ window._delLsn = function(){
       const batch=db.batch();
       snap.forEach(d=>batch.delete(d.ref));
       batch.commit()
-        .then(()=>{showToast('🗑 삭제됐습니다');updCnt();const at=document.querySelector('.tb.on');if(at)at.click();})
+        .then(()=>{showToast('🗑 삭제됐습니다');updCnt();})
         .catch(e=>showToast('❌ 삭제 실패: '+e.message));
     }).catch(e=>showToast('❌ 조회 실패: '+e.message));
   }
