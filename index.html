@@ -348,6 +348,12 @@ body.force-portrait #page{grid-column:auto !important;}
       <input id="pw-input" type="password" placeholder="••••" maxlength="6" inputmode="numeric"
         style="width:100%;background:#f2f2f7;border:none;border-radius:10px;padding:12px;font-size:20px;text-align:center;letter-spacing:6px;outline:none;font-family:inherit;box-sizing:border-box"
         onkeydown="if(event.key==='Enter')doLogin()"/>
+      <!-- 로그인 상태 유지 -->
+      <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;user-select:none">
+        <input type="checkbox" id="keep-login" style="width:16px;height:16px;accent-color:#C00000;cursor:pointer"
+          onchange="localStorage.setItem('bm_keepLogin',this.checked?'1':'0')" />
+        <span style="font-size:12px;color:#8e8e93">로그인 상태 유지</span>
+      </label>
     </div>
     <div id="login-err" style="font-size:12px;color:#C00000;text-align:center;margin-top:6px;min-height:16px"></div>
     <button id="login-submit" onclick="doLogin()"
@@ -2087,8 +2093,15 @@ function doLogin(){
     document.getElementById('pw-input').focus();
     return;
   }
-  // 로그인 상태 저장 (새로고침 후 복구용)
+  // 로그인 상태 저장
   sessionStorage.setItem('bm_loginKey', selLoginKey);
+  // 로그인 상태 유지 체크시 localStorage에도 저장
+  const keep = document.getElementById('keep-login')?.checked;
+  if(keep){
+    localStorage.setItem('bm_persistKey', selLoginKey);
+  } else {
+    localStorage.removeItem('bm_persistKey');
+  }
   _applyLogin(selLoginKey);
 }
 
@@ -2179,6 +2192,7 @@ document.addEventListener('click', e => {
 function doLogout(){
   if(!confirm('로그아웃 하시겠습니까?')) return;
   sessionStorage.removeItem('bm_loginKey');
+  localStorage.removeItem('bm_persistKey');
   role = 'admin';
   loginRole = 'admin';
   selLoginKey = null;
@@ -2599,11 +2613,14 @@ function initFirebase(){
     if(!tLoaded||!lLoaded) return;
     buildLoginList();
     updCnt();
-    // 새로고침 후 로그인 세션 복구
-    const savedKey = sessionStorage.getItem('bm_loginKey');
+    // 로그인 상태 복구: localStorage(유지) 우선, 없으면 sessionStorage(새로고침)
+    const savedKey = localStorage.getItem('bm_persistKey') || sessionStorage.getItem('bm_loginKey');
     if(savedKey){
       _applyLogin(savedKey);
     }
+    // 체크박스 상태 복구
+    const keepChk = document.getElementById('keep-login');
+    if(keepChk) keepChk.checked = !!localStorage.getItem('bm_persistKey');
   }
 
   // 현재 열린 뷰 새로고침
