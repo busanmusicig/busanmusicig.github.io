@@ -2641,6 +2641,9 @@ function initFirebase(){
     if(!tLoaded||!lLoaded) return;
     buildLoginList();
     updCnt();
+    // 앱이 이미 표시 중이면 페이지 이동 안 함
+    const appEl = document.getElementById('app');
+    if(appEl && appEl.style.display !== 'none') return;
     // 로그인 상태 복구: localStorage(유지) 우선, 없으면 sessionStorage(새로고침)
     const savedKey = localStorage.getItem('bm_persistKey') || sessionStorage.getItem('bm_loginKey');
     if(savedKey){
