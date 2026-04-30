@@ -871,6 +871,11 @@ function buildTabs(){
      <button class="tb" onclick="showView('set',this)">⚙️ 설정</button>`;
 }
 function showView(n,btn){
+  // 요일별/출결/출석체크 탭 진입 시 오늘 요일로 자동 업데이트
+  if(n==='day'||n==='att'||n==='my-day'){
+    selDay=getTodayAppDay();
+    selDate=null;
+  }
   document.getElementById('page').innerHTML='';
   document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
