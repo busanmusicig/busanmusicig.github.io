@@ -1457,11 +1457,11 @@ function showStatList(filterKey){
     Object.keys(byIpsTi).sort((a,b)=>a-b).forEach(ti=>{
       const t=T[ti]||{};
       h+=`<div style="padding:8px 14px;border-bottom:.5px solid #f0f0f0">
-        <div style="font-size:10px;color:#C00000;font-weight:700;margin-bottom:4px">🎓 입시담당: ${t.name||''}</div>
+        <div style="font-size:10px;color:${t.c||'#888'};font-weight:700;margin-bottom:4px">🎓 입시담당: ${t.name||''}</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">`;
       byIpsTi[ti].forEach(l=>{
         const tLesson=T[l.ti]||{};
-        h+=`<span style="font-size:11px;background:#FFEBEE;color:#C00000;padding:2px 8px;border-radius:10px;font-weight:600" title="수업: ${tLesson.name||''}">${l.student}</span>`;
+        h+=`<span style="font-size:11px;background:${bg(t.c||'#888')};color:${t.c||'#888'};padding:2px 8px;border-radius:10px;font-weight:600" title="수업: ${tLesson.name||''}">${l.student}</span>`;
       });
       h+=`</div></div>`;
     });
@@ -1727,7 +1727,7 @@ function showTeacherDetail(ti){
       const border=i<ipsStudents.length-1?'border-bottom:.5px solid #f0f0f0':'';
       const tLesson=T[l.ti]||{};
       h+=`<div style="padding:10px 14px;${border};cursor:pointer;display:flex;align-items:center;gap:10px" onclick="_detailTi=${l.ti};_detailStudent='${l.student}';rStudentDetail()">
-        <div style="width:32px;height:32px;border-radius:50%;background:#FFEBEE;color:#C00000;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
+        <div style="width:32px;height:32px;border-radius:50%;background:${bg(t.c||'#888')};color:${t.c||'#888'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
         <div style="flex:1">
           <div style="font-size:13px;font-weight:600">${l.student} <span class="course-i">입시</span>
             <span style="font-size:10px;color:#8e8e93"> ${l.level||''} ${l.gender||''}</span>
@@ -2243,13 +2243,16 @@ function openEdit(idx){
   } else {
     document.getElementById('mstud').value=l.student||'';
     document.getElementById('mcourse').value=l.course||'취미';
-    // 입시 담당 선생님
+    // 입시 담당 선생님 - 같은 학생 레슨 전체에서 ipsTeacher 찾기
     const ipsBox=document.getElementById('ips-teacher-box');
     if(ipsBox)ipsBox.style.display=(l.course==='입시')?'':'none';
     setTimeout(()=>{
       const ipsEl=document.getElementById('mipsteach');
-      if(ipsEl&&l.ipsTeacher!==undefined) ipsEl.value=l.ipsTeacher;
-      else if(ipsEl) ipsEl.value='';
+      if(!ipsEl)return;
+      // 이 레슨 또는 같은 학생의 다른 레슨에서 ipsTeacher 찾기
+      const ipsVal=l.ipsTeacher!==undefined?l.ipsTeacher:
+        lessons.find(ll=>ll.student===l.student&&ll.course==='입시'&&ll.ipsTeacher!==undefined)?.ipsTeacher;
+      ipsEl.value = ipsVal!==undefined ? ipsVal : '';
     },50);
     document.getElementById('mlevel').value=l.level||'';
     // 입시면 선생님 선택 강조
@@ -3153,8 +3156,21 @@ window._saveLsn = function(){
   // ⚠️ editIdx 사용 전에 ID를 먼저 확보
   const _editLesson = editIdx!==null ? lessons[editIdx] : null;
   const _isEdit = _editLesson != null;
+  const _studentName = s;
 
-  closeLsn(); // 팝업 닫기 (editIdx가 null이 되기 전에 ID 이미 확보)
+  closeLsn(); // 팝업 닫기
+
+  // 입시담당 선생님 - 같은 학생의 모든 레슨에 일괄 적용
+  function applyIpsTeacher(studentName, ipsTeacherVal){
+    if(ipsTeacherVal===undefined) return;
+    const sameStudentLessons=lessons.filter(l=>l.student===studentName&&l.type==='individual'&&l.course==='입시');
+    sameStudentLessons.forEach(l=>{
+      if(l._id && l._id !== (_editLesson?._id)){
+        const {_id,...data}={...l, ipsTeacher: ipsTeacherVal};
+        window._db.collection('lessons').doc(l._id).set(data).catch(()=>{});
+      }
+    });
+  }
 
   if(freq===2){
     const day1=parseInt(document.getElementById('mday2a')?.value)||0;
@@ -3170,7 +3186,11 @@ window._saveLsn = function(){
 
     window._db.collection('lessons').doc(id1).set(obj1).then(()=>{});
     window._db.collection('lessons').doc(id2).set(obj2)
-      .then(()=>{showToast(_isEdit?'✅ 수정됐습니다':'✅ 등록됐습니다');updCnt();})
+      .then(()=>{
+        showToast(_isEdit?'✅ 수정됐습니다':'✅ 등록됐습니다');
+        updCnt();
+        if(ipsTeacher!==undefined) applyIpsTeacher(_studentName, ipsTeacher);
+      })
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
 
   } else if(freq===0){
@@ -3180,7 +3200,11 @@ window._saveLsn = function(){
     const obj={...common,day:lday,time:ltime,shortDate:sd||''};
     const id=_editLesson?._id||('L'+Date.now());
     window._db.collection('lessons').doc(id).set(obj)
-      .then(()=>{showToast(_isEdit?'✅ 수정됐습니다':'✅ 저장됐습니다');updCnt();})
+      .then(()=>{
+        showToast(_isEdit?'✅ 수정됐습니다':'✅ 저장됐습니다');
+        updCnt();
+        if(ipsTeacher!==undefined) applyIpsTeacher(_studentName, ipsTeacher);
+      })
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
 
   } else {
@@ -3189,7 +3213,11 @@ window._saveLsn = function(){
     const obj={...common,day:lday,time:ltime};
     const id=_editLesson?._id||('L'+Date.now());
     window._db.collection('lessons').doc(id).set(obj)
-      .then(()=>{showToast(_isEdit?'✅ 수정됐습니다':'✅ 저장됐습니다');updCnt();})
+      .then(()=>{
+        showToast(_isEdit?'✅ 수정됐습니다':'✅ 저장됐습니다');
+        updCnt();
+        if(ipsTeacher!==undefined) applyIpsTeacher(_studentName, ipsTeacher);
+      })
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
   }
 };
