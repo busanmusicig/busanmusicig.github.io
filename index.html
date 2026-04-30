@@ -2586,7 +2586,7 @@ function toggleSwitcher(){
 }
 
 function switchToTeacher(ti){
-  if(!isLoginAdm()) return; // 실제 관리자 로그인만 전환 가능
+  if(!isLoginAdm()) return;
   role = String(ti);
   const menu = document.getElementById('switcher-menu');
   if(menu) menu.style.display = 'none';
@@ -2594,9 +2594,10 @@ function switchToTeacher(ti){
   if(label) label.textContent = T[ti]?.name || '';
   const sub = document.getElementById('hdr-sub');
   if(sub) sub.textContent = T[ti]?.name + ' 선생님';
-  selDay = 1; selDate = null;
+  selDay = getTodayAppDay();
+  selDate = null;
   buildTabs();
-  showView('my-tt');
+  showView('my-day');
 }
 
 function switchToAdmin(){
