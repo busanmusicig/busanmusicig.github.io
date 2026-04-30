@@ -595,33 +595,32 @@ const ALL_T=[...new Set([...SAT_T,...WK_T])].sort((a,b)=>parseInt(a)-parseInt(b)
 // DD: 요일별 날짜 목록 - 현재 날짜 기준 동적 생성
 function buildDD(){
   const now=new Date();
-  const todayDay=now.getDay(); // 0=일,1=월...6=토
-  // 이번 주 월요일
+  const todayDay=now.getDay();
   const mon=new Date(now);
   mon.setDate(now.getDate()-(todayDay===0?6:todayDay-1));
   mon.setHours(0,0,0,0);
 
   const fmt=(d)=>`${d.getMonth()+1}/${d.getDate()}`;
+  const startLimit=new Date('2026-04-01'); // 2026년 4월부터
 
-  // 각 요일별 최근 5주 날짜 생성
   function datesForOffset(offset){
     const dates=[];
     for(let w=4;w>=0;w--){
       const d=new Date(mon);
       d.setDate(mon.getDate()+offset-w*7);
-      if(d<=now) dates.push(fmt(d));
+      if(d<=now && d>=startLimit) dates.push(fmt(d));
     }
     return dates;
   }
 
   return {
-    0:datesForOffset(0), // 월
-    1:datesForOffset(1), // 화
-    2:datesForOffset(2), // 수
-    3:datesForOffset(3), // 목
-    4:datesForOffset(4), // 금
-    41:datesForOffset(4), // 금(댄)
-    5:datesForOffset(5), // 토
+    0:datesForOffset(0),
+    1:datesForOffset(1),
+    2:datesForOffset(2),
+    3:datesForOffset(3),
+    4:datesForOffset(4),
+    41:datesForOffset(4),
+    5:datesForOffset(5),
   };
 }
 let DD=buildDD();
@@ -2755,12 +2754,10 @@ function rStudentDetail(){
       }
     });
 
-    // 결석 날짜 (차시 번호 없음)
+    // 결석/skip 날짜 (차시 번호 없음)
     const absentDates=sortedDates.filter(d=>attData[d]==='absent');
+    const skipDates=sortedDates.filter(d=>attData[d]==='skip');
 
-    // 총 차시 칸 = totalSession
-    // 각 칸에는 출석/보강 날짜를 순서대로 배치
-    // 결석은 별도 표시
     const slots=Array.from({length:totalSession},(_,i)=>i+1);
 
     h+=`<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;padding:10px 12px 4px">
@@ -2802,9 +2799,9 @@ function rStudentDetail(){
       const month=date?date.slice(0,7):'';
       const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
       if(month&&month!==prevMonth) prevMonth=month;
-      const lab=st==='present'?'출':st==='makeup'?'보':st==='absent'?'결':'';
-      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':'#aaa';
-      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':'#f5f5f5';
+      const lab=st==='present'?'출':st==='makeup'?'보':st==='absent'?'결':st==='skip'?'X':'';
+      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':st==='skip'?'#666':'#aaa';
+      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':st==='skip'?'#f0f0f0':'#f5f5f5';
       h+=`<td style="padding:4px 4px;text-align:center;${bl}">
         <span style="display:inline-block;min-width:28px;padding:4px 2px;background:${bg2};color:${col};border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;border:1.5px solid ${col}30"
           onclick="showAttPop(event,${ti},'${studentName}','${date||''}','${st}',${s})">${lab||'○'}</span>
@@ -2812,10 +2809,11 @@ function rStudentDetail(){
     });
     h+=`</tr>`;
 
-    if(absentDates.length){
-      h+=`<tr><td colspan="${totalSession}" style="padding:5px 4px;font-size:10px;color:#C00000;text-align:left">
-        결석: ${absentDates.map(d=>`<span style="cursor:pointer" onclick="showAttPop(event,${ti},'${studentName}','${d}','absent',0)">${d.slice(5)}</span>`).join(', ')}
-      </td></tr>`;
+    if(absentDates.length||skipDates.length){
+      h+=`<tr><td colspan="${totalSession}" style="padding:5px 4px;font-size:10px;text-align:left">`;
+      if(absentDates.length) h+=`<span style="color:#C00000">결석: ${absentDates.map(d=>`<span style="cursor:pointer" onclick="showAttPop(event,${ti},'${studentName}','${d}','absent',0)">${d.slice(5)}</span>`).join(', ')}</span> `;
+      if(skipDates.length) h+=`<span style="color:#666">X(미룸): ${skipDates.map(d=>d.slice(5)).join(', ')}</span>`;
+      h+=`</td></tr>`;
     }
 
     h+=`</tbody></table></div>`;
@@ -2824,6 +2822,7 @@ function rStudentDetail(){
       <span style="color:#2E7D32;font-weight:600">출석 ${allDates.filter(d=>attData[d]==='present').length}</span>
       <span style="color:#1565C0;font-weight:600">보강 ${allDates.filter(d=>attData[d]==='makeup').length}</span>
       <span style="color:#C00000;font-weight:600">결석 ${absentDates.length}</span>
+      ${skipDates.length?`<span style="color:#666;font-weight:600">X ${skipDates.length}</span>`:''}
       <span style="margin-left:auto">완료 ${sn}/${totalSession}차시</span>
     </div>`;
   }
@@ -2895,17 +2894,16 @@ function confirmDatePop(ti, student, oldDate){
 }
 function showAttPop(e, ti, student, date, cur, sess){
   e.stopPropagation();
-  // 기존 팝업 제거
   const old=document.getElementById('_att_pop');
   if(old){old.remove();if(old._date===date&&old._ti===ti&&old._st===cur)return;}
 
   const pop=document.createElement('div');
   pop.id='_att_pop';
   pop._date=date;_ti=ti;pop._st=cur;
-  pop.style.cssText=`position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.22);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:120px`;
+  pop.style.cssText=`position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.22);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:130px`;
 
-  // 날짜가 없으면 날짜 입력 먼저
   if(!date){
+    // 빈 칸 - 날짜 입력 + 출결
     const today=new Date().toISOString().slice(0,10);
     pop.innerHTML=`
       <div style="font-size:11px;color:#8e8e93;margin-bottom:2px">${sess}차시 날짜</div>
@@ -2914,6 +2912,7 @@ function showAttPop(e, ti, student, date, cur, sess){
         <button onclick="quickAttPop(${ti},'${student}','present')" style="flex:1;padding:7px 4px;border:none;border-radius:8px;background:#E8F5E9;color:#2E7D32;font-weight:700;font-size:13px;cursor:pointer">출</button>
         <button onclick="quickAttPop(${ti},'${student}','makeup')" style="flex:1;padding:7px 4px;border:none;border-radius:8px;background:#E3F2FD;color:#1565C0;font-weight:700;font-size:13px;cursor:pointer">보</button>
         <button onclick="quickAttPop(${ti},'${student}','absent')" style="flex:1;padding:7px 4px;border:none;border-radius:8px;background:#FFEBEE;color:#C00000;font-weight:700;font-size:13px;cursor:pointer">결</button>
+        <button onclick="skipSessAttPop(${ti},'${student}',${sess})" style="flex:1;padding:7px 4px;border:none;border-radius:8px;background:#f2f2f7;color:#8e8e93;font-weight:700;font-size:13px;cursor:pointer" title="다음 차시로 미룸">X</button>
       </div>`;
   } else {
     pop.innerHTML=`
@@ -2922,25 +2921,35 @@ function showAttPop(e, ti, student, date, cur, sess){
         <button onclick="setAttPop(${ti},'${student}','${date}','present')" style="flex:1;padding:8px 4px;border:none;border-radius:8px;background:${cur==='present'?'#2E7D32':'#E8F5E9'};color:${cur==='present'?'#fff':'#2E7D32'};font-weight:700;font-size:14px;cursor:pointer">출</button>
         <button onclick="setAttPop(${ti},'${student}','${date}','makeup')" style="flex:1;padding:8px 4px;border:none;border-radius:8px;background:${cur==='makeup'?'#1565C0':'#E3F2FD'};color:${cur==='makeup'?'#fff':'#1565C0'};font-weight:700;font-size:14px;cursor:pointer">보</button>
         <button onclick="setAttPop(${ti},'${student}','${date}','absent')" style="flex:1;padding:8px 4px;border:none;border-radius:8px;background:${cur==='absent'?'#C00000':'#FFEBEE'};color:${cur==='absent'?'#fff':'#C00000'};font-weight:700;font-size:14px;cursor:pointer">결</button>
+        <button onclick="setAttPop(${ti},'${student}','${date}','skip')" style="flex:1;padding:8px 4px;border:none;border-radius:8px;background:${cur==='skip'?'#555':'#f2f2f7'};color:${cur==='skip'?'#fff':'#8e8e93'};font-weight:700;font-size:14px;cursor:pointer" title="다음 차시로 미룸">X</button>
       </div>
       ${cur?`<button onclick="setAttPop(${ti},'${student}','${date}',null)" style="width:100%;padding:6px;border:none;border-radius:8px;background:#f2f2f7;color:#8e8e93;font-size:11px;cursor:pointer">🗑 삭제</button>`:''}`;
   }
 
-  // 위치 설정
   const rect=e.target.getBoundingClientRect();
-  const pw=140;
+  const pw=150;
   let left=rect.left;
   let top=rect.bottom+4;
   if(left+pw>window.innerWidth)left=window.innerWidth-pw-8;
-  if(top+120>window.innerHeight)top=rect.top-130;
+  if(top+140>window.innerHeight)top=rect.top-150;
   pop.style.left=left+'px';
   pop.style.top=top+'px';
 
   document.body.appendChild(pop);
-  // 외부 클릭 시 닫기
   setTimeout(()=>{
     document.addEventListener('click',function cl(){pop.remove();document.removeEventListener('click',cl);},{once:true});
   },10);
+}
+
+// X: 이 차시를 skip으로 기록 (다음 차시로 미룸)
+function skipSessAttPop(ti, student, sess){
+  const dateEl=document.getElementById('_pop_date');
+  const date=dateEl?dateEl.value:'';
+  const pop=document.getElementById('_att_pop');
+  if(pop)pop.remove();
+  if(!date)return;
+  setAtt(ti,student,date,'skip');
+  setTimeout(()=>rStudentDetail(),200);
 }
 
 function quickAttPop(ti,student,status){
