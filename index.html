@@ -582,7 +582,41 @@ const COL=[0,1,2,3,4,41,5];
 const SAT_T=['11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 const WK_T=['13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
 const ALL_T=[...new Set([...SAT_T,...WK_T])].sort((a,b)=>parseInt(a)-parseInt(b));
-const DD={0:['4/6','4/13','4/20','4/27'],1:['4/1','4/8','4/15','4/22','4/29'],2:['4/2','4/9','4/16','4/23','4/30'],3:['4/3','4/10','4/17','4/24'],4:['4/4','4/11','4/18','4/25'],41:['4/4','4/11','4/18','4/25'],5:['4/5','4/12','4/19','4/26']};
+// DD: 요일별 날짜 목록 - 현재 날짜 기준 동적 생성
+function buildDD(){
+  const now=new Date();
+  const todayDay=now.getDay(); // 0=일,1=월...6=토
+  // 이번 주 월요일
+  const mon=new Date(now);
+  mon.setDate(now.getDate()-(todayDay===0?6:todayDay-1));
+  mon.setHours(0,0,0,0);
+
+  const fmt=(d)=>`${d.getMonth()+1}/${d.getDate()}`;
+
+  // 각 요일별 최근 5주 날짜 생성
+  function datesForOffset(offset){
+    const dates=[];
+    for(let w=4;w>=0;w--){
+      const d=new Date(mon);
+      d.setDate(mon.getDate()+offset-w*7);
+      if(d<=now) dates.push(fmt(d));
+    }
+    return dates;
+  }
+
+  return {
+    0:datesForOffset(0), // 월
+    1:datesForOffset(1), // 화
+    2:datesForOffset(2), // 수
+    3:datesForOffset(3), // 목
+    4:datesForOffset(4), // 금
+    41:datesForOffset(4), // 금(댄)
+    5:datesForOffset(5), // 토
+  };
+}
+let DD=buildDD();
+// 날짜 변경 감지 (자정 넘어가면 갱신)
+setInterval(()=>{DD=buildDD();},60000);
 const DTI=10;
 
 let T=[
@@ -1092,7 +1126,12 @@ function rAtt(){
   </div>`;
 
   if(_attView==='list'){
-    // 기존 선생님별 학생 목록
+    // 기존 선생님별 학생 목록 - 통계에서 왔으면 뒤로가기 버튼 표시
+    const fromStat=document.referrer===''||true; // 항상 표시
+    h+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px 4px">
+      <button onclick="showView('stat')" style="background:none;border:none;font-size:13px;color:#8e8e93;cursor:pointer;padding:4px 8px;border-radius:8px;background:#f2f2f7;font-family:inherit">‹ 통계</button>
+      <span style="font-size:12px;font-weight:700;color:#1c1c1e">출결 관리</span>
+    </div>`;
     T.forEach((t,ti)=>{
       const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
       const uniqS=[...new Map(myL.map(l=>[l.student,l])).values()];
@@ -2962,14 +3001,15 @@ window._saveLsn = function(){
     const day2=parseInt(document.getElementById('mday2b')?.value)||0;
     const time2=document.getElementById('mtime2b')?.value||'15:00';
 
-    // 기존 수정 시 기존 id 사용, 신규는 새 id
-    const id1=(editIdx!==null&&lessons[editIdx]?._id)?lessons[editIdx]._id:('L'+Date.now());
-    const id2='L'+(Date.now()+1);
+    // 수정 시 기존 id + pairId 사용, 신규면 새 id 생성
+    const curLesson=editIdx!==null?lessons[editIdx]:null;
+    const id1=curLesson?._id||('L'+Date.now());
+    const id2=curLesson?.pairId||('L'+(Date.now()+1));
 
     const obj1={...common,day:day1,time:time1,pairId:id2};
     const obj2={...common,day:day2,time:time2,pairId:id1};
 
-  window._db.collection('lessons').doc(id1).set(obj1).then(()=>{});
+    window._db.collection('lessons').doc(id1).set(obj1).then(()=>{});
     window._db.collection('lessons').doc(id2).set(obj2)
       .then(()=>{showToast('✅ 주2회 수업이 등록됐습니다 (2개 요일)');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
