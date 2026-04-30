@@ -3150,47 +3150,46 @@ window._saveLsn = function(){
     ...(ipsTeacher!==undefined?{ipsTeacher}:{})
   };
 
-  closeLsn();
+  // ⚠️ editIdx 사용 전에 ID를 먼저 확보
+  const _editLesson = editIdx!==null ? lessons[editIdx] : null;
+  const _isEdit = _editLesson != null;
+
+  closeLsn(); // 팝업 닫기 (editIdx가 null이 되기 전에 ID 이미 확보)
 
   if(freq===2){
-    // 주2회: 두 개의 별도 레슨으로 저장
     const day1=parseInt(document.getElementById('mday2a')?.value)||0;
     const time1=document.getElementById('mtime2a')?.value||'15:00';
     const day2=parseInt(document.getElementById('mday2b')?.value)||0;
     const time2=document.getElementById('mtime2b')?.value||'15:00';
 
-    // 수정 시 기존 id + pairId 사용, 신규면 새 id 생성
-    const curLesson=editIdx!==null?lessons[editIdx]:null;
-    const id1=curLesson?._id||('L'+Date.now());
-    const id2=curLesson?.pairId||('L'+(Date.now()+1));
+    const id1=_editLesson?._id||('L'+Date.now());
+    const id2=_editLesson?.pairId||('L'+(Date.now()+1));
 
     const obj1={...common,day:day1,time:time1,pairId:id2};
     const obj2={...common,day:day2,time:time2,pairId:id1};
 
     window._db.collection('lessons').doc(id1).set(obj1).then(()=>{});
     window._db.collection('lessons').doc(id2).set(obj2)
-      .then(()=>{showToast('✅ 주2회 수업이 등록됐습니다 (2개 요일)');updCnt();})
+      .then(()=>{showToast(_isEdit?'✅ 수정됐습니다':'✅ 등록됐습니다');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
 
   } else if(freq===0){
-    // 단기
     const sd=document.getElementById('mshortdate')?.value;
     const lday=sd?new Date(sd).getDay():0;
     const ltime=document.getElementById('mtimeS')?.value||'15:00';
     const obj={...common,day:lday,time:ltime,shortDate:sd||''};
-    const id=(editIdx!==null&&lessons[editIdx]?._id)?lessons[editIdx]._id:('L'+Date.now());
+    const id=_editLesson?._id||('L'+Date.now());
     window._db.collection('lessons').doc(id).set(obj)
-      .then(()=>{showToast('✅ 저장됐습니다');updCnt();})
+      .then(()=>{showToast(_isEdit?'✅ 수정됐습니다':'✅ 저장됐습니다');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
 
   } else {
-    // 주1회
     const lday=parseInt(document.getElementById('mday')?.value)||0;
     const ltime=document.getElementById('mtime')?.value||'15:00';
     const obj={...common,day:lday,time:ltime};
-    const id=(editIdx!==null&&lessons[editIdx]?._id)?lessons[editIdx]._id:('L'+Date.now());
+    const id=_editLesson?._id||('L'+Date.now());
     window._db.collection('lessons').doc(id).set(obj)
-      .then(()=>{showToast('✅ 저장됐습니다');updCnt();})
+      .then(()=>{showToast(_isEdit?'✅ 수정됐습니다':'✅ 저장됐습니다');updCnt();})
       .catch(e=>showToast('❌ 저장 실패: '+e.message));
   }
 };
