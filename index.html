@@ -806,7 +806,15 @@ let lessons=[
   {type:'individual',day:41,time:'19:00',ti:10,student:'K-POP 중급',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:'중급'},
   {type:'individual',day:41,time:'20:00',ti:10,student:'K-POP 중고등',course:'취미',level:'1기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:'3/20이전'},
 ];
-let att={},mks=[],mkTgt=null,editIdx=null,tchIdx=null,role='admin',selDay=1,selDate=null;
+// 오늘 요일 → selDay 자동 설정 (0=일→월,1=화,2=수,3=목,4=금,5=토)
+function getTodayAppDay(){
+  const d=new Date().getDay(); // 0=일,1=월...6=토
+  if(d===0)return 1; // 일요일이면 월요일로
+  return d-1; // 1=월,2=화...6=토
+}
+let att={},mks=[],mkTgt=null,editIdx=null,tchIdx=null,role='admin';
+let selDay=getTodayAppDay();
+let selDate=null;
 let loginRole='admin'; // 실제 로그인한 역할 (관리자가 선생님 페이지 볼 때도 유지)
 const gTi=()=>role==='admin'?null:parseInt(role);
 const isAdm=()=>role==='admin';
@@ -844,7 +852,7 @@ function updCnt(){
 }
 
 function buildRSel(){ buildLoginList(); }
-function changeRole(r){role=r;selDay=1;selDate=null;buildTabs();showView(isAdm()?'tt':'my-day');}
+function changeRole(r){role=r;selDay=getTodayAppDay();selDate=null;buildTabs();showView(isAdm()?'tt':'my-day');}
 
 function buildTabs(){
   document.getElementById('tabbar').innerHTML=isAdm()?
@@ -2036,7 +2044,12 @@ function rMyDay(){
   const dates=DD[selDay]||[];
   const dayL=lessons.filter(l=>l.ti===ti&&l.day===selDay&&l.type==='individual');
   if(!dayL.length){h+=`<div class="empty">이 요일 담당 수업이 없습니다</div>`;document.getElementById('page').innerHTML=h;return;}
-  if(!selDate||!dates.includes(selDate))selDate=dates[dates.length-1];
+  // 오늘 날짜
+  const _todayD=new Date();
+  const todayStr=`${_todayD.getMonth()+1}/${_todayD.getDate()}`;
+  if(!selDate||!dates.includes(selDate)){
+    selDate=dates.includes(todayStr)?todayStr:dates[dates.length-1];
+  }
   h+=`<div style="padding:4px 12px 2px;font-size:10px;color:#8e8e93">날짜 선택</div><div class="chip-bar" style="padding-top:4px;padding-bottom:6px">`;
   dates.forEach(d=>h+=`<button class="chip${d===selDate?' on':''}" style="${d===selDate?'background:#1565C0':''}" onclick="selDate='${d}';rMyDay()">${d}</button>`);
   h+=`</div>`;
