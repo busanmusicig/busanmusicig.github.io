@@ -847,7 +847,7 @@ function rTT(){
       <button onclick="adjTT('r',0)" style="padding:2px 7px;border-radius:6px;border:1px solid #e5e5e5;background:#f2f2f7;font-size:11px;cursor:pointer;font-family:inherit" title="초기화">↺</button>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
-      <span style="font-size:10px;color:#8e8e93">🗓토요일 13~17시</span>
+      <span id="tt-clock" style="font-size:11px;color:#C00000;font-weight:700;margin-right:4px"></span><span style="font-size:10px;color:#8e8e93">🗓토요일 13~17시</span>
       ${isLoginAdm()?'<button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,null)">+ 개인레슨 추가</button>&nbsp;<button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px;background:#1565C0" onclick="openAddGroup(null,null,null)">+ 단체수업 추가</button>':''}
     </div>
   </div>
@@ -869,6 +869,15 @@ function rTT(){
     &nbsp;<span style="color:#1565C0">(보)</span>&nbsp;보강
   </div>`;
   document.getElementById('page').innerHTML=h;
+
+  // 현재 시간/요일 실시간 표시
+  const _DAY=['일','월','화','수','목','금','토'];
+  function _updateClock(){
+    const el=document.getElementById('tt-clock');if(!el){clearInterval(window._ttClkId);return;}
+    const n=new Date();
+    el.textContent=`${n.getMonth()+1}/${n.getDate()}(${_DAY[n.getDay()]}) ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+  }
+  _updateClock();clearInterval(window._ttClkId);window._ttClkId=setInterval(_updateClock,1000);
 
   // 범례
   const leg=document.getElementById('leg');
@@ -1397,7 +1406,7 @@ function rStat(){
   const w1=uniq(indiv.filter(l=>(l.freq||1)===1));
   const w2=uniq(indiv.filter(l=>(l.freq||1)>=2));
   const ips=uniq(indiv.filter(l=>l.course==='입시'));
-  const hby=uniq(indiv.filter(l=>l.course==='취미'));
+  const hby=uniq(indiv.filter(l=>l.course==='취미'||l.course==='전문'));
   // 주간 총 수업시간: 개인레슨만, 단체수업·댄스 제외
   // 주1회=1시간, 주2회=2시간, pairId 중복만 제거
   const indivOnly=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI&&l.day!==41);
@@ -1432,15 +1441,42 @@ function rStat(){
   <div style="padding:0 12px 6px;font-size:11px;font-weight:700;color:#8e8e93">선생님별 담당</div>`;
   T.forEach((t,i)=>{
     if(i===DTI)return;
-    const cnt=new Set(lessons.filter(l=>l.ti===i&&l.type==='individual').map(l=>l.student)).size;
-    if(!cnt)return;
-    const w1c=new Set(lessons.filter(l=>l.ti===i&&l.type==='individual'&&(l.freq||1)===1).map(l=>l.student)).size;
-    const w2c=new Set(lessons.filter(l=>l.ti===i&&l.type==='individual'&&(l.freq||1)>=2).map(l=>l.student)).size;
-    h+=`<div style="margin:0 12px 6px;background:#fff;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-      <div style="width:32px;height:32px;border-radius:50%;background:${bg(t.c)};color:${t.c};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${t.s}</div>
-      <div style="flex:1"><div style="font-size:12px;font-weight:700">${t.name}</div>
-      <div style="font-size:10px;color:#8e8e93">주1회 ${w1c}명 · 주2회 ${w2c}명</div></div>
-      <div style="font-size:20px;font-weight:800;color:${t.c}">${cnt}명</div>
+    const myL=lessons.filter(l=>l.ti===i&&l.type==='individual');
+    if(!myL.length)return;
+
+    // 총 학생수 (중복 제외)
+    const uniqStudents=new Set(myL.map(l=>l.student)).size;
+    if(!uniqStudents)return;
+
+    // 총 수업시간 (중복 계산, 주2회=2시간, pairId 쌍 한번만)
+    const seenP=new Set();
+    let hrs=0;
+    myL.forEach(l=>{
+      if(l.pairId){
+        const pk=[l._id,l.pairId].sort().join('_');
+        if(!seenP.has(pk)){seenP.add(pk);hrs+=2;}
+      } else { hrs+=1; }
+    });
+
+    // 입시 학생수 (중복과목 1명, 전문=취미로 제외)
+    const ipsStudents=new Set(myL.filter(l=>l.course==='입시').map(l=>l.student)).size;
+    // 취미 학생수 (전문 포함)
+    const hbyStudents=new Set(myL.filter(l=>l.course==='취미'||l.course==='전문').map(l=>l.student)).size;
+
+    h+=`<div style="margin:0 12px 6px;background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer" onclick="_attView='list';_detailTi=${i};showView('att')">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:${bg(t.c)};color:${t.c};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;border:2px solid ${t.c}30">${t.s}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:#1c1c1e">${t.name}</div>
+          <div style="font-size:10px;color:#8e8e93;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap">
+            <span>총 <b style="color:#1c1c1e">${uniqStudents}명</b></span>
+            <span>주간 <b style="color:#1565C0">${hrs}시간</b></span>
+            ${ipsStudents?`<span>입시 <b style="color:#C00000">${ipsStudents}명</b></span>`:''}
+            ${hbyStudents?`<span>취미 <b style="color:#2E7D32">${hbyStudents}명</b></span>`:''}
+          </div>
+        </div>
+        <div style="font-size:22px;font-weight:800;color:${t.c}">${uniqStudents}명</div>
+      </div>
     </div>`;
   });
   document.getElementById('page').innerHTML=h;
@@ -1483,6 +1519,10 @@ function rMyTT(){
     <div style="font-size:11px;color:#8e8e93">${t.sub||''} · 담당 ${myL.length}명</div></div>
     <button class="add-btn" style="width:auto;padding:6px 12px;font-size:11px;margin:0 0 0 auto;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
   </div>
+  <div class="legend" id="mytt-leg"></div>`;
+  document.getElementById('page').innerHTML=h;
+  if(isLoginAdm()){const leg2=document.getElementById('mytt-leg');if(leg2){T.forEach((tt,ii)=>{const s=document.createElement('span');s.className='leg';s.style.cssText=`background:${bg(tt.c)};color:${tt.c};border-color:${tt.c}30;cursor:pointer;${ii===ti?'outline:2px solid '+tt.c+';outline-offset:1px':''}`;s.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${tt.c};display:inline-block;flex-shrink:0"></span>${tt.name}`;s.onclick=()=>{switchToTeacher(ii);showView('my-tt');};leg2.appendChild(s);});}}
+  h=`
   <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 12px;background:#fff;border-bottom:.5px solid #e5e5e5;flex-shrink:0">
     <div style="display:flex;align-items:center;gap:4px">
       <span style="font-size:10px;color:#8e8e93">크기:</span>
@@ -1505,7 +1545,7 @@ function rMyTT(){
   if(isDance){
     h+=`<th style="min-width:16px;width:16px;background:#f8f8f8;color:#555">금(댄)</th>`;
   } else {
-    h+=`<th style="min-width:54px;background:#f8f8f8;color:#555">금</th>`;
+    h+=`<th style="min-width:50px">금</th>`;
   }
   h+=`<th style="width:10px;max-width:10px;min-width:10px;overflow:hidden;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px">시간</th>
       <th style="min-width:27px;background:#e8f4fb;color:#1565C0;font-weight:700">토요일</th>
