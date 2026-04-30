@@ -1444,16 +1444,40 @@ function showStatList(filterKey){
       <div style="font-size:12px;font-weight:700;flex:1">${labels[filterKey]||''} 학생 (${filtered.length}명)</div>
       <button onclick="const el=document.getElementById('stat-list');el.innerHTML='';el._key=null;" style="background:none;border:none;font-size:18px;color:#8e8e93;cursor:pointer;padding:0;line-height:1">✕</button>
     </div>`;
-  const byTi={};
-  filtered.forEach(l=>{if(!byTi[l.ti])byTi[l.ti]=[];byTi[l.ti].push(l);});
-  Object.keys(byTi).sort((a,b)=>a-b).forEach(ti=>{
-    const t=T[ti]||{};
-    h+=`<div style="padding:8px 14px;border-bottom:.5px solid #f0f0f0">
-      <div style="font-size:10px;color:${t.c||'#888'};font-weight:700;margin-bottom:4px">${t.name||''}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px">`;
-    byTi[ti].forEach(l=>{h+=`<span style="font-size:11px;background:${bg(t.c||'#888')};color:${t.c||'#888'};padding:2px 8px;border-radius:10px;font-weight:600">${l.student}</span>`;});
-    h+=`</div></div>`;
-  });
+
+  if(filterKey==='ips'){
+    // 입시: 입시담당 선생님(ipsTeacher) 기준으로 그룹핑
+    const byIpsTi={};
+    filtered.forEach(l=>{
+      // ipsTeacher 있으면 그 선생님, 없으면 수업 선생님
+      const key=l.ipsTeacher!==undefined?l.ipsTeacher:l.ti;
+      if(!byIpsTi[key])byIpsTi[key]=[];
+      byIpsTi[key].push(l);
+    });
+    Object.keys(byIpsTi).sort((a,b)=>a-b).forEach(ti=>{
+      const t=T[ti]||{};
+      h+=`<div style="padding:8px 14px;border-bottom:.5px solid #f0f0f0">
+        <div style="font-size:10px;color:#C00000;font-weight:700;margin-bottom:4px">🎓 입시담당: ${t.name||''}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+      byIpsTi[ti].forEach(l=>{
+        const tLesson=T[l.ti]||{};
+        h+=`<span style="font-size:11px;background:#FFEBEE;color:#C00000;padding:2px 8px;border-radius:10px;font-weight:600" title="수업: ${tLesson.name||''}">${l.student}</span>`;
+      });
+      h+=`</div></div>`;
+    });
+  } else {
+    // 일반: 수업 선생님 기준
+    const byTi={};
+    filtered.forEach(l=>{if(!byTi[l.ti])byTi[l.ti]=[];byTi[l.ti].push(l);});
+    Object.keys(byTi).sort((a,b)=>a-b).forEach(ti=>{
+      const t=T[ti]||{};
+      h+=`<div style="padding:8px 14px;border-bottom:.5px solid #f0f0f0">
+        <div style="font-size:10px;color:${t.c||'#888'};font-weight:700;margin-bottom:4px">${t.name||''}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+      byTi[ti].forEach(l=>{h+=`<span style="font-size:11px;background:${bg(t.c||'#888')};color:${t.c||'#888'};padding:2px 8px;border-radius:10px;font-weight:600">${l.student}</span>`;});
+      h+=`</div></div>`;
+    });
+  }
   h+=`</div>`;
   el.innerHTML=h;
   setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
