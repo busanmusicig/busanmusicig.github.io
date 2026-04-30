@@ -1715,7 +1715,7 @@ function rMyTT(){
 
     // 금요일 칸 (댄스 선생님은 41, 나머지는 4)
     const friCells=lessons.filter(l=>l.ti===ti&&l.day===friDay&&l.time===time);
-    row+=`<td style="vertical-align:top;padding:1px;min-width:16px;width:16px">`;
+    row+=`<td style="vertical-align:top;padding:1.5px;min-width:${isDance?'16px':'50px'}">`;
     if(friCells.length){
       friCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
         if(l.type==='group'){const idx2=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx2})">${l.groupname}</div>`;}
