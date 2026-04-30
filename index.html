@@ -1353,21 +1353,27 @@ function showStatList(filterKey){
   let filtered=[];
 
   if(filterKey==='w1'){
-    filtered=indiv.filter(l=>(l.freq||1)<2);
+    // 주1회: student+ti 기준
+    const seen=new Set();
+    indiv.filter(l=>(l.freq||1)<2).forEach(l=>{const k=l.student+'_'+l.ti;if(!seen.has(k)){seen.add(k);filtered.push(l);}});
   } else if(filterKey==='w2'){
+    // 주2회: student 기준, pairId 쌍 한번만
+    const seenS=new Set();
     indiv.filter(l=>(l.freq||1)>=2).forEach(l=>{
-      if(l.pairId){const pk=[l._id,l.pairId].sort().join('_');if(!seenPair.has(pk)){seenPair.add(pk);filtered.push(l);}}
-      else filtered.push(l);
+      if(!seenS.has(l.student)){seenS.add(l.student);filtered.push(l);}
     });
   } else if(filterKey==='ips'){
+    // 입시: student 기준 (중복과목 1명)
     const seen=new Set();
     indiv.filter(l=>l.course==='입시').forEach(l=>{if(!seen.has(l.student)){seen.add(l.student);filtered.push(l);}});
   } else if(filterKey==='hby'){
+    // 취미+전문: student 기준
     const seen=new Set();
     indiv.filter(l=>l.course==='취미'||l.course==='전문').forEach(l=>{if(!seen.has(l.student)){seen.add(l.student);filtered.push(l);}});
   } else {
+    // 전체: student 기준
     const seen=new Set();
-    indiv.forEach(l=>{if(!seen.has(l.student+'_'+l.ti)){seen.add(l.student+'_'+l.ti);filtered.push(l);}});
+    indiv.forEach(l=>{if(!seen.has(l.student)){seen.add(l.student);filtered.push(l);}});
   }
 
   const el=document.getElementById('stat-list');
@@ -1377,7 +1383,10 @@ function showStatList(filterKey){
 
   const labels={'all':'전체','w1':'주 1회','w2':'주 2회','ips':'입시','hby':'취미'};
   let h=`<div style="margin:0 12px 12px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">
-    <div style="padding:10px 14px;background:#f9f9f9;border-bottom:1px solid #eee;font-size:12px;font-weight:700">${labels[filterKey]||''} 학생 (${filtered.length}명)</div>`;
+    <div style="padding:10px 14px;background:#f9f9f9;border-bottom:1px solid #eee;display:flex;align-items:center">
+      <div style="font-size:12px;font-weight:700;flex:1">${labels[filterKey]||''} 학생 (${filtered.length}명)</div>
+      <button onclick="const el=document.getElementById('stat-list');el.innerHTML='';el._key=null;" style="background:none;border:none;font-size:18px;color:#8e8e93;cursor:pointer;padding:0;line-height:1">✕</button>
+    </div>`;
   const byTi={};
   filtered.forEach(l=>{if(!byTi[l.ti])byTi[l.ti]=[];byTi[l.ti].push(l);});
   Object.keys(byTi).sort((a,b)=>a-b).forEach(ti=>{
@@ -1483,12 +1492,15 @@ function resetAllPw(){
 // ── 통계 페이지 ──────────────────────────────────────────
 function rStat(){
   const indiv=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI&&l.day!==41);
+  // 전체: student+ti 기준 (같은 학생 다른 선생님은 각각)
   const uniq=arr=>new Set(arr.map(l=>l.student+'_'+l.ti)).size;
-  const total=uniq(indiv);
+  // 고유학생: student만 기준 (중복과목 1명)
+  const uniqS=arr=>new Set(arr.map(l=>l.student)).size;
+  const total=uniqS(indiv);
   const w1=uniq(indiv.filter(l=>(l.freq||1)===1));
-  const w2=uniq(indiv.filter(l=>(l.freq||1)>=2));
-  const ips=uniq(indiv.filter(l=>l.course==='입시'));
-  const hby=uniq(indiv.filter(l=>l.course==='취미'||l.course==='전문'));
+  const w2=uniqS(indiv.filter(l=>(l.freq||1)>=2));
+  const ips=uniqS(indiv.filter(l=>l.course==='입시'));
+  const hby=uniqS(indiv.filter(l=>l.course==='취미'||l.course==='전문'));
   // 주간 총 수업시간: 개인레슨만, 단체수업·댄스 제외
   // 주1회=1시간, 주2회=2시간, pairId 중복만 제거
   const indivOnly=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI&&l.day!==41);
@@ -1860,6 +1872,18 @@ function rMyAllStud(){
 function rMyDay(){
   const ti=gTi(),t=T[ti]||{};
   const isDanceT2=(gTi()===DTI),isAdV2=isAdm();
+
+  // 현재 요일 계산 (0=일,1=월...6=토)
+  const now=new Date();
+  const todayJsDay=now.getDay(); // JS: 0=일,1=월,2=화,3=수,4=목,5=금,6=토
+  // 앱 요일 ID: 0=월,1=화,2=수,3=목,4=금,41=금(댄),5=토
+  const todayAppDay=todayJsDay===0?null:todayJsDay===6?5:todayJsDay-1;
+  // 이번 주 날짜
+  const mon=new Date(now);
+  mon.setDate(now.getDate()-(todayJsDay===0?6:todayJsDay-1));
+  const getDate=(offset)=>{const d=new Date(mon);d.setDate(mon.getDate()+offset);return`${d.getMonth()+1}/${d.getDate()}`;};
+  const dayOffset={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
+
   const TABS=[{id:0,l:'월'},{id:1,l:'화'},{id:2,l:'수'},{id:3,l:'목'},
     ...(isAdV2||!isDanceT2?[{id:4,l:'금'}]:[]),
     ...(isAdV2||isDanceT2?[{id:41,l:'금(댄)'}]:[]),
@@ -1867,7 +1891,12 @@ function rMyDay(){
   let h=`<div style="padding:10px 14px 6px;font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''} 출석 체크</div>
   <div class="chip-bar" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
   <button class="chip" style="background:#1c1c1e;color:#fff;border-color:#1c1c1e;font-weight:700" onclick="rMyAllStud()">👥 전체학생</button>`;
-  TABS.forEach(tab=>{const on=selDay===tab.id,dance=tab.id===41;h+=`<button class="chip${on?' on':''}${on&&dance?' dance':''}" onclick="selDay=${tab.id};selDate=null;rMyDay()">${tab.l}</button>`;});
+  TABS.forEach(tab=>{
+    const on=selDay===tab.id,dance=tab.id===41;
+    const isToday=tab.id===todayAppDay||(dance&&todayJsDay===5&&isDanceT2);
+    const dateStr=getDate(dayOffset[tab.id]||0);
+    h+=`<button class="chip${on?' on':''}${on&&dance?' dance':''}" onclick="selDay=${tab.id};selDate=null;rMyDay()" style="${isToday&&!on?'border-color:#C00000;color:#C00000;':''}">${tab.l}<span style="display:block;font-size:8px;opacity:.7">${dateStr}</span></button>`;
+  });
   h+=`</div>`;
   const dates=DD[selDay]||[];
   const dayL=lessons.filter(l=>l.ti===ti&&l.day===selDay&&l.type==='individual');
