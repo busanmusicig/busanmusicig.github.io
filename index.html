@@ -861,6 +861,7 @@ function buildTabs(){
      <button class="tb" onclick="showView('day',this)">요일별</button>
      <button class="tb" onclick="showView('stud',this)">전체 학생</button>
      <button class="tb" onclick="showView('att',this)">출결 관리</button>
+     <button class="tb" onclick="showView('my-day',this)">출석 체크</button>
      <button class="tb" onclick="showView('ntc',this)">수강 공지</button>
      <button class="tb" onclick="showView('alert',this)">📣 출석 알림</button>
      <button class="tb" onclick="showView('mgr',this)">선생님 관리</button>
@@ -904,7 +905,7 @@ function rTT(){
       <button onclick="adjTT('r',0)" style="padding:2px 7px;border-radius:6px;border:1px solid #e5e5e5;background:#f2f2f7;font-size:11px;cursor:pointer;font-family:inherit" title="초기화">↺</button>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
-      <span id="tt-clock" style="font-size:11px;color:#C00000;font-weight:700;margin-right:4px"></span><span style="font-size:10px;color:#8e8e93">🗓토요일 13~17시</span>
+      <span id="tt-clock" style="font-size:11px;color:#C00000;font-weight:700;margin-right:4px"></span>
       ${isLoginAdm()?'<button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,null)">+ 개인레슨 추가</button>&nbsp;<button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px;background:#1565C0" onclick="openAddGroup(null,null,null)">+ 단체수업 추가</button>':''}
     </div>
   </div>
@@ -968,6 +969,15 @@ function rTT(){
     const el=document.getElementById('tt-clock');if(!el){clearInterval(window._ttClkId);return;}
     const n=new Date();
     el.textContent=`${n.getMonth()+1}/${n.getDate()}(${_DAY[n.getDay()]}) ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
+
+    // 현재 시간 칸 하이라이트
+    const nowH=`${n.getHours()}:00`;
+    document.querySelectorAll('.tc').forEach(el=>{
+      const t=el.textContent.trim();
+      el.style.background=t===nowH?'#fff0f0':'';
+      el.style.color=t===nowH?'#C00000':'#999';
+      el.style.fontWeight=t===nowH?'800':'600';
+    });
   }
   _updateClock();clearInterval(window._ttClkId);window._ttClkId=setInterval(_updateClock,1000);
 
@@ -2043,7 +2053,18 @@ function rMyAllStud(){
 
 function rMyDay(){
   const ti=gTi(),t=T[ti]||{};
-  const isDanceT2=(gTi()===DTI),isAdV2=isAdm();
+  const isDanceT2=(ti===DTI),isAdV2=isAdm();
+
+  // 관리자가 선생님 미선택 시 안내
+  if(isAdV2 && (ti===null||ti===undefined||isNaN(ti))){
+    document.getElementById('page').innerHTML=`
+      <div style="padding:24px;text-align:center;color:#8e8e93">
+        <div style="font-size:40px;margin-bottom:12px">👆</div>
+        <div style="font-size:14px;font-weight:600;color:#1c1c1e">상단에서 선생님을 선택해 주세요</div>
+        <div style="font-size:12px;margin-top:6px">선생님 선택 후 출석 체크가 가능합니다</div>
+      </div>`;
+    return;
+  }
 
   // 현재 요일 계산 (0=일,1=월...6=토)
   const now=new Date();
@@ -2092,10 +2113,18 @@ function rMyDay(){
   h+=`<div style="padding:4px 12px 2px;font-size:10px;color:#8e8e93">날짜 선택</div><div class="chip-bar" style="padding-top:4px;padding-bottom:6px">`;
   dates.forEach(d=>h+=`<button class="chip${d===selDate?' on':''}" style="${d===selDate?'background:#1565C0':''}" onclick="selDate='${d}';rMyDay()">${d}</button>`);
   h+=`</div>`;
-  let tp=0,ta=0,tm=0;dayL.forEach(l=>{const v=((att[ti]||{})[l.student]||{})[selDate]||'';if(v==='present')tp++;else if(v==='absent')ta++;else if(v==='makeup')tm++;});
+  let tp=0,ta=0,tm=0;
+  // 선택 날짜 기준으로 등록된 학생만 필터링
+  const [sdM,sdD]=selDate.split('/').map(Number);
+  const selDateObj=new Date(_todayD.getFullYear(),sdM-1,sdD);
+  const activeDayL=dayL.filter(l=>{
+    if(!l.startDate)return true;
+    return new Date(l.startDate)<=selDateObj;
+  });
+  activeDayL.forEach(l=>{const v=((att[ti]||{})[l.student]||{})[selDate]||'';if(v==='present')tp++;else if(v==='absent')ta++;else if(v==='makeup')tm++;});
   h+=`<div class="stat-grid"><div class="stat-c"><div class="stat-n" style="color:#2E7D32">${tp}</div><div class="stat-l">출석</div></div><div class="stat-c"><div class="stat-n" style="color:#C00000">${ta}</div><div class="stat-l">결석</div></div><div class="stat-c"><div class="stat-n" style="color:#1565C0">${tm}</div><div class="stat-l">보강</div></div></div>
   <div class="sec-lbl">${selDate} 출석</div>`;
-  dayL.forEach(l=>{
+  activeDayL.forEach(l=>{
     const idx=lessons.indexOf(l),cur=((att[ti]||{})[l.student]||{})[selDate]||'',w=calcW(l),mw=l.maxWeek||4;
     const mk=mks.filter(m=>m.ti===l.ti&&m.student===l.student);
     h+=`<div class="card" style="border-left-color:${t.c||'#ccc'}">
