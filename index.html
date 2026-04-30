@@ -2070,12 +2070,22 @@ function rMyDay(){
     h+=`<button class="chip${on?' on':''}${on&&dance?' dance':''}" onclick="selDay=${tab.id};selDate=null;rMyDay()" style="${isToday&&!on?'border-color:#C00000;color:#C00000;':''}">${tab.l}<span style="display:block;font-size:8px;opacity:.7">${dateStr}</span></button>`;
   });
   h+=`</div>`;
-  const dates=DD[selDay]||[];
   const dayL=lessons.filter(l=>l.ti===ti&&l.day===selDay&&l.type==='individual');
-  if(!dayL.length){h+=`<div class="empty">이 요일 담당 수업이 없습니다</div>`;document.getElementById('page').innerHTML=h;return;}
-  // 오늘 날짜
+  // 날짜 선택 - 등록일 이전 날짜 제외
   const _todayD=new Date();
   const todayStr=`${_todayD.getMonth()+1}/${_todayD.getDate()}`;
+  const dates=(DD[selDay]||[]).filter(d=>{
+    if(!dayL.length)return true;
+    const earliest=dayL.reduce((min,l)=>{
+      if(!l.startDate)return min;
+      const sd=new Date(l.startDate);
+      return sd<min?sd:min;
+    },new Date('9999-12-31'));
+    const [m,day]=d.split('/').map(Number);
+    const dDate=new Date(_todayD.getFullYear(),m-1,day);
+    return earliest.getFullYear()===9999||dDate>=earliest;
+  });
+  if(!dayL.length){h+=`<div class="empty">이 요일 담당 수업이 없습니다</div>`;document.getElementById('page').innerHTML=h;return;}
   if(!selDate||!dates.includes(selDate)){
     selDate=dates.includes(todayStr)?todayStr:dates[dates.length-1];
   }
@@ -3021,11 +3031,17 @@ function initFirebase(){
   }
 
   // 현재 열린 뷰 새로고침 - onSnapshot이 자동으로 처리하므로 탭 클릭 불필요
-  function refreshCurrentView(){
-    const appEl = document.getElementById('app');
-    if(!appEl || appEl.style.display==='none') return;
+  function _refreshView(){
     updCnt();
-    // 페이지 이동 없이 데이터만 업데이트
+    const appEl=document.getElementById('app');
+    if(!appEl||appEl.style.display==='none')return;
+    const at=document.querySelector('.tb.on');
+    if(at){
+      const v=at.getAttribute('onclick')||'';
+      if(v.includes("'tt'")||v.includes("'my-tt'")||v.includes("'day'")||v.includes("'stud'")){
+        at.click();
+      }
+    }
   }
 
   // teachers 실시간
