@@ -853,14 +853,7 @@ function rTT(){
   </div>
   <div class="tt-scroll"><table class="tt" id="main-tt">
     <thead>
-      <tr><th class="pin">시간</th>
-        <th style="min-width:48px">월</th><th style="min-width:48px">화</th>
-        <th style="min-width:48px">수</th><th style="min-width:48px">목</th>
-        ${showFri?'<th style="min-width:52px;font-weight:600;color:#444;font-size:9px">금</th>':''}
-        ${showDance?'<th class="fri-dh" style="min-width:16px;width:16px;font-size:9px">금(댄)</th>':''}
-        <th style="width:10px;max-width:10px;min-width:10px;overflow:hidden;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px">시간</th>
-        <th style="min-width:26px;background:#e8f4fb;color:#1565C0;font-weight:700">토요일</th>
-      </tr>
+      <tr id="tt-head-row"><th class="pin">시간</th></tr>
     </thead>
     <tbody id="ttb"></tbody>
   </table></div>
@@ -869,6 +862,48 @@ function rTT(){
     &nbsp;<span style="color:#1565C0">(보)</span>&nbsp;보강
   </div>`;
   document.getElementById('page').innerHTML=h;
+
+  // 요일 헤더에 현재 날짜 반영
+  (function buildTTHeader(){
+    const now=new Date();
+    const todayDay=now.getDay(); // 0=일,1=월,...,6=토
+    const dayMap={0:'일',1:'월',2:'화',3:'수',4:'목',5:'금',6:'토'};
+    // 이번 주 월요일 기준으로 날짜 계산
+    const mon=new Date(now);
+    mon.setDate(now.getDate()-(todayDay===0?6:todayDay-1));
+    const fmt=(d)=>`${d.getMonth()+1}/${d.getDate()}`;
+    const headRow=document.getElementById('tt-head-row');
+    if(!headRow)return;
+    // 월~금(댄)
+    const cols=[
+      {label:'월',offset:0,style:'min-width:48px'},
+      {label:'화',offset:1,style:'min-width:48px'},
+      {label:'수',offset:2,style:'min-width:48px'},
+      {label:'목',offset:3,style:'min-width:48px'},
+    ];
+    if(showFri) cols.push({label:'금',offset:4,style:'min-width:52px;font-weight:600;color:#444;font-size:9px'});
+    if(showDance) cols.push({label:'금(댄)',offset:4,style:'min-width:16px;width:16px;font-size:9px',cls:'fri-dh'});
+    cols.forEach(col=>{
+      const d=new Date(mon);d.setDate(mon.getDate()+col.offset);
+      const isToday=d.toDateString()===now.toDateString();
+      const th=document.createElement('th');
+      if(col.cls)th.className=col.cls;
+      th.style.cssText=col.style+(isToday?';background:#fff3f3;color:#C00000;':'');
+      th.innerHTML=`${col.label}<br><span style="font-size:8px;font-weight:400;color:${isToday?'#C00000':'#aaa'}">${fmt(d)}</span>`;
+      headRow.appendChild(th);
+    });
+    // 토요일 시간+날짜
+    const satD=new Date(mon);satD.setDate(mon.getDate()+5);
+    const isSatToday=satD.toDateString()===now.toDateString();
+    const satTimeTh=document.createElement('th');
+    satTimeTh.style.cssText='width:10px;max-width:10px;min-width:10px;overflow:hidden;background:#e8f4fb;color:#1565C0;font-weight:700;border-left:2px solid #1565C0;font-size:8px';
+    satTimeTh.textContent='시간';
+    headRow.appendChild(satTimeTh);
+    const satTh=document.createElement('th');
+    satTh.style.cssText=`min-width:26px;background:${isSatToday?'#fff3f3':'#e8f4fb'};color:${isSatToday?'#C00000':'#1565C0'};font-weight:700`;
+    satTh.innerHTML=`토요일<br><span style="font-size:8px;font-weight:400">${fmt(satD)}</span>`;
+    headRow.appendChild(satTh);
+  })();
 
   // 현재 시간/요일 실시간 표시
   const _DAY=['일','월','화','수','목','금','토'];
@@ -908,8 +943,8 @@ function rTT(){
       if(sat){
         const wkIdx=WK_T.indexOf(time);
         const satTime=wkIdx>=0&&wkIdx<SAT_T.length?SAT_T[wkIdx]:null;
-        const satIndiv=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='individual'):[];
-        const satGrps=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='group'):[];
+        const satIndiv=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='individual').sort((a,b)=>a.ti-b.ti):[];
+        const satGrps=satTime?lessons.filter(l=>l.time===satTime&&l.day===5&&l.type==='group').sort((a,b)=>a.ti-b.ti):[];
         row+=`<td style="background:#e8f4fb;border-left:2px solid #1565C0;border:.5px solid #b3d9ec;text-align:center;color:#1565C0;font-size:9px;font-weight:700;width:10px;max-width:10px;min-width:10px;overflow:hidden;vertical-align:middle;padding:0">${satTime||''}</td>`;
         row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:1px;min-width:26px">`;
         satIndiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);const idx=lessons.indexOf(l);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
@@ -917,8 +952,8 @@ function rTT(){
         if(!satIndiv.length&&!satGrps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(5,'${time}',null)"></div>`;
         row+=`</td>`;return;
       }
-      const indiv=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='individual');
-      const grps=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='group');
+      const indiv=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='individual').sort((a,b)=>a.ti-b.ti);
+      const grps=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='group').sort((a,b)=>a.ti-b.ti);
       let tdStyle=dance?'':'';
       row+=`<td style="${tdStyle}vertical-align:top;padding:2px;min-width:${dance?26:48}px">`;
       indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
@@ -1311,6 +1346,53 @@ function setTTSize(size){
   rSet(); // 설정 화면 새로고침
 }
 
+// ── 통계 학생 명단 ───────────────────────────────────────
+function showStatList(filterKey){
+  const indiv=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI&&l.day!==41);
+  const seenPair=new Set();
+  let filtered=[];
+
+  if(filterKey==='w1'){
+    filtered=indiv.filter(l=>(l.freq||1)<2);
+  } else if(filterKey==='w2'){
+    indiv.filter(l=>(l.freq||1)>=2).forEach(l=>{
+      if(l.pairId){const pk=[l._id,l.pairId].sort().join('_');if(!seenPair.has(pk)){seenPair.add(pk);filtered.push(l);}}
+      else filtered.push(l);
+    });
+  } else if(filterKey==='ips'){
+    const seen=new Set();
+    indiv.filter(l=>l.course==='입시').forEach(l=>{if(!seen.has(l.student)){seen.add(l.student);filtered.push(l);}});
+  } else if(filterKey==='hby'){
+    const seen=new Set();
+    indiv.filter(l=>l.course==='취미'||l.course==='전문').forEach(l=>{if(!seen.has(l.student)){seen.add(l.student);filtered.push(l);}});
+  } else {
+    const seen=new Set();
+    indiv.forEach(l=>{if(!seen.has(l.student+'_'+l.ti)){seen.add(l.student+'_'+l.ti);filtered.push(l);}});
+  }
+
+  const el=document.getElementById('stat-list');
+  if(!el)return;
+  if(el._key===filterKey&&el.innerHTML!==''){el.innerHTML='';el._key=null;return;}
+  el._key=filterKey;
+
+  const labels={'all':'전체','w1':'주 1회','w2':'주 2회','ips':'입시','hby':'취미'};
+  let h=`<div style="margin:0 12px 12px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+    <div style="padding:10px 14px;background:#f9f9f9;border-bottom:1px solid #eee;font-size:12px;font-weight:700">${labels[filterKey]||''} 학생 (${filtered.length}명)</div>`;
+  const byTi={};
+  filtered.forEach(l=>{if(!byTi[l.ti])byTi[l.ti]=[];byTi[l.ti].push(l);});
+  Object.keys(byTi).sort((a,b)=>a-b).forEach(ti=>{
+    const t=T[ti]||{};
+    h+=`<div style="padding:8px 14px;border-bottom:.5px solid #f0f0f0">
+      <div style="font-size:10px;color:${t.c||'#888'};font-weight:700;margin-bottom:4px">${t.name||''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+    byTi[ti].forEach(l=>{h+=`<span style="font-size:11px;background:${bg(t.c||'#888')};color:${t.c||'#888'};padding:2px 8px;border-radius:10px;font-weight:600">${l.student}</span>`;});
+    h+=`</div></div>`;
+  });
+  h+=`</div>`;
+  el.innerHTML=h;
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+
 // ── 설정 페이지 (관리자 + 선생님 공통) ──────────────────
 function rSet(){
   const cur = localStorage.getItem('bm_layout')||'auto';
@@ -1424,20 +1506,21 @@ function rStat(){
       totalHrs+=1;
     }
   });
-  const card=(icon,label,val,color)=>`<div style="background:#fff;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+  const card=(icon,label,val,color,filterKey)=>`<div style="background:#fff;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.07);cursor:pointer;active:opacity:.8" onclick="showStatList('${filterKey}')">
     <div style="font-size:26px">${icon}</div>
     <div><div style="font-size:11px;color:#8e8e93">${label}</div>
     <div style="font-size:22px;font-weight:800;color:${color}">${val}</div></div>
   </div>`;
   let h=`<div class="sec-lbl" style="padding:16px 16px 8px;font-size:13px;font-weight:700">📊 수강 현황</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 12px">
-    ${card('👥','총 수강생',total+'명','#C00000')}
-    ${card('⏰','주간 총 수업',totalHrs+'시간','#1565C0')}
-    ${card('1️⃣','주 1회',w1+'명','#2E7D32')}
-    ${card('2️⃣','주 2회',w2+'명','#6A1B9A')}
-    ${card('🎓','입시',ips+'명','#E53935')}
-    ${card('🎵','취미',hby+'명','#F57C00')}
+    ${card('👥','총 수강생',total+'명','#C00000','all')}
+    ${card('⏰','주간 총 수업',totalHrs+'시간','#1565C0','all')}
+    ${card('1️⃣','주 1회',w1+'명','#2E7D32','w1')}
+    ${card('2️⃣','주 2회',w2+'명','#6A1B9A','w2')}
+    ${card('🎓','입시',ips+'명','#E53935','ips')}
+    ${card('🎵','취미',hby+'명','#F57C00','hby')}
   </div>
+  <div id="stat-list"></div>
   <div style="padding:0 12px 6px;font-size:11px;font-weight:700;color:#8e8e93">선생님별 담당</div>`;
   T.forEach((t,i)=>{
     if(i===DTI)return;
