@@ -1560,13 +1560,6 @@ function rSet(){
       <button onclick="resetAllPw()" style="width:100%;background:#FF6B6B;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🔑 모든 비밀번호 초기화 (→ 0000)</button>
     </div>`;
   }
-  if(isLoginAdm()){
-    h+=`<div style="margin:12px;background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)">
-      <div style="font-size:12px;font-weight:700;color:#C00000;margin-bottom:6px">⚠️ 일괄 등록일 변경</div>
-      <div style="font-size:11px;color:#8e8e93;margin-bottom:10px">전체 학생 등록일 → 2026-01-01<br>(박수진, 이보미 제외)</div>
-      <button onclick="bulkUpdateStartDate()" style="background:#C00000;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;width:100%">실행</button>
-    </div>`;
-  }
   document.getElementById('page').innerHTML=h;
 }
 
@@ -2675,11 +2668,13 @@ function showLoading(msg){
 let _detailTi=null,_detailStudent=null;
 
 function goToStudent(ti,studentName){
-  if(isLoginAdm()){
+  if(isLoginAdm()&&isAdm()){
+    // 관리자 모드: 수업 수정 팝업
     const idx=lessons.findIndex(l=>l.student===studentName&&l.ti===ti&&l.type==='individual');
     if(idx>=0)openEdit(idx);
     else openAddIndiv(null,null,ti);
   } else {
+    // 선생님 모드 (선생님 로그인 or 관리자가 선생님 선택): 출석기록 페이지
     _detailTi=ti;_detailStudent=studentName;
     document.getElementById('page').innerHTML='';
     document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
