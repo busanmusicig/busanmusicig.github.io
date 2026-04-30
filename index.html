@@ -398,11 +398,21 @@ body.force-portrait #page{grid-column:auto !important;}
   <!-- 개인레슨 필드 -->
   <div id="indf">
     <div class="fg"><label class="fl">학생 이름</label><input class="fi" id="mstud" placeholder="홍길동" autocomplete="off"/></div>
-    <div class="fg"><label class="fl">선생님</label><select class="fi" id="mteach"></select></div>
+    <div class="fg"><label class="fl">수업 선생님</label><select class="fi" id="mteach" style="font-weight:600;color:#1c1c1e"></select></div>
     <div class="fg"><label class="fl">수업 과정</label>
-      <select class="fi" id="mcourse">
+      <select class="fi" id="mcourse" onchange="
+        const isIps=this.value==='입시';
+        document.getElementById('ips-teacher-box').style.display=isIps?'':'none';
+      ">
         <option value="취미">취미</option><option value="입시">입시</option><option value="전문">전문</option>
       </select>
+    </div>
+    <!-- 입시 담당 선생님 (입시 과정 선택 시만 표시) -->
+    <div id="ips-teacher-box" style="display:none">
+      <div class="fg">
+        <label class="fl" style="color:#C00000;font-weight:700">🎓 입시 담당 선생님</label>
+        <select class="fi" id="mipsteach" style="border:1.5px solid #C00000;font-weight:600"></select>
+      </div>
     </div>
     <div class="fg2">
       <div class="fg"><label class="fl">학년</label><input class="fi" id="mlevel" placeholder="중2, 고1, 성인" autocomplete="off"/></div>
@@ -1592,8 +1602,12 @@ function rStat(){
       } else { hrs+=1; }
     });
 
-    // 입시 학생수 (중복과목 1명, 전문=취미로 제외)
+    // 입시 학생수 - ipsTeacher 기준 (없으면 수업 선생님 ti 기준)
     const ipsStudents=new Set(myL.filter(l=>l.course==='입시').map(l=>l.student)).size;
+    const ipsTeacherStudents=new Set(
+      lessons.filter(l=>l.type==='individual'&&l.course==='입시'&&(l.ipsTeacher===i||(l.ipsTeacher===undefined&&l.ti===i)))
+      .map(l=>l.student)
+    ).size;
     // 취미 학생수 (전문 포함)
     const hbyStudents=new Set(myL.filter(l=>l.course==='취미'||l.course==='전문').map(l=>l.student)).size;
 
@@ -1605,7 +1619,7 @@ function rStat(){
           <div style="font-size:10px;color:#8e8e93;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap">
             <span>총 <b style="color:#1c1c1e">${uniqStudents}명</b></span>
             <span>주간 <b style="color:#1565C0">${hrs}시간</b></span>
-            ${ipsStudents?`<span>입시 <b style="color:#C00000">${ipsStudents}명</b></span>`:''}
+            ${ipsTeacherStudents?`<span>입시담당 <b style="color:#C00000">${ipsTeacherStudents}명</b></span>`:''}
             ${hbyStudents?`<span>취미 <b style="color:#2E7D32">${hbyStudents}명</b></span>`:''}
           </div>
         </div>
@@ -2110,7 +2124,15 @@ function openEdit(idx){
   } else {
     document.getElementById('mstud').value=l.student||'';
     document.getElementById('mcourse').value=l.course||'취미';
+    // 입시 담당 선생님
+    const ipsBox=document.getElementById('ips-teacher-box');
+    if(ipsBox)ipsBox.style.display=(l.course==='입시')?'':'none';
+    const ipsEl=document.getElementById('mipsteach');
+    if(ipsEl&&l.ipsTeacher!==undefined)ipsEl.value=l.ipsTeacher;
     document.getElementById('mlevel').value=l.level||'';
+    // 입시면 선생님 선택 강조
+    const tcEl=document.getElementById('mteach');
+    if(tcEl){tcEl.style.outline=(l.course==='입시')?'2px solid #C00000':'';tcEl.style.background=(l.course==='입시')?'#fff5f5':'';}
     const fv=String(l.freq||1);
     const fqEl=document.getElementById('mfreq');if(fqEl)fqEl.value=fv;
     toggleFreq(fv);
@@ -2200,17 +2222,25 @@ function delLsn(){
 function closeLsn(){document.getElementById('mlsn').classList.remove('on');editIdx=null;}
 function fillT(selectedTi){
   ['mteach','mteachG'].forEach(selId=>{
-    const sel = document.getElementById(selId);
-    if(!sel) return;
-    sel.innerHTML = '';
+    const sel=document.getElementById(selId);if(!sel)return;
+    sel.innerHTML='';
     T.forEach((t,i)=>{
-      const opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = t.name; // 이름 전체 표시
-      if(selectedTi !== null && selectedTi !== undefined && i === parseInt(selectedTi)) opt.selected = true;
+      const opt=document.createElement('option');
+      opt.value=i;opt.textContent=t.name;
+      if(selectedTi!==null&&selectedTi!==undefined&&i===parseInt(selectedTi))opt.selected=true;
       sel.appendChild(opt);
     });
   });
+  // 입시담당 드롭다운
+  const ipsSel=document.getElementById('mipsteach');
+  if(ipsSel){
+    ipsSel.innerHTML='<option value="">선택 안함</option>';
+    T.forEach((t,i)=>{
+      const opt=document.createElement('option');
+      opt.value=i;opt.textContent=t.name;
+      ipsSel.appendChild(opt);
+    });
+  }
 }
 
 function toggleType(v){
