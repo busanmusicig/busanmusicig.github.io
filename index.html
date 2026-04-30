@@ -1561,6 +1561,13 @@ function rSet(){
       <button onclick="resetAllPw()" style="width:100%;background:#FF6B6B;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🔑 모든 비밀번호 초기화 (→ 0000)</button>
     </div>`;
   }
+  if(isLoginAdm()){
+    h+=`<div style="margin:12px;background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+      <div style="font-size:12px;font-weight:700;color:#C00000;margin-bottom:6px">⚠️ 일괄 등록일 변경</div>
+      <div style="font-size:11px;color:#8e8e93;margin-bottom:10px">전체 학생 등록일 → 2026-01-01<br>(박수진, 이보미 제외)</div>
+      <button onclick="bulkUpdateStartDate()" style="background:#C00000;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;width:100%">실행</button>
+    </div>`;
+  }
   document.getElementById('page').innerHTML=h;
 }
 
@@ -1576,6 +1583,22 @@ function changePw(key){
   if(window._db) window._db.collection('meta').doc('passwords').set(PASSWORDS).catch(()=>{});
   msg.style.color='#2E7D32';msg.textContent='✅ 비밀번호가 변경됐습니다!';
   setTimeout(()=>{document.getElementById('pw-old').value='';document.getElementById('pw-new').value='';document.getElementById('pw-new2').value='';},500);
+}
+
+// 일괄 등록일 업데이트
+async function bulkUpdateStartDate(){
+  if(!window._db){alert('Firebase 연결 필요');return;}
+  if(!confirm('전체 학생 등록일을 2026-01-01로 변경합니다.\n(박수진, 이보미 제외)\n계속하시겠습니까?'))return;
+  const EXCLUDE=['박수진','이보미'];
+  const targets=lessons.filter(l=>l.type==='individual'&&l._id&&!EXCLUDE.includes(l.student));
+  let count=0;
+  showToast(`⏳ ${targets.length}개 업데이트 중...`);
+  for(const l of targets){
+    const {_id,...data}=l;
+    await window._db.collection('lessons').doc(_id).set({...data,startDate:'2026-01-01'}).catch(e=>console.warn(e));
+    count++;
+  }
+  showToast(`✅ ${count}명 등록일 2026-01-01로 변경 완료!`);
 }
 
 function resetAllPw(){
