@@ -871,8 +871,8 @@ function buildTabs(){
      <button class="tb" onclick="showView('set',this)">⚙️ 설정</button>`;
 }
 function showView(n,btn){
-  // 요일별/출결/출석체크 탭 진입 시 오늘 요일로 자동 업데이트
-  if(n==='day'||n==='att'||n==='my-day'){
+  // 요일별/출결/출석체크 탭 직접 클릭 시만 오늘 요일로 업데이트 (btn이 있을 때만)
+  if(btn && (n==='day'||n==='att'||n==='my-day')){
     selDay=getTodayAppDay();
     selDate=null;
   }
@@ -3045,18 +3045,6 @@ function initFirebase(){
     lLoaded=true;
     tryShow();
     updCnt();
-    // 현재 열린 탭이 시간표면 새로고침
-    const appEl=document.getElementById('app');
-    if(appEl && appEl.style.display!=='none'){
-      const at=document.querySelector('.tb.on');
-      if(at){
-        const v=at.getAttribute('onclick')||'';
-        // 시간표 관련 탭만 새로고침 (학생 상세 페이지 등은 유지)
-        if(v.includes("'tt'")||v.includes("'my-tt'")||v.includes("'day'")||v.includes("'stud'")){
-          at.click();
-        }
-      }
-    }
   }, e=>{console.warn('lessons:',e);lLoaded=true;tryShow();}));
 
   // attendance 실시간 - 데이터만 업데이트
