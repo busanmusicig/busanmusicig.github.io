@@ -1611,7 +1611,7 @@ function rStat(){
     // 취미 학생수 (전문 포함)
     const hbyStudents=new Set(myL.filter(l=>l.course==='취미'||l.course==='전문').map(l=>l.student)).size;
 
-    h+=`<div style="margin:0 12px 6px;background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer" onclick="_attView='list';_detailTi=${i};showView('att')">
+    h+=`<div style="margin:0 12px 6px;background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer" onclick="showTeacherDetail(${i})">
       <div style="display:flex;align-items:center;gap:10px">
         <div style="width:36px;height:36px;border-radius:50%;background:${bg(t.c)};color:${t.c};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;border:2px solid ${t.c}30">${t.s}</div>
         <div style="flex:1">
@@ -1623,11 +1623,93 @@ function rStat(){
             ${hbyStudents?`<span>취미 <b style="color:#2E7D32">${hbyStudents}명</b></span>`:''}
           </div>
         </div>
-        <div style="font-size:22px;font-weight:800;color:${t.c}">${uniqStudents}명</div>
+        <div style="font-size:16px;color:#ccc">›</div>
       </div>
     </div>`;
   });
   document.getElementById('page').innerHTML=h;
+}
+
+// ── 통계 선생님 상세 페이지 ─────────────────────────────
+function showTeacherDetail(ti){
+  const t=T[ti]||{};
+  const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
+  // 입시담당 (ipsTeacher 기준)
+  const ipsL=lessons.filter(l=>l.type==='individual'&&l.course==='입시'&&
+    (l.ipsTeacher===ti||(l.ipsTeacher===undefined&&l.ti===ti)));
+  const ipsStudents=[...new Map(ipsL.map(l=>[l.student,l])).values()];
+  const uniqS=[...new Map(myL.map(l=>[l.student,l])).values()];
+  const hbyS=uniqS.filter(l=>l.course==='취미'||l.course==='전문');
+
+  let h=`
+  <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-bottom:.5px solid #e5e5e5;position:sticky;top:0;z-index:10">
+    <button onclick="showView('stat')" style="background:none;border:none;font-size:22px;cursor:pointer;padding:0 4px;color:#1c1c1e">‹</button>
+    <div style="flex:1"><div style="font-size:16px;font-weight:700;color:${t.c||'#888'}">${t.name||''}</div>
+    <div style="font-size:11px;color:#8e8e93">${t.sub||''}</div></div>
+    <div style="width:40px;height:40px;border-radius:50%;background:${bg(t.c||'#888')};color:${t.c||'#888'};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800">${t.s||''}</div>
+  </div>
+
+  <!-- 요약 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px">
+    <div style="background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+      <div style="font-size:22px;font-weight:800;color:${t.c||'#888'}">${uniqS.length}</div>
+      <div style="font-size:10px;color:#8e8e93">총 학생</div>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+      <div style="font-size:22px;font-weight:800;color:#C00000">${ipsStudents.length}</div>
+      <div style="font-size:10px;color:#8e8e93">입시담당</div>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)">
+      <div style="font-size:22px;font-weight:800;color:#2E7D32">${hbyS.length}</div>
+      <div style="font-size:10px;color:#8e8e93">취미</div>
+    </div>
+  </div>`;
+
+  // 수업 학생 목록
+  if(uniqS.length){
+    h+=`<div style="padding:0 12px 6px;font-size:11px;font-weight:700;color:#8e8e93">담당 수업 학생</div>
+    <div style="margin:0 12px 12px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">`;
+    uniqS.forEach((l,i)=>{
+      const border=i<uniqS.length-1?'border-bottom:.5px solid #f0f0f0':'';
+      const pct=Math.min(100,Math.round(((l.currSession||0)/(l.maxWeek||4))*100));
+      h+=`<div style="padding:10px 14px;${border};cursor:pointer;display:flex;align-items:center;gap:10px" onclick="_detailTi=${ti};_detailStudent='${l.student}';rStudentDetail()">
+        <div style="width:32px;height:32px;border-radius:50%;background:${bg(t.c||'#888')};color:${t.c||'#888'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${l.student}
+            ${l.course==='입시'?'<span class="course-i">입시</span>':''}
+            <span style="font-size:10px;color:#8e8e93"> ${l.level||''} ${l.gender||''}</span>
+          </div>
+          <div style="font-size:10px;color:#8e8e93">${DL[l.day]||''} ${l.time} · ${(l.freq||1)>=2?'주2회':'주1회'}</div>
+        </div>
+        <div style="font-size:14px;color:#ccc">›</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // 입시담당 학생 목록
+  if(ipsStudents.length){
+    h+=`<div style="padding:0 12px 6px;font-size:11px;font-weight:700;color:#C00000">🎓 입시 담당 학생</div>
+    <div style="margin:0 12px 20px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">`;
+    ipsStudents.forEach((l,i)=>{
+      const border=i<ipsStudents.length-1?'border-bottom:.5px solid #f0f0f0':'';
+      const tLesson=T[l.ti]||{};
+      h+=`<div style="padding:10px 14px;${border};cursor:pointer;display:flex;align-items:center;gap:10px" onclick="_detailTi=${l.ti};_detailStudent='${l.student}';rStudentDetail()">
+        <div style="width:32px;height:32px;border-radius:50%;background:#FFEBEE;color:#C00000;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${l.student} <span class="course-i">입시</span>
+            <span style="font-size:10px;color:#8e8e93"> ${l.level||''} ${l.gender||''}</span>
+          </div>
+          <div style="font-size:10px;color:#8e8e93">수업: ${tLesson.name||''} · ${DL[l.day]||''} ${l.time}</div>
+        </div>
+        <div style="font-size:14px;color:#ccc">›</div>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+
+  document.getElementById('page').innerHTML=h;
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
 }
 
 // ── 선생님 관리 ──────────────────────────────────────────
@@ -2127,8 +2209,11 @@ function openEdit(idx){
     // 입시 담당 선생님
     const ipsBox=document.getElementById('ips-teacher-box');
     if(ipsBox)ipsBox.style.display=(l.course==='입시')?'':'none';
-    const ipsEl=document.getElementById('mipsteach');
-    if(ipsEl&&l.ipsTeacher!==undefined)ipsEl.value=l.ipsTeacher;
+    setTimeout(()=>{
+      const ipsEl=document.getElementById('mipsteach');
+      if(ipsEl&&l.ipsTeacher!==undefined) ipsEl.value=l.ipsTeacher;
+      else if(ipsEl) ipsEl.value='';
+    },50);
     document.getElementById('mlevel').value=l.level||'';
     // 입시면 선생님 선택 강조
     const tcEl=document.getElementById('mteach');
@@ -3010,16 +3095,22 @@ window._saveLsn = function(){
   const s=document.getElementById('mstud')?.value.trim();
   if(!s){alert('학생 이름을 입력해 주세요');return;}
   const freq=parseInt(document.getElementById('mfreq')?.value)||1;
+  const course=document.getElementById('mcourse')?.value||'취미';
+  // 입시 담당 선생님
+  const ipsTeacherRaw=document.getElementById('mipsteach')?.value;
+  const ipsTeacher=(course==='입시'&&ipsTeacherRaw!==''&&ipsTeacherRaw!==null&&ipsTeacherRaw!==undefined)
+    ? parseInt(ipsTeacherRaw) : undefined;
   const common={
     type:'individual',ti,student:s,
-    course:document.getElementById('mcourse')?.value||'취미',
+    course,
     level:document.getElementById('mlevel')?.value.trim()||'',
     gender:document.getElementById('mgender')?.value||'',
     freq,
     maxWeek:parseInt(document.getElementById('mmaxw')?.value)||4,
     currSession:parseInt(document.getElementById('mcurrsession')?.value)||0,
     startDate:document.getElementById('mstart')?.value||'',
-    memo:document.getElementById('mmemo')?.value.trim()||''
+    memo:document.getElementById('mmemo')?.value.trim()||'',
+    ...(ipsTeacher!==undefined?{ipsTeacher}:{})
   };
 
   closeLsn();
