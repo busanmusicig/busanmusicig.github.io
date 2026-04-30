@@ -857,13 +857,13 @@ function changeRole(r){role=r;selDay=getTodayAppDay();selDate=null;buildTabs();s
 function buildTabs(){
   document.getElementById('tabbar').innerHTML=isAdm()?
     `<button class="tb" onclick="showView('tt',this)">전체 시간표</button>
+     <button class="tb" onclick="showView('stat',this)">📊 통계</button>
      <button class="tb" onclick="showView('day',this)">요일별</button>
      <button class="tb" onclick="showView('stud',this)">전체 학생</button>
      <button class="tb" onclick="showView('att',this)">출결 관리</button>
      <button class="tb" onclick="showView('ntc',this)">수강 공지</button>
      <button class="tb" onclick="showView('alert',this)">📣 출석 알림</button>
      <button class="tb" onclick="showView('mgr',this)">선생님 관리</button>
-     <button class="tb" onclick="showView('stat',this)">📊 통계</button>
      <button class="tb" onclick="showView('set',this)">⚙️ 설정</button>`:
     `<button class="tb" onclick="showView('my-tt',this)">내 시간표</button>
      <button class="tb" onclick="showView('my-day',this)">출석 체크</button>
