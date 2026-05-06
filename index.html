@@ -1725,21 +1725,14 @@ function rStat(){
     const uniqStudents=new Set(myL.map(l=>l.student)).size;
     if(!uniqStudents)return;
 
-    // 총 수업시간: 시간표 칸 수 = 각 레슨 1개당 1시간
-    // 주2회는 pairId로 2개 레슨 → 2시간, pairId 없이 freq>=2면 2시간
+    // 총 수업시간: 시간표에 보이는 칸 수와 동일하게 계산
+    // 각 고유한 day+time 조합 = 1시간
     const seenP=new Set();
     let hrs=0;
     myL.forEach(l=>{
-      if(l.pairId){
-        // 쌍으로 저장된 주2회: 쌍 한 번만 2시간
-        const pk=[l._id,l.pairId].sort().join('_');
-        if(!seenP.has(pk)){seenP.add(pk);hrs+=2;}
-      } else if((l.freq||1)>=2){
-        // pairId 없는 주2회: 1개만 있으면 2시간
-        const dup=myL.find(x=>x._id!==l._id&&x.student===l.student&&(x.freq||1)>=2&&!x.pairId);
-        const dupKey=l.student+'_freq2';
-        if(!seenP.has(dupKey)){seenP.add(dupKey);hrs+=2;}
-      } else {
+      const slotKey=`${l.day}_${l.time}`;
+      if(!seenP.has(slotKey)){
+        seenP.add(slotKey);
         hrs+=1;
       }
     });
