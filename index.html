@@ -639,6 +639,171 @@ let T=[
 function bg(c){const r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);return`rgba(${r},${g},${b},0.28)`;}
 
 let lessons=[
+
+  // ── 보컬박 박은진 (ti:0) ──────────────────────────────
+  // 이미지11: 월요일 13~18시
+  {type:'individual',day:0,time:'13:00',ti:0,student:'유하람',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
+  {type:'individual',day:0,time:'14:00',ti:0,student:'기존(박)',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
+  {type:'individual',day:0,time:'15:00',ti:0,student:'김나연',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
+  {type:'individual',day:0,time:'16:00',ti:0,student:'박이진',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
+  {type:'individual',day:0,time:'17:00',ti:0,student:'권해인',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
+  {type:'individual',day:0,time:'18:00',ti:0,student:'오애용',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
+  // 이미지5: 화요일 15~20시
+  {type:'individual',day:1,time:'15:00',ti:0,student:'유하람',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'16:00',ti:0,student:'기존(박)',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'17:00',ti:0,student:'김나연',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'18:00',ti:0,student:'박이진',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'19:00',ti:0,student:'권해인',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'20:00',ti:0,student:'오애용',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  // 이미지5: 금요일 15~20시
+  {type:'individual',day:4,time:'15:00',ti:0,student:'유하람',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'16:00',ti:0,student:'기존(박)',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'17:00',ti:0,student:'김나연',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'18:00',ti:0,student:'박이진',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'19:00',ti:0,student:'권해인',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'20:00',ti:0,student:'오애용',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+
+  // ── 보컬정 (ti:1) ──────────────────────────────
+  // 이미지2: 화요일 16~21시
+  {type:'individual',day:1,time:'16:00',ti:1,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:'3기1회'},
+  {type:'individual',day:1,time:'17:00',ti:1,student:'조○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:'2기2회'},
+  {type:'individual',day:1,time:'18:00',ti:1,student:'박○○',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'19:00',ti:1,student:'강○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:'2기2회'},
+  {type:'individual',day:1,time:'20:00',ti:1,student:'윤○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  // 이미지2: 금요일 16~18시
+  {type:'individual',day:4,time:'16:00',ti:1,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'17:00',ti:1,student:'조○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'18:00',ti:1,student:'박○○',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
+
+  // ── 보컬홍 (ti:2) ──────────────────────────────
+  // 이미지9: 화요일 13~20시
+  {type:'individual',day:1,time:'13:00',ti:2,student:'이○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'14:00',ti:2,student:'김○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'15:00',ti:2,student:'박○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'16:00',ti:2,student:'나○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'17:00',ti:2,student:'하○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'18:00',ti:2,student:'임○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'19:00',ti:2,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'20:00',ti:2,student:'류○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  // 이미지9: 금요일 13~15시
+  {type:'individual',day:4,time:'13:00',ti:2,student:'이○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'14:00',ti:2,student:'김○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'15:00',ti:2,student:'박○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
+  // 토요일
+  {type:'individual',day:5,time:'11:00',ti:2,student:'이□□',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-04-05',memo:''},
+  {type:'individual',day:5,time:'12:00',ti:2,student:'김△△',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-03',memo:''},
+  {type:'individual',day:5,time:'13:00',ti:2,student:'나○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-03-07',memo:''},
+
+  // ── 보컬손 홍가에 (ti:3) ──────────────────────────────
+  // 이미지14: 월요일 15~17시
+  {type:'individual',day:0,time:'15:00',ti:3,student:'조우연',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-04-23',memo:''},
+  {type:'individual',day:0,time:'16:00',ti:3,student:'이승경',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-04-23',memo:''},
+  {type:'individual',day:0,time:'17:00',ti:3,student:'오다원',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-04-23',memo:''},
+  // 이미지14: 화요일 15~17시
+  {type:'individual',day:1,time:'15:00',ti:3,student:'임소망',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'16:00',ti:3,student:'이승경',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'17:00',ti:3,student:'오다원',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  // 이미지14: 금요일 15~19시
+  {type:'individual',day:4,time:'15:00',ti:3,student:'조우연',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'16:00',ti:3,student:'이승경',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'17:00',ti:3,student:'오다원',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'18:00',ti:3,student:'임소망',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'19:00',ti:3,student:'박은진',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
+
+  // ── 피아노안 안재은 (ti:4) ──────────────────────────────
+  // 이미지13: 월요일 14시
+  {type:'individual',day:0,time:'14:00',ti:4,student:'권민준',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-04-06',memo:'기타/피아노'},
+  // 이미지13: 화요일 16시
+  {type:'individual',day:1,time:'16:00',ti:4,student:'이채은',course:'취미',level:'1기',freq:1,maxWeek:4,startDate:'2026-04-22',memo:'댄스'},
+  // 이미지13: 수요일 15~20시
+  {type:'individual',day:2,time:'15:00',ti:4,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'16:00',ti:4,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'17:00',ti:4,student:'류○○',course:'입시',level:'2기',freq:1,maxWeek:8,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'18:00',ti:4,student:'김○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'19:00',ti:4,student:'조○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'20:00',ti:4,student:'최○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  // 이미지8: 목요일 16~20시
+  {type:'individual',day:3,time:'16:00',ti:4,student:'권민준',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-04-06',memo:''},
+  {type:'individual',day:3,time:'17:00',ti:4,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
+  {type:'individual',day:3,time:'18:00',ti:4,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
+  {type:'individual',day:3,time:'19:00',ti:4,student:'조○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
+  {type:'individual',day:3,time:'20:00',ti:4,student:'최○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-08',memo:''},
+
+  // ── 기타조 고현무 (ti:5) ──────────────────────────────
+  // 이미지10: 수요일 17~21시
+  {type:'individual',day:2,time:'17:00',ti:5,student:'이○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'18:00',ti:5,student:'김○○',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'19:00',ti:5,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'20:00',ti:5,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  // 이미지10: 금요일 16~21시
+  {type:'individual',day:4,time:'16:00',ti:5,student:'이○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'17:00',ti:5,student:'박○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'18:00',ti:5,student:'김○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'19:00',ti:5,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'20:00',ti:5,student:'이○○2',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+
+  // ── 베이스정 정회겸 (ti:6) ──────────────────────────────
+  // 수요일 (이미지3: 김진혁 수PM8시)
+  {type:'individual',day:2,time:'14:00',ti:6,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'15:00',ti:6,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'16:00',ti:6,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'17:00',ti:6,student:'조○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'18:00',ti:6,student:'임○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
+  {type:'individual',day:2,time:'20:00',ti:6,student:'김진혁',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-03-18',memo:'베이스'},
+  {type:'group',day:3,time:'20:00',ti:6,groupname:'성인밴드'},
+
+  // ── 미디마 마성령 (ti:7) ──────────────────────────────
+  // 이미지12: 수요일 16시 한종환
+  {type:'individual',day:2,time:'16:00',ti:7,student:'한종환',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-04-22',memo:'32차시'},
+  // 이미지12: 목요일 15~20시
+  {type:'individual',day:3,time:'15:00',ti:7,student:'이○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
+  {type:'individual',day:3,time:'16:00',ti:7,student:'박○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
+  {type:'individual',day:3,time:'17:00',ti:7,student:'김○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-08',memo:''},
+  {type:'individual',day:3,time:'18:00',ti:7,student:'이○○2',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
+  {type:'individual',day:3,time:'19:00',ti:7,student:'조○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
+  {type:'individual',day:3,time:'20:00',ti:7,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
+
+  // ── 작곡연 여승모 (ti:8) ──────────────────────────────
+  // 이미지6: 화요일 16~20시
+  {type:'individual',day:1,time:'16:00',ti:8,student:'이○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'17:00',ti:8,student:'박○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'18:00',ti:8,student:'김○○',course:'입시',level:'2기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'19:00',ti:8,student:'최○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'20:00',ti:8,student:'이○○2',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  // 이미지6: 금요일 16~20시
+  {type:'individual',day:4,time:'16:00',ti:8,student:'이○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'17:00',ti:8,student:'박○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'19:00',ti:8,student:'최○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'20:00',ti:8,student:'이○○2',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+
+  // ── 드럼홍 조기성 (ti:9) ──────────────────────────────
+  // 이미지7: 월요일 18~21시
+  {type:'individual',day:0,time:'18:00',ti:9,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:'30)기타조'},
+  {type:'individual',day:0,time:'19:00',ti:9,student:'이○○2',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
+  {type:'individual',day:0,time:'20:00',ti:9,student:'김○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
+  // 이미지11: 화요일 13~21시
+  {type:'individual',day:1,time:'13:00',ti:9,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'14:00',ti:9,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'15:00',ti:9,student:'최○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'16:00',ti:9,student:'조○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'17:00',ti:9,student:'김○○2',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'18:00',ti:9,student:'서○○',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'19:00',ti:9,student:'나○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  {type:'individual',day:1,time:'20:00',ti:9,student:'강○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
+  // 금요일
+  {type:'individual',day:4,time:'17:00',ti:9,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:4,time:'18:00',ti:9,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'group',day:4,time:'20:00',ti:9,groupname:'입시합주'},
+  {type:'group',day:4,time:'21:00',ti:9,groupname:'입시특강'},
+  {type:'group',day:3,time:'19:00',ti:9,groupname:'성인밴드2'},
+  {type:'group',day:2,time:'20:00',ti:9,groupname:'중등밴드'},
+
+  // ── 댄스조 조민정 (ti:10) ──────────────────────────────
+  // 이미지15: 금(댄) 15시 신규K-POP, 16시 K-POP중급, 19시 K-POP중고등, 20시 K-POP중고등반
+  {type:'individual',day:41,time:'15:00',ti:10,student:'신규K-POP',course:'취미',level:'1기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:'신규'},
+  {type:'individual',day:41,time:'16:00',ti:10,student:'K-POP반',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
+  {type:'individual',day:41,time:'19:00',ti:10,student:'K-POP 중급',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:'중급'},
+  {type:'individual',day:41,time:'20:00',ti:10,student:'K-POP 중고등',course:'취미',level:'1기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:'3/20이전'},
 ];
 // 오늘 요일 → selDay 자동 설정 (0=일→월,1=화,2=수,3=목,4=금,5=토)
 function getTodayAppDay(){
@@ -686,7 +851,7 @@ function updCnt(){
 }
 
 function buildRSel(){ buildLoginList(); }
-function changeRole(r){role=r;selDay=getTodayAppDay();selDate=null;buildTabs();showView(isAdm()?'tt':'my-day');}
+function changeRole(r){role=r;selDay=getTodayAppDay();selDate=null;buildTabs();showView(isAdm()?'tt':'my-tt');}
 
 function buildTabs(){
   document.getElementById('tabbar').innerHTML=isAdm()?
@@ -852,8 +1017,10 @@ function rTT(){
         if(!satIndiv.length&&!satGrps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(5,'${time}',null)"></div>`;
         row+=`</td>`;return;
       }
-      const indiv=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='individual').sort((a,b)=>a.ti-b.ti);
-      const grps=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='group').sort((a,b)=>a.ti-b.ti);
+      const _seen=new Set();
+      const indiv=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='individual'&&!_seen.has(l._id)&&_seen.add(l._id)).sort((a,b)=>a.ti-b.ti);
+      const _seenG=new Set();
+      const grps=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='group'&&!_seenG.has(l._id)&&_seenG.add(l._id)).sort((a,b)=>a.ti-b.ti);
       let tdStyle=dance?'':'';
       row+=`<td style="${tdStyle}vertical-align:top;padding:2px;min-width:${dance?26:48}px">`;
       indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
@@ -1393,11 +1560,10 @@ function rSet(){
       <div style="font-size:12px;color:#8e8e93;margin-bottom:10px">모든 비밀번호를 0000으로 초기화합니다</div>
       <button onclick="resetAllPw()" style="width:100%;background:#FF6B6B;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🔑 모든 비밀번호 초기화 (→ 0000)</button>
     </div>
-    <div style="margin:0 12px 20px;background:#fff;border-radius:14px;padding:16px;border:2px solid #FF6B6B">
-      <div style="font-size:13px;font-weight:700;color:#C00000;margin-bottom:6px">⚠️ 수업 데이터 초기화</div>
-      <div style="font-size:11px;color:#8e8e93;margin-bottom:10px">Firebase의 기존 수업 데이터를 모두 삭제하고 중복 제거된 기본 데이터로 교체합니다. 출결 데이터는 보존됩니다.</div>
-      <button onclick="uploadInitialData()" style="width:100%;background:#C00000;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🔄 수업 데이터 초기화 (중복 제거)</button>
-    </div>\`;
+    <div style="margin:0 12px 20px;background:#fff;border-radius:14px;padding:16px">
+      <div style="font-size:12px;color:#8e8e93;margin-bottom:10px">시간표에 중복 표시되는 레슨을 삭제합니다</div>
+      <button onclick="removeDupLessons()" style="width:100%;background:#C00000;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🗑 중복 레슨 삭제</button>
+    </div>`;
   }
   document.getElementById('page').innerHTML=h;
 }
@@ -1430,6 +1596,72 @@ async function bulkUpdateStartDate(){
     count++;
   }
   showToast(`✅ ${count}명 등록일 2026-01-01로 변경 완료!`);
+}
+
+// 중복 레슨 삭제 - 강력 버전
+async function removeDupLessons(){
+  if(!window._db){alert('Firebase 연결 필요');return;}
+  showToast('⏳ Firebase에서 전체 레슨 조회 중...');
+
+  // Firebase에서 직접 전체 레슨 조회
+  const snap = await window._db.collection('lessons').get();
+  const all = snap.docs.map(d=>({...d.data(), _id:d.id}));
+
+  const keep = new Set(); // 유지할 _id
+  const del = [];         // 삭제할 _id
+
+  // 개인레슨 중복 체크: student+ti+day+time 기준
+  const seenIndiv = {};
+  // 시간순 정렬 (오래된 것 먼저 유지)
+  const indivSorted = all.filter(l=>l.type==='individual')
+    .sort((a,b)=>{
+      const ta=parseInt((a._id||'L0').replace('L',''))||0;
+      const tb=parseInt((b._id||'L0').replace('L',''))||0;
+      return ta-tb;
+    });
+
+  indivSorted.forEach(l=>{
+    const key=`${l.student}__${l.ti}__${l.day}__${l.time}`;
+    if(seenIndiv[key]){
+      del.push(l._id);
+    } else {
+      seenIndiv[key]=l._id;
+      keep.add(l._id);
+    }
+  });
+
+  // 단체수업 중복 체크: groupname+ti+day+time 기준
+  const seenGrp = {};
+  all.filter(l=>l.type==='group').sort((a,b)=>{
+    const ta=parseInt((a._id||'L0').replace('L',''))||0;
+    const tb=parseInt((b._id||'L0').replace('L',''))||0;
+    return ta-tb;
+  }).forEach(l=>{
+    const key=`${l.groupname}__${l.ti}__${l.day}__${l.time}`;
+    if(seenGrp[key]){del.push(l._id);}
+    else{seenGrp[key]=l._id;keep.add(l._id);}
+  });
+
+  if(!del.length){showToast('✅ 중복 없음!');return;}
+
+  // 미리보기
+  const preview=del.slice(0,8).map(id=>{
+    const l=all.find(x=>x._id===id);
+    if(!l)return id;
+    return `${l.student||l.groupname||'?'} ${DL[l.day]||''} ${l.time||''}`;
+  }).join('\n');
+
+  if(!confirm(`🗑 중복 레슨 ${del.length}개 삭제\n\n${preview}${del.length>8?'\n...':''}}\n\n삭제하시겠습니까?`))return;
+
+  showToast(`⏳ ${del.length}개 삭제 중...`);
+  let done=0;
+  for(const id of del){
+    await window._db.collection('lessons').doc(id).delete()
+      .then(()=>{done++;})
+      .catch(e=>console.warn('삭제실패:',id,e));
+  }
+  showToast(`✅ 중복 ${done}개 삭제 완료! 새로고침하세요.`);
+  setTimeout(()=>location.reload(),2000);
 }
 
 function resetAllPw(){
@@ -1493,14 +1725,23 @@ function rStat(){
     const uniqStudents=new Set(myL.map(l=>l.student)).size;
     if(!uniqStudents)return;
 
-    // 총 수업시간 (중복 계산, 주2회=2시간, pairId 쌍 한번만)
+    // 총 수업시간: 시간표 칸 수 = 각 레슨 1개당 1시간
+    // 주2회는 pairId로 2개 레슨 → 2시간, pairId 없이 freq>=2면 2시간
     const seenP=new Set();
     let hrs=0;
     myL.forEach(l=>{
       if(l.pairId){
+        // 쌍으로 저장된 주2회: 쌍 한 번만 2시간
         const pk=[l._id,l.pairId].sort().join('_');
         if(!seenP.has(pk)){seenP.add(pk);hrs+=2;}
-      } else { hrs+=1; }
+      } else if((l.freq||1)>=2){
+        // pairId 없는 주2회: 1개만 있으면 2시간
+        const dup=myL.find(x=>x._id!==l._id&&x.student===l.student&&(x.freq||1)>=2&&!x.pairId);
+        const dupKey=l.student+'_freq2';
+        if(!seenP.has(dupKey)){seenP.add(dupKey);hrs+=2;}
+      } else {
+        hrs+=1;
+      }
     });
 
     // 입시 학생수 - ipsTeacher 기준 (없으면 수업 선생님 ti 기준)
@@ -2408,7 +2649,7 @@ function _applyLogin(key){
     document.getElementById('teacher-switcher').style.display = 'none';
   }
   buildTabs();
-  showView(isAdm() ? 'tt' : 'my-day');
+  showView(isAdm() ? 'tt' : 'my-tt');
 }
 
 // ── 선생님 전환 (관리자 전용) ────────────────────────────
@@ -2451,7 +2692,7 @@ function switchToTeacher(ti){
   selDay = getTodayAppDay();
   selDate = null;
   buildTabs();
-  showView('my-day');
+  showView('my-tt');
 }
 
 function switchToAdmin(){
@@ -2615,7 +2856,7 @@ function rStudentDetail(){
     });
     h+=`</tr></thead><tbody>`;
 
-    // 날짜 행 - 클릭하면 날짜 변경
+    // 날짜 행 - 클릭하면 날짜 변경/입력
     h+=`<tr>`;
     prevMonth='';
     slots.forEach(s=>{
@@ -2623,9 +2864,9 @@ function rStudentDetail(){
       const month=date?date.slice(0,7):'';
       const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
       if(month&&month!==prevMonth) prevMonth=month;
-      h+=`<td style="padding:2px 4px;text-align:center;${bl}">
-        <span style="font-size:10px;color:#1565C0;cursor:pointer;font-weight:600"
-          onclick="showDatePop(event,${ti},'${studentName}','${date}')">${date?date.slice(5):'✏'}</span>
+      h+=`<td style="padding:3px 4px;text-align:center;${bl}">
+        <span style="font-size:10px;cursor:pointer;font-weight:600;color:${date?'#1565C0':'#ccc'};display:block;min-width:36px"
+          onclick="showDatePop(event,${ti},'${studentName}','${date}')">${date?date.slice(5):'날짜'}</span>
       </td>`;
     });
     h+=`</tr>`;
@@ -2639,11 +2880,11 @@ function rStudentDetail(){
       const month=date?date.slice(0,7):'';
       const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
       if(month&&month!==prevMonth) prevMonth=month;
-      const lab=st==='present'?'출':st==='makeup'?'보':st==='absent'?'결':st==='skip'?'X':'';
-      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':st==='skip'?'#666':'#aaa';
-      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':st==='skip'?'#f0f0f0':'#f5f5f5';
+      const lab=st==='present'?'출':st==='makeup'?'보':st==='absent'?'결':'';
+      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':'#bbb';
+      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':'#f5f5f5';
       h+=`<td style="padding:4px 4px;text-align:center;${bl}">
-        <span style="display:inline-block;min-width:28px;padding:4px 2px;background:${bg2};color:${col};border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;border:1.5px solid ${col}30"
+        <span style="display:inline-block;min-width:30px;padding:4px 2px;background:${bg2};color:${col};border-radius:6px;font-weight:700;font-size:13px;cursor:pointer;border:1.5px solid ${col}30"
           onclick="showAttPop(event,${ti},'${studentName}','${date||''}','${st}',${s})">${lab||'○'}</span>
       </td>`;
     });
@@ -2953,11 +3194,15 @@ function initFirebase(){
 
   // lessons 실시간 - 데이터만 업데이트, 페이지 이동 없음
   _unsub.push(db.collection('lessons').onSnapshot(snap=>{
-    lessons=snap.docs.map(d=>{const v=d.data();v._id=d.id;return v;});
+    // _id 기준 중복 제거
+    const seen=new Set();
+    lessons=snap.docs.reduce((arr,d)=>{
+      if(!seen.has(d.id)){seen.add(d.id);const v=d.data();v._id=d.id;arr.push(v);}
+      return arr;
+    },[]);
     lLoaded=true;
     tryShow();
     updCnt();
-    _refreshView();
   }, e=>{console.warn('lessons:',e);lLoaded=true;tryShow();}));
 
   // attendance 실시간 - 데이터만 업데이트
@@ -2983,209 +3228,10 @@ function initFirebase(){
   // uploadInitialData는 완전히 비활성화
 }
 
-// ── 초기 데이터 정의 (중복 제거된 최종 버전) ──────────────────
-const INITIAL_LESSONS = [
-  // ── 보컬박 (ti:0) ─────────────────────────────────────────
-  // 월요일
-  {type:'individual',day:0,time:'13:00',ti:0,student:'유하람',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
-  {type:'individual',day:0,time:'14:00',ti:0,student:'기존(박)',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
-  {type:'individual',day:0,time:'15:00',ti:0,student:'김나연',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
-  {type:'individual',day:0,time:'16:00',ti:0,student:'박이진',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
-  {type:'individual',day:0,time:'17:00',ti:0,student:'권해인',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
-  {type:'individual',day:0,time:'18:00',ti:0,student:'오애용',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
-  // 화요일
-  {type:'individual',day:1,time:'15:00',ti:0,student:'유하람',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'16:00',ti:0,student:'기존(박)',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'17:00',ti:0,student:'김나연',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'18:00',ti:0,student:'박이진',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'19:00',ti:0,student:'권해인',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'20:00',ti:0,student:'오애용',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  // 금요일
-  {type:'individual',day:4,time:'15:00',ti:0,student:'유하람',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'16:00',ti:0,student:'기존(박)',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'17:00',ti:0,student:'김나연',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'18:00',ti:0,student:'박이진',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'19:00',ti:0,student:'권해인',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'20:00',ti:0,student:'오애용',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-
-  // ── 보컬정 (ti:1) ─────────────────────────────────────────
-  // 화요일
-  {type:'individual',day:1,time:'16:00',ti:1,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:'3기1회'},
-  {type:'individual',day:1,time:'17:00',ti:1,student:'조○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:'2기2회'},
-  {type:'individual',day:1,time:'18:00',ti:1,student:'박○○',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'19:00',ti:1,student:'강○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:'2기2회'},
-  {type:'individual',day:1,time:'20:00',ti:1,student:'윤○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  // 금요일
-  {type:'individual',day:4,time:'16:00',ti:1,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'17:00',ti:1,student:'조○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'18:00',ti:1,student:'박○○',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
-
-  // ── 보컬홍 (ti:2) ─────────────────────────────────────────
-  // 화요일
-  {type:'individual',day:1,time:'13:00',ti:2,student:'이○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'14:00',ti:2,student:'김○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'15:00',ti:2,student:'박○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'16:00',ti:2,student:'나○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'17:00',ti:2,student:'하○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'18:00',ti:2,student:'임○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'19:00',ti:2,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'20:00',ti:2,student:'류○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  // 금요일
-  {type:'individual',day:4,time:'13:00',ti:2,student:'이○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'14:00',ti:2,student:'김○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'15:00',ti:2,student:'박○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
-  // 토요일
-  {type:'individual',day:5,time:'11:00',ti:2,student:'이□□',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-04-05',memo:''},
-  {type:'individual',day:5,time:'12:00',ti:2,student:'김△△',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-03',memo:''},
-  {type:'individual',day:5,time:'13:00',ti:2,student:'나○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-03-07',memo:''},
-
-  // ── 보컬손 (ti:3) ─────────────────────────────────────────
-  // 월요일
-  {type:'individual',day:0,time:'15:00',ti:3,student:'조우연',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-04-23',memo:''},
-  {type:'individual',day:0,time:'16:00',ti:3,student:'이승경',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-04-23',memo:''},
-  {type:'individual',day:0,time:'17:00',ti:3,student:'오다원',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-04-23',memo:''},
-  // 화요일
-  {type:'individual',day:1,time:'15:00',ti:3,student:'임소망',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'16:00',ti:3,student:'이승경',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'17:00',ti:3,student:'오다원',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  // 금요일
-  {type:'individual',day:4,time:'15:00',ti:3,student:'조우연',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'16:00',ti:3,student:'이승경',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'17:00',ti:3,student:'오다원',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'18:00',ti:3,student:'임소망',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'19:00',ti:3,student:'박은진',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
-
-  // ── 피아노안 (ti:4) ─────────────────────────────────────────
-  // 월요일
-  {type:'individual',day:0,time:'14:00',ti:4,student:'권민준',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-04-06',memo:'기타/피아노'},
-  // 화요일
-  {type:'individual',day:1,time:'16:00',ti:4,student:'이채은',course:'취미',level:'1기',freq:1,maxWeek:4,startDate:'2026-04-22',memo:'댄스'},
-  // 수요일
-  {type:'individual',day:2,time:'15:00',ti:4,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'16:00',ti:4,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'17:00',ti:4,student:'류○○',course:'입시',level:'2기',freq:1,maxWeek:8,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'18:00',ti:4,student:'김○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'19:00',ti:4,student:'조○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'20:00',ti:4,student:'최○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  // 목요일
-  {type:'individual',day:3,time:'16:00',ti:4,student:'권민준',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-04-06',memo:''},
-  {type:'individual',day:3,time:'17:00',ti:4,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
-  {type:'individual',day:3,time:'18:00',ti:4,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
-  {type:'individual',day:3,time:'19:00',ti:4,student:'조○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
-  {type:'individual',day:3,time:'20:00',ti:4,student:'최○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-08',memo:''},
-
-  // ── 기타조 (ti:5) ─────────────────────────────────────────
-  // 수요일
-  {type:'individual',day:2,time:'17:00',ti:5,student:'이○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'18:00',ti:5,student:'김○○',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'19:00',ti:5,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'20:00',ti:5,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  // 금요일
-  {type:'individual',day:4,time:'16:00',ti:5,student:'이○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'17:00',ti:5,student:'박○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'18:00',ti:5,student:'김○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'19:00',ti:5,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'20:00',ti:5,student:'이○○2',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-
-  // ── 베이스정 (ti:6) ─────────────────────────────────────────
-  // 수요일
-  {type:'individual',day:2,time:'14:00',ti:6,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'15:00',ti:6,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'16:00',ti:6,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'17:00',ti:6,student:'조○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'18:00',ti:6,student:'임○○',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-01-07',memo:''},
-  {type:'individual',day:2,time:'20:00',ti:6,student:'김진혁',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-03-18',memo:'베이스'},
-  // 목요일 단체
-  {type:'group',day:3,time:'20:00',ti:6,groupname:'성인밴드'},
-
-  // ── 미디마 (ti:7) ─────────────────────────────────────────
-  // 수요일
-  {type:'individual',day:2,time:'16:00',ti:7,student:'한종환',course:'취미',level:'2기',freq:1,maxWeek:4,startDate:'2026-04-22',memo:'32차시'},
-  // 목요일
-  {type:'individual',day:3,time:'15:00',ti:7,student:'이○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
-  {type:'individual',day:3,time:'16:00',ti:7,student:'박○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
-  {type:'individual',day:3,time:'17:00',ti:7,student:'김○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-08',memo:''},
-  {type:'individual',day:3,time:'18:00',ti:7,student:'이○○2',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
-  {type:'individual',day:3,time:'19:00',ti:7,student:'조○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
-  {type:'individual',day:3,time:'20:00',ti:7,student:'최○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-08',memo:''},
-
-  // ── 작곡연 (ti:8) ─────────────────────────────────────────
-  // 화요일
-  {type:'individual',day:1,time:'16:00',ti:8,student:'이○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'17:00',ti:8,student:'박○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'18:00',ti:8,student:'김○○',course:'입시',level:'2기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'19:00',ti:8,student:'최○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'20:00',ti:8,student:'이○○2',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  // 금요일
-  {type:'individual',day:4,time:'16:00',ti:8,student:'이○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'17:00',ti:8,student:'박○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'19:00',ti:8,student:'최○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'20:00',ti:8,student:'이○○2',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-
-  // ── 드럼홍 (ti:9) ─────────────────────────────────────────
-  // 월요일
-  {type:'individual',day:0,time:'18:00',ti:9,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:'30)기타조'},
-  {type:'individual',day:0,time:'19:00',ti:9,student:'이○○2',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
-  {type:'individual',day:0,time:'20:00',ti:9,student:'김○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-05',memo:''},
-  // 화요일
-  {type:'individual',day:1,time:'13:00',ti:9,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'14:00',ti:9,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'15:00',ti:9,student:'최○○',course:'입시',level:'4기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'16:00',ti:9,student:'조○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'17:00',ti:9,student:'김○○2',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'18:00',ti:9,student:'서○○',course:'입시',level:'3기',freq:1,maxWeek:8,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'19:00',ti:9,student:'나○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  {type:'individual',day:1,time:'20:00',ti:9,student:'강○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-06',memo:''},
-  // 금요일
-  {type:'individual',day:4,time:'17:00',ti:9,student:'이○○',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:4,time:'18:00',ti:9,student:'박○○',course:'취미',level:'4기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  // 단체
-  {type:'group',day:4,time:'20:00',ti:9,groupname:'입시합주'},
-  {type:'group',day:4,time:'21:00',ti:9,groupname:'입시특강'},
-  {type:'group',day:3,time:'19:00',ti:9,groupname:'성인밴드2'},
-  {type:'group',day:2,time:'20:00',ti:9,groupname:'중등밴드'},
-
-  // ── 댄스조 (ti:10) ─────────────────────────────────────────
-  {type:'individual',day:41,time:'15:00',ti:10,student:'신규K-POP',course:'취미',level:'1기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:'신규'},
-  {type:'individual',day:41,time:'16:00',ti:10,student:'K-POP반',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:''},
-  {type:'individual',day:41,time:'19:00',ti:10,student:'K-POP 중급',course:'취미',level:'3기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:'중급'},
-  {type:'individual',day:41,time:'20:00',ti:10,student:'K-POP 중고등',course:'취미',level:'1기',freq:1,maxWeek:4,startDate:'2026-01-09',memo:'3/20이전'},
-];
-
-// Firebase 데이터 초기화 (기존 삭제 후 정리된 데이터 업로드)
-// ※ 관리자 설정 탭에서만 호출 가능
+// 초기 데이터 업로드 - 완전히 비활성화 (실수로 데이터 삭제 방지)
 async function uploadInitialData(){
-  const db = window._db;
-  if(!db){ alert('Firebase 연결 안 됨'); return; }
-  if(!confirm('⚠️ Firebase의 기존 수업 데이터를 모두 삭제하고\n정리된 데이터로 교체합니다.\n계속하시겠습니까?')) return;
-
-  try {
-    // 1. 기존 lessons 전체 삭제 (배치 처리)
-    showToast('🗑 기존 데이터 삭제 중...');
-    const snap = await db.collection('lessons').get();
-    const DEL_SIZE = 490;
-    for(let i=0; i<snap.docs.length; i+=DEL_SIZE){
-      const batch = db.batch();
-      snap.docs.slice(i, i+DEL_SIZE).forEach(d => batch.delete(d.ref));
-      await batch.commit();
-    }
-
-    // 2. 정리된 데이터 업로드 (배치 처리)
-    showToast('📤 데이터 업로드 중...');
-    const ADD_SIZE = 490;
-    for(let i=0; i<INITIAL_LESSONS.length; i+=ADD_SIZE){
-      const batch = db.batch();
-      INITIAL_LESSONS.slice(i, i+ADD_SIZE).forEach((l, j) => {
-        const id = 'L' + String(i+j+1).padStart(4,'0');
-        batch.set(db.collection('lessons').doc(id), l);
-      });
-      await batch.commit();
-    }
-
-    showToast('✅ 데이터 초기화 완료! (' + INITIAL_LESSONS.length + '건)');
-  } catch(e) {
-    alert('오류: ' + e.message);
-  }
+  console.log('uploadInitialData 비활성화됨 - Firebase 데이터 보호');
+  // 절대 실행 안 함
 }
 
 // Firebase CRUD 함수 (compat SDK)
@@ -3263,7 +3309,22 @@ window._saveLsn = function(){
   const _isEdit = _editLesson != null;
   const _studentName = s;
 
-  closeLsn(); // 팝업 닫기
+  // 저장 전 중복 체크 (수정 시 제외)
+  if(!_isEdit){
+    const dupCheck=lessons.find(l=>
+      l.type==='individual'&&
+      l.student===s&&
+      l.ti===ti&&
+      l.day===(freq===2?parseInt(document.getElementById('mday2a')?.value)||0:parseInt(document.getElementById('mday')?.value)||0)&&
+      l.time===(freq===2?document.getElementById('mtime2a')?.value:document.getElementById('mtime')?.value)
+    );
+    if(dupCheck){
+      showToast('⚠️ 이미 동일한 수업이 있습니다!');
+      return;
+    }
+  }
+
+  closeLsn();
 
   // 입시담당 선생님 - 같은 학생의 모든 레슨에 일괄 적용
   function applyIpsTeacher(studentName, ipsTeacherVal){
