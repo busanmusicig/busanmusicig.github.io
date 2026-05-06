@@ -1683,23 +1683,12 @@ function rStat(){
   const w2=uniqS(indiv.filter(l=>(l.freq||1)>=2));
   const ips=uniqS(indiv.filter(l=>l.course==='입시'));
   const hby=uniqS(indiv.filter(l=>l.course==='취미'||l.course==='전문'));
-  // 주간 총 수업시간: 개인레슨만, 단체수업·댄스 제외
-  // 주1회=1시간, 주2회=2시간, pairId 중복만 제거
-  const indivOnly=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI&&l.day!==41);
-  const seenPair=new Set();
-  let totalHrs=0;
-  indivOnly.forEach(l=>{
-    // pairId가 있으면 쌍 중 하나만 계산 (주2회 = 2시간)
-    if(l.pairId){
-      const pairKey=[l._id,l.pairId].sort().join('_');
-      if(!seenPair.has(pairKey)){
-        seenPair.add(pairKey);
-        totalHrs+=2; // 주2회 = 2시간
-      }
-    } else {
-      totalHrs+=1;
-    }
-  });
+  // 주간 총 수업시간 = 선생님별 합산 (student+ti+day+time 기준 중복 제거)
+  const totalHrsSet=new Set(
+    lessons.filter(l=>l.type==='individual'&&l.ti!==DTI&&l.day!==41)
+      .map(l=>`${l.ti}_${l.student}_${l.day}_${l.time}`)
+  );
+  const totalHrs=totalHrsSet.size;
   const card=(icon,label,val,color,filterKey)=>`<div style="background:#fff;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.07);cursor:pointer;active:opacity:.8" onclick="showStatList('${filterKey}')">
     <div style="font-size:26px">${icon}</div>
     <div><div style="font-size:11px;color:#8e8e93">${label}</div>
