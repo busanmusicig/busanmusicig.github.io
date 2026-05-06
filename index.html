@@ -1725,17 +1725,9 @@ function rStat(){
     const uniqStudents=new Set(myL.map(l=>l.student)).size;
     if(!uniqStudents)return;
 
-    // 총 수업시간: 시간표에 보이는 칸 수와 동일하게 계산
-    // 각 고유한 day+time 조합 = 1시간
-    const seenP=new Set();
-    let hrs=0;
-    myL.forEach(l=>{
-      const slotKey=`${l.day}_${l.time}`;
-      if(!seenP.has(slotKey)){
-        seenP.add(slotKey);
-        hrs+=1;
-      }
-    });
+    // 총 수업시간 = 중복 없는 레슨 수 (학생+요일+시간 기준)
+    const hrsSet=new Set(myL.map(l=>`${l.student}_${l.day}_${l.time}`));
+    const hrs=hrsSet.size;
 
     // 입시 학생수 - ipsTeacher 기준 (없으면 수업 선생님 ti 기준)
     const ipsStudents=new Set(myL.filter(l=>l.course==='입시').map(l=>l.student)).size;
