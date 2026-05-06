@@ -1601,28 +1601,43 @@ async function bulkUpdateStartDate(){
 // 중복 레슨 삭제
 async function removeDupLessons(){
   if(!window._db){alert('Firebase 연결 필요');return;}
-  // 같은 학생+선생님+요일+시간 중복 찾기 (pairId 있는 것 제외 - 주2회는 중복 아님)
-  const seen={};
+
   const toDelete=[];
-  const sorted=[...lessons].sort((a,b)=>(a._id||'').localeCompare(b._id||''));
-  sorted.forEach(l=>{
-    if(l.type==='group') return;
-    // pairId 있으면 주2회 → 중복 아님
-    const key=`${l.student}_${l.ti}_${l.day}_${l.time}`;
-    if(seen[key]){
-      // 나중에 생성된 것(더 큰 _id) 삭제
-      toDelete.push(l._id);
-    } else {
-      seen[key]=l._id;
-    }
+  // 1. 같은 _id 중복 제거
+  const byId={};
+  lessons.forEach(l=>{if(l._id){if(byId[l._id])toDelete.push(l._id);else byId[l._id]=l;}});
+
+  // 2. 같은 학생+선생님+요일+시간 중복 (개인레슨, pairId 없는 것)
+  const seen={};
+  const sorted=[...lessons].sort((a,b)=>{
+    // 더 최근에 만들어진 것(_id 큰 것)을 삭제 대상으로
+    const ta=a._id?parseInt(a._id.replace('L',''))||0:0;
+    const tb=b._id?parseInt(b._id.replace('L',''))||0:0;
+    return ta-tb; // 오래된 것 먼저 → seen에 등록
   });
-  if(!toDelete.length){showToast('✅ 중복 레슨이 없습니다!');return;}
-  if(!confirm(`중복 레슨 ${toDelete.length}개를 삭제합니다.\n계속하시겠습니까?`))return;
-  showToast(`⏳ ${toDelete.length}개 삭제 중...`);
-  for(const id of toDelete){
-    await window._db.collection('lessons').doc(id).delete().catch(e=>console.warn(e));
+  sorted.forEach(l=>{
+    if(!l._id||toDelete.includes(l._id))return;
+    if(l.type==='group'){
+      const gkey=`group_${l.ti}_${l.day}_${l.time}_${l.groupname}`;
+      if(seen[gkey]){toDelete.push(l._id);}else{seen[gkey]=l._id;}
+      return;
+    }
+    const key=`${l.student}_${l.ti}_${l.day}_${l.time}`;
+    if(seen[key]){toDelete.push(l._id);}else{seen[key]=l._id;}
+  });
+
+  const unique=[...new Set(toDelete)];
+  if(!unique.length){showToast('✅ 중복 레슨이 없습니다!');return;}
+
+  // 삭제 목록 미리보기
+  const preview=unique.slice(0,5).map(id=>{const l=lessons.find(x=>x._id===id);return l?`${l.student||l.groupname} (${DL[l.day]||''} ${l.time})`:id;}).join('\n');
+  if(!confirm(`중복 레슨 ${unique.length}개 삭제합니다:\n${preview}${unique.length>5?'\n...':''}\n\n계속하시겠습니까?`))return;
+
+  showToast(`⏳ ${unique.length}개 삭제 중...`);
+  for(const id of unique){
+    await window._db.collection('lessons').doc(id).delete().catch(e=>console.warn('삭제실패:',id,e));
   }
-  showToast(`✅ 중복 레슨 ${toDelete.length}개 삭제 완료!`);
+  showToast(`✅ 중복 레슨 ${unique.length}개 삭제 완료!`);
 }
 
 function resetAllPw(){
@@ -3261,7 +3276,22 @@ window._saveLsn = function(){
   const _isEdit = _editLesson != null;
   const _studentName = s;
 
-  closeLsn(); // 팝업 닫기
+  // 저장 전 중복 체크 (수정 시 제외)
+  if(!_isEdit){
+    const dupCheck=lessons.find(l=>
+      l.type==='individual'&&
+      l.student===s&&
+      l.ti===ti&&
+      l.day===(freq===2?parseInt(document.getElementById('mday2a')?.value)||0:parseInt(document.getElementById('mday')?.value)||0)&&
+      l.time===(freq===2?document.getElementById('mtime2a')?.value:document.getElementById('mtime')?.value)
+    );
+    if(dupCheck){
+      showToast('⚠️ 이미 동일한 수업이 있습니다!');
+      return;
+    }
+  }
+
+  closeLsn();
 
   // 입시담당 선생님 - 같은 학생의 모든 레슨에 일괄 적용
   function applyIpsTeacher(studentName, ipsTeacherVal){
