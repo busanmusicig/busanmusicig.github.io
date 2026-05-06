@@ -851,7 +851,7 @@ function updCnt(){
 }
 
 function buildRSel(){ buildLoginList(); }
-function changeRole(r){role=r;selDay=getTodayAppDay();selDate=null;buildTabs();showView(isAdm()?'tt':'my-day');}
+function changeRole(r){role=r;selDay=getTodayAppDay();selDate=null;buildTabs();showView(isAdm()?'tt':'my-tt');}
 
 function buildTabs(){
   document.getElementById('tabbar').innerHTML=isAdm()?
@@ -1017,8 +1017,10 @@ function rTT(){
         if(!satIndiv.length&&!satGrps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(5,'${time}',null)"></div>`;
         row+=`</td>`;return;
       }
-      const indiv=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='individual').sort((a,b)=>a.ti-b.ti);
-      const grps=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='group').sort((a,b)=>a.ti-b.ti);
+      const _seen=new Set();
+      const indiv=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='individual'&&!_seen.has(l._id)&&_seen.add(l._id)).sort((a,b)=>a.ti-b.ti);
+      const _seenG=new Set();
+      const grps=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='group'&&!_seenG.has(l._id)&&_seenG.add(l._id)).sort((a,b)=>a.ti-b.ti);
       let tdStyle=dance?'':'';
       row+=`<td style="${tdStyle}vertical-align:top;padding:2px;min-width:${dance?26:48}px">`;
       indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
@@ -1554,9 +1556,13 @@ function rSet(){
   </div>`;
   if(isAdminUser){
     h+=`<div style="padding:8px 12px 6px;font-size:11px;font-weight:700;color:#8e8e93">관리자 전용</div>
-    <div style="margin:0 12px 20px;background:#fff;border-radius:14px;padding:16px">
+    <div style="margin:0 12px 8px;background:#fff;border-radius:14px;padding:16px">
       <div style="font-size:12px;color:#8e8e93;margin-bottom:10px">모든 비밀번호를 0000으로 초기화합니다</div>
       <button onclick="resetAllPw()" style="width:100%;background:#FF6B6B;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🔑 모든 비밀번호 초기화 (→ 0000)</button>
+    </div>
+    <div style="margin:0 12px 20px;background:#fff;border-radius:14px;padding:16px">
+      <div style="font-size:12px;color:#8e8e93;margin-bottom:10px">시간표에 중복 표시되는 레슨을 삭제합니다</div>
+      <button onclick="removeDupLessons()" style="width:100%;background:#C00000;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🗑 중복 레슨 삭제</button>
     </div>`;
   }
   document.getElementById('page').innerHTML=h;
@@ -1590,6 +1596,33 @@ async function bulkUpdateStartDate(){
     count++;
   }
   showToast(`✅ ${count}명 등록일 2026-01-01로 변경 완료!`);
+}
+
+// 중복 레슨 삭제
+async function removeDupLessons(){
+  if(!window._db){alert('Firebase 연결 필요');return;}
+  // 같은 학생+선생님+요일+시간 중복 찾기 (pairId 있는 것 제외 - 주2회는 중복 아님)
+  const seen={};
+  const toDelete=[];
+  const sorted=[...lessons].sort((a,b)=>(a._id||'').localeCompare(b._id||''));
+  sorted.forEach(l=>{
+    if(l.type==='group') return;
+    // pairId 있으면 주2회 → 중복 아님
+    const key=`${l.student}_${l.ti}_${l.day}_${l.time}`;
+    if(seen[key]){
+      // 나중에 생성된 것(더 큰 _id) 삭제
+      toDelete.push(l._id);
+    } else {
+      seen[key]=l._id;
+    }
+  });
+  if(!toDelete.length){showToast('✅ 중복 레슨이 없습니다!');return;}
+  if(!confirm(`중복 레슨 ${toDelete.length}개를 삭제합니다.\n계속하시겠습니까?`))return;
+  showToast(`⏳ ${toDelete.length}개 삭제 중...`);
+  for(const id of toDelete){
+    await window._db.collection('lessons').doc(id).delete().catch(e=>console.warn(e));
+  }
+  showToast(`✅ 중복 레슨 ${toDelete.length}개 삭제 완료!`);
 }
 
 function resetAllPw(){
@@ -2568,7 +2601,7 @@ function _applyLogin(key){
     document.getElementById('teacher-switcher').style.display = 'none';
   }
   buildTabs();
-  showView(isAdm() ? 'tt' : 'my-day');
+  showView(isAdm() ? 'tt' : 'my-tt');
 }
 
 // ── 선생님 전환 (관리자 전용) ────────────────────────────
@@ -2611,7 +2644,7 @@ function switchToTeacher(ti){
   selDay = getTodayAppDay();
   selDate = null;
   buildTabs();
-  showView('my-day');
+  showView('my-tt');
 }
 
 function switchToAdmin(){
@@ -2775,7 +2808,7 @@ function rStudentDetail(){
     });
     h+=`</tr></thead><tbody>`;
 
-    // 날짜 행 - 클릭하면 날짜 변경
+    // 날짜 행 - 클릭하면 날짜 변경/입력
     h+=`<tr>`;
     prevMonth='';
     slots.forEach(s=>{
@@ -2783,9 +2816,9 @@ function rStudentDetail(){
       const month=date?date.slice(0,7):'';
       const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
       if(month&&month!==prevMonth) prevMonth=month;
-      h+=`<td style="padding:2px 4px;text-align:center;${bl}">
-        <span style="font-size:10px;color:#1565C0;cursor:pointer;font-weight:600"
-          onclick="showDatePop(event,${ti},'${studentName}','${date}')">${date?date.slice(5):'✏'}</span>
+      h+=`<td style="padding:3px 4px;text-align:center;${bl}">
+        <span style="font-size:10px;cursor:pointer;font-weight:600;color:${date?'#1565C0':'#ccc'};display:block;min-width:36px"
+          onclick="showDatePop(event,${ti},'${studentName}','${date}')">${date?date.slice(5):'날짜'}</span>
       </td>`;
     });
     h+=`</tr>`;
@@ -2799,11 +2832,11 @@ function rStudentDetail(){
       const month=date?date.slice(0,7):'';
       const bl=(month&&month!==prevMonth&&prevMonth)?'border-left:2.5px solid #999':'';
       if(month&&month!==prevMonth) prevMonth=month;
-      const lab=st==='present'?'출':st==='makeup'?'보':st==='absent'?'결':st==='skip'?'X':'';
-      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':st==='skip'?'#666':'#aaa';
-      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':st==='skip'?'#f0f0f0':'#f5f5f5';
+      const lab=st==='present'?'출':st==='makeup'?'보':st==='absent'?'결':'';
+      const col=st==='present'?'#2E7D32':st==='makeup'?'#1565C0':st==='absent'?'#C00000':'#bbb';
+      const bg2=st==='present'?'#E8F5E9':st==='makeup'?'#E3F2FD':st==='absent'?'#FFEBEE':'#f5f5f5';
       h+=`<td style="padding:4px 4px;text-align:center;${bl}">
-        <span style="display:inline-block;min-width:28px;padding:4px 2px;background:${bg2};color:${col};border-radius:6px;font-weight:700;font-size:12px;cursor:pointer;border:1.5px solid ${col}30"
+        <span style="display:inline-block;min-width:30px;padding:4px 2px;background:${bg2};color:${col};border-radius:6px;font-weight:700;font-size:13px;cursor:pointer;border:1.5px solid ${col}30"
           onclick="showAttPop(event,${ti},'${studentName}','${date||''}','${st}',${s})">${lab||'○'}</span>
       </td>`;
     });
@@ -3113,7 +3146,12 @@ function initFirebase(){
 
   // lessons 실시간 - 데이터만 업데이트, 페이지 이동 없음
   _unsub.push(db.collection('lessons').onSnapshot(snap=>{
-    lessons=snap.docs.map(d=>{const v=d.data();v._id=d.id;return v;});
+    // _id 기준 중복 제거
+    const seen=new Set();
+    lessons=snap.docs.reduce((arr,d)=>{
+      if(!seen.has(d.id)){seen.add(d.id);const v=d.data();v._id=d.id;arr.push(v);}
+      return arr;
+    },[]);
     lLoaded=true;
     tryShow();
     updCnt();
