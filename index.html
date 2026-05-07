@@ -2646,10 +2646,19 @@ function openEdit(idx){
     document.getElementById('mmaxw').value=l.maxWeek||4;
     const csEl=document.getElementById('mcurrsession');if(csEl)csEl.value=l.currSession||0;
     if(fv==='2'){
-      const d2a=document.getElementById('mday2a');if(d2a)d2a.value=l.day||0;
-      const t2a=document.getElementById('mtime2a');if(t2a)t2a.value=l.time||'15:00';
-      const d2b=document.getElementById('mday2b');if(d2b)d2b.value=l.day2||0;
-      const t2b=document.getElementById('mtime2b');if(t2b)t2b.value=l.time2||'15:00';
+      // 두 레슨을 요일 순서로 정렬
+      const _do={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
+      const pair=l.pairId?lessons.find(x=>x._id===l.pairId):null;
+      const twoLessons=[l, ...(pair?[pair]:[])].sort((a,b)=>{
+        const ao=_do[a.day]??9,bo=_do[b.day]??9;
+        if(ao!==bo)return ao-bo;
+        return (parseInt(a.time)||0)-(parseInt(b.time)||0);
+      });
+      const la=twoLessons[0],lb2=twoLessons[1];
+      const d2a=document.getElementById('mday2a');if(d2a)d2a.value=la.day||0;
+      const t2a=document.getElementById('mtime2a');if(t2a)t2a.value=la.time||'15:00';
+      const d2b=document.getElementById('mday2b');if(d2b)d2b.value=lb2?lb2.day:0;
+      const t2b=document.getElementById('mtime2b');if(t2b)t2b.value=lb2?lb2.time:'15:00';
     }
     document.getElementById('mstart').value=l.startDate||'';
     document.getElementById('mmemo').value=l.memo||'';
