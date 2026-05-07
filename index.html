@@ -829,15 +829,15 @@ function updCnt(){
   if(!el) return;
   if(isAdm()){
     const indiv=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI&&l.day!==41);
-    const total=new Set(indiv.map(l=>l.student+'_'+l.ti)).size;
+    const total=new Set(indiv.map(l=>l.student)).size;
     const w1=new Set(indiv.filter(l=>(l.freq||1)===1).map(l=>l.student+'_'+l.ti)).size;
-    const w2=new Set(indiv.filter(l=>(l.freq||1)>=2).map(l=>l.student+'_'+l.ti)).size;
-    const ips=new Set(indiv.filter(l=>l.course==='입시').map(l=>l.student+'_'+l.ti)).size;
-    const hby=new Set(indiv.filter(l=>l.course==='취미').map(l=>l.student+'_'+l.ti)).size;
-    el.style.display='';
+    const w2=new Set(indiv.filter(l=>(l.freq||1)>=2).map(l=>l.student)).size;
+    const ips=new Set(indiv.filter(l=>l.course==='입시').map(l=>l.student)).size;
+    const hby=new Set(indiv.filter(l=>l.course==='취미'||l.course==='전문').map(l=>l.student)).size;
+    const totalHrs=new Set(indiv.map(l=>`${l.ti}_${l.student}_${l.day}_${l.time}`)).size;
     el.style.cssText='display:block;background:rgba(0,0,0,.75);color:#fff;font-size:10px;padding:3px 12px;text-align:center;flex-shrink:0;cursor:pointer;white-space:nowrap;overflow-x:auto;';
     el.onclick=()=>showView('stat');
-    el.textContent=`👥 총 ${total}명  ·  주1회 ${w1}명  ·  주2회 ${w2}명  ·  입시 ${ips}명  ·  취미 ${hby}명`;
+    el.textContent=`👥 ${total}명  ⏰ ${totalHrs}시간  · 주1회 ${w1}  주2회 ${w2}  · 입시 ${ips}  취미 ${hby}`;
   } else {
     const ti=gTi();
     if(ti!==null){
@@ -1026,7 +1026,7 @@ function rTT(){
       row+=`<td style="${tdStyle}vertical-align:top;padding:2px;min-width:${dance?26:48}px">`;
       indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
       grps.forEach(l=>{const t=T[l.ti]||{},idx=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx})"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
-      blocks.forEach(l=>{const t=T[l.ti]||{};row+=`<div style="background:#FFF3E0;border:1px solid #FF6600;border-radius:3px;padding:1px 4px;font-size:9px;color:#FF6600;font-weight:700;text-align:center;cursor:pointer" onclick="deleteBlockTime('${l._id||''}',${l.ti})">🚫${t.s||''}</div>`;});
+      blocks.forEach(l=>{const t=T[l.ti]||{};row+=`<div style="background:#1c1c1e;border-radius:3px;padding:2px 4px;font-size:11px;color:#fff;font-weight:700;text-align:center;cursor:pointer" onclick="deleteBlockTime('${l._id||''}',${l.ti})">✕</div>`;});
       if(!indiv.length&&!grps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(${d},'${time}',null)"></div>`;
       row+=`</td>`;
     });
@@ -1094,51 +1094,119 @@ function crd(l,ti){
 // ── 전체 학생 ────────────────────────────────────────────
 function rStud(){
   const ntc=getNtc();
-  // 주2회: pairId 쌍 중 빠른 요일 기준 1개만 표시
-  const seenPair=new Set();
-  const allL=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI);
-  const uniq=[];
-  // 입시 먼저, 그 다음 요일+시간 빠른 순
   const dayOrder={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
-  const sorted=[...allL].sort((a,b)=>{
-    // 입시 먼저
-    const ac=a.course==='입시'?0:1,bc=b.course==='입시'?0:1;
-    if(ac!==bc)return ac-bc;
-    // 요일 순
-    const ad=dayOrder[a.day]??9,bd=dayOrder[b.day]??9;
-    if(ad!==bd)return ad-bd;
-    // 시간 순
-    return (parseInt(a.time)||0)-(parseInt(b.time)||0);
-  });
-  sorted.forEach(l=>{
-    if(l.pairId){
-      const pk=[l._id,l.pairId].sort().join('_');
-      if(!seenPair.has(pk)){seenPair.add(pk);uniq.push(l);}
-    } else {
-      uniq.push(l);
-    }
-  });
-  const tot=new Set(uniq.map(l=>l.student)).size;
+
+  // 학생별 그룹핑 (student+ti 기준, 주2회 두 요일 합침)
+  function getStudentMap(filterTi){
+    const studentMap={};
+    lessons.filter(l=>l.type==='individual'&&(filterTi===undefined?l.ti!==DTI:l.ti===filterTi)).forEach(l=>{
+      const key=l.student+'_'+l.ti;
+      if(!studentMap[key]){
+        studentMap[key]={...l,extraDay:null,extraTime:null};
+      } else {
+        const cur=studentMap[key];
+        const curOrder=dayOrder[cur.day]??9;
+        const newOrder=dayOrder[l.day]??9;
+        if(newOrder<curOrder){studentMap[key].extraDay=cur.day;studentMap[key].extraTime=cur.time;studentMap[key].day=l.day;studentMap[key].time=l.time;}
+        else{studentMap[key].extraDay=l.day;studentMap[key].extraTime=l.time;}
+      }
+    });
+    return Object.values(studentMap).sort((a,b)=>{
+      const ac=a.course==='입시'?0:1,bc=b.course==='입시'?0:1;
+      if(ac!==bc)return ac-bc;
+      const ad=dayOrder[a.day]??9,bd=dayOrder[b.day]??9;
+      if(ad!==bd)return ad-bd;
+      return (parseInt(a.time)||0)-(parseInt(b.time)||0);
+    });
+  }
+
+  const tot=new Set(lessons.filter(l=>l.type==='individual'&&l.ti!==DTI).map(l=>l.student)).size;
   let h=`<div class="sec-lbl">전체 학생 (총 ${tot}명)</div>`;
-  if(ntc.length){h+=`<div class="nbar"><div class="nt">📢 오늘 수강 안내 대상 (${ntc.length}명)</div>`;ntc.forEach(l=>{const t=T[l.ti]||{};h+=`<div class="nr">• ${l.student} · ${t.name||''} · 주${l.freq}회 · ${calcW(l)}/${l.maxWeek||4}주차</div>`;});h+=`</div>`;}
-  const dance=uniq.filter(l=>l.ti===DTI);
-  const reg=uniq.filter(l=>l.ti!==DTI);
-  reg.forEach(l=>{h+=liH(l,ntc);});
-  if(dance.length){h+=`<div class="dance-lbl">🕺 댄스조 (금요일)</div>`;dance.forEach(l=>{h+=liH(l,ntc);});}
+  if(ntc.length){h+=`<div class="nbar"><div class="nt">📢 오늘 수강 안내 대상 (${ntc.length}명)</div>`;ntc.forEach(l=>{const t=T[l.ti]||{};h+=`<div class="nr">• ${l.student} · ${t.name||''}</div>`;});h+=`</div>`;}
+
+  // 선생님별 섹션
+  T.forEach((t,ti)=>{
+    if(ti===DTI) return;
+    const studs=getStudentMap(ti);
+    if(!studs.length) return;
+
+    const w1=studs.filter(l=>(l.freq||1)<2&&!l.extraDay).length;
+    const w2=studs.filter(l=>l.extraDay!==null&&l.extraDay!==undefined).length;
+    const ips=studs.filter(l=>l.course==='입시').length;
+    const hby=studs.filter(l=>l.course==='취미'||l.course==='전문').length;
+
+    h+=`<div style="margin:8px 12px 0">
+      <div style="background:${bg(t.c)};border-left:3px solid ${t.c};border-radius:10px 10px 0 0;padding:8px 12px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <div style="width:26px;height:26px;border-radius:50%;background:${t.c};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${t.s}</div>
+        <div style="font-size:13px;font-weight:700;color:${t.c};flex:1">${t.name}</div>
+        <div style="font-size:10px;color:#8e8e93;display:flex;gap:6px;flex-wrap:wrap">
+          <span style="background:#fff;border-radius:4px;padding:1px 5px"><b>${studs.length}</b>명</span>
+          ${w1?`<span style="background:#E8F5E9;color:#2E7D32;border-radius:4px;padding:1px 5px">주1 ${w1}</span>`:''}
+          ${w2?`<span style="background:#E3F2FD;color:#1565C0;border-radius:4px;padding:1px 5px">주2 ${w2}</span>`:''}
+          ${ips?`<span style="background:#FFEBEE;color:#C00000;border-radius:4px;padding:1px 5px">입시 ${ips}</span>`:''}
+          ${hby?`<span style="background:#FFF8E1;color:#F57C00;border-radius:4px;padding:1px 5px">취미 ${hby}</span>`:''}
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:0 0 10px 10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">`;
+
+    studs.forEach((l,i)=>{
+      const isW2=l.extraDay!==null&&l.extraDay!==undefined;
+      let timeStr=`${DL[l.day]||''} ${l.time}`;
+      if(isW2) timeStr+=` · ${DL[l.extraDay]||''} ${l.extraTime}`;
+      const mk=mks.filter(m=>m.ti===l.ti&&m.student===l.student);
+      const border=i<studs.length-1?'border-bottom:.5px solid #f5f5f5':'';
+      h+=`<div style="padding:9px 12px;${border};cursor:pointer;display:flex;align-items:center;gap:8px" onclick="goToStudent(${l.ti},'${l.student}')">
+        <div style="width:28px;height:28px;border-radius:50%;background:${bg(t.c)};color:${t.c};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:3px">
+            ${l.student}
+            ${l.course==='입시'?'<span class="course-i">입시</span>':''}
+            ${isW2?'<span style="font-size:8px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">주2</span>':''}
+            ${mk.length?'<span class="upd">보강</span>':''}
+          </div>
+          <div style="font-size:10px;color:#8e8e93">${timeStr}${l.level?' · '+l.level:''}${l.gender?' '+l.gender:''}</div>
+        </div>
+        <div style="font-size:14px;color:#ddd">›</div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  });
+
+  // 댄스 섹션
+  const danceStuds=getStudentMap(DTI);
+  if(danceStuds.length){
+    const t=T[DTI]||{};
+    h+=`<div style="margin:8px 12px 0">
+      <div style="background:${bg(t.c)};border-left:3px solid ${t.c};border-radius:10px 10px 0 0;padding:8px 12px;display:flex;align-items:center;gap:8px">
+        <div style="width:26px;height:26px;border-radius:50%;background:${t.c};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${t.s}</div>
+        <div style="font-size:13px;font-weight:700;color:${t.c};flex:1">🕺 ${t.name}</div>
+        <span style="font-size:10px;background:#fff;border-radius:4px;padding:1px 5px"><b>${danceStuds.length}</b>명</span>
+      </div>
+      <div style="background:#fff;border-radius:0 0 10px 10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">`;
+    danceStuds.forEach((l,i)=>{
+      const border=i<danceStuds.length-1?'border-bottom:.5px solid #f5f5f5':'';
+      h+=`<div style="padding:9px 12px;${border};cursor:pointer;display:flex;align-items:center;gap:8px" onclick="goToStudent(${l.ti},'${l.student}')">
+        <div style="width:28px;height:28px;border-radius:50%;background:${bg(t.c)};color:${t.c};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">${l.student[0]}</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600">${l.student}</div>
+        <div style="font-size:10px;color:#8e8e93">${DL[l.day]||''} ${l.time}</div></div>
+        <div style="font-size:14px;color:#ddd">›</div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  }
+
   document.getElementById('page').innerHTML=h;
 }
+
 function liH(l,ntc){
   const t=T[l.ti]||{},w=calcW(l),mw=l.maxWeek||4,mk=mks.filter(m=>m.ti===l.ti&&m.student===l.student),isN=ntc.some(n=>n.student===l.student&&n.ti===l.ti);
   const pct=Math.min(100,Math.round(w/mw*100));
   const wc=w>=mw?'#C00000':w>=(mw*.7)?'#854F0B':'#3B6D11';
   const wbg=w>=mw?'#FFEBEE':w>=(mw*.7)?'#FAEEDA':'#EAF3DE';
-  const isW2=(l.freq||1)>=2||l.pairId;
-  // 주2회: 두 번째 요일/시간 찾기
+  const isW2=l.extraDay!==null&&l.extraDay!==undefined;
+  // 시간 표시: 주2회면 "화17:00 · 금18:00", 주1회면 "화17:00"
   let timeStr=`${DL[l.day]||''} ${l.time}`;
-  if(isW2&&l.pairId){
-    const pair=lessons.find(x=>x._id===l.pairId);
-    if(pair) timeStr+=` · ${DL[pair.day]||''} ${pair.time}`;
-  }
+  if(isW2) timeStr+=` · ${DL[l.extraDay]||''} ${l.extraTime}`;
   return `<div class="li" style="border-left-color:${t.c||'#ccc'};cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">
     <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px">
       ${l.student}${mk.length?`<span class="upd">보강</span>`:''}
@@ -1219,7 +1287,7 @@ function rAtt(){
         const total=maxW*((l.freq||1)>=2?2:1);
         const pct=Math.min(100,Math.round(present/total*100));
         const border=i<uniqS.length-1?'border-bottom:.5px solid #f0f0f0':'';
-        h+=`<div style="padding:10px 14px;${border};cursor:pointer;display:flex;align-items:center;gap:10px" onclick="_detailTi=${ti};_detailStudent='${l.student}';rStudentDetail()">
+        h+=`<div style="padding:10px 14px;${border};cursor:pointer;display:flex;align-items:center;gap:10px" onclick="goToStudent(${ti},'${l.student}','att')">
           <div style="width:32px;height:32px;border-radius:50%;background:${bg(t.c||'#888')};color:${t.c||'#888'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:13px;font-weight:600;color:#1c1c1e">${l.student} ${l.course==='입시'?'<span class="course-i">입시</span>':''}<span style="font-size:10px;color:#8e8e93;font-weight:400"> ${l.level||''} ${l.gender||''}</span></div>
@@ -1916,7 +1984,7 @@ function rMyTT(){
   const isDance=(ti===DTI); // 댄스 선생님 여부
 
   let h=`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:.5px solid #e5e5e5">
-    ${isLoginAdm()?`<button onclick="switchToAdmin();showView('tt')" style="background:none;border:none;font-size:22px;cursor:pointer;padding:0 4px;color:#1c1c1e">‹</button>`:''}
+    ${isLoginAdm()?`<button onclick="switchToAdmin()" style="background:none;border:none;font-size:22px;cursor:pointer;padding:0 4px;color:#1c1c1e;line-height:1">‹</button>`:''}
     <div class="av" style="width:36px;height:36px;background:${bg(t.c||'#888')};color:${t.c||'#888'};font-size:14px">${t.s||''}</div>
     <div><div style="font-size:14px;font-weight:700;color:${t.c||'#888'}">${t.name||''}</div>
     <div style="font-size:11px;color:#8e8e93">${t.sub||''} · 담당 ${myL.length}명</div></div>
@@ -1975,6 +2043,7 @@ function rMyTT(){
       row+=`<td style="vertical-align:top;padding:1.5px;min-width:50px">`;
       if(cells.length){
         cells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
+          if(l.type==='block'){row+=`<div style="background:#1c1c1e;border-radius:3px;padding:2px 4px;font-size:11px;color:#fff;font-weight:700;text-align:center;cursor:pointer" onclick="deleteBlockTime('${l._id||''}',${l.ti})">✕</div>`;return;}
           if(l.type==='group'){const idx2=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx2})">${l.groupname}</div>`;}
           else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
             <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
@@ -1990,6 +2059,7 @@ function rMyTT(){
     row+=`<td style="vertical-align:top;padding:1.5px;min-width:${isDance?'16px':'50px'}">`;
     if(friCells.length){
       friCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
+        if(l.type==='block'){row+=`<div style="background:#1c1c1e;border-radius:3px;padding:2px 4px;font-size:11px;color:#fff;font-weight:700;text-align:center;cursor:pointer" onclick="deleteBlockTime('${l._id||''}',${l.ti})">✕</div>`;return;}
         if(l.type==='group'){const idx2=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx2})">${l.groupname}</div>`;}
         else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
           <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
@@ -2005,6 +2075,7 @@ function rMyTT(){
     row+=`<td style="background:#f0f8fc;border:.5px solid #b3d9ec;vertical-align:top;padding:1px;min-width:27px">`;
     if(satCells.length){
       satCells.forEach(l=>{const idx=lessons.indexOf(l),mk=hasMk(l.ti,l.student);
+        if(l.type==='block'){row+=`<div style="background:#1c1c1e;border-radius:3px;padding:2px 4px;font-size:11px;color:#fff;font-weight:700;text-align:center;cursor:pointer" onclick="deleteBlockTime('${l._id||''}',${l.ti})">✕</div>`;return;}
         if(l.type==='group'){const idx2=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx2})">${l.groupname}</div>`;}
         else row+=`<div class="lb" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border-left-color:${t.c||'#888'}" onclick="openEdit(${idx})">
           <div style="font-weight:600;cursor:pointer" onclick="event.stopPropagation();goToStudent(${l.ti},'${l.student}')">${l.student}${(l.freq||1)>=2||l.pairId?' <span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px">(주2)</span>':''}${mk?'<span style="color:#1565C0"> (보)</span>':''}</div>
@@ -2280,38 +2351,60 @@ function rMyStud(){
   const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
   const ntc=getNtc().filter(l=>l.ti===ti);
   const dayOrder={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
-  // 입시 먼저, 요일+시간 순 정렬, 주2회 중복 제거
-  const seenPair=new Set();
-  const sorted=[...myL].sort((a,b)=>{
+
+  // 학생별 그룹핑 (주2회 두 요일 합침)
+  const studentMap={};
+  myL.forEach(l=>{
+    const key=l.student;
+    if(!studentMap[key]){
+      studentMap[key]={...l,extraDay:null,extraTime:null};
+    } else {
+      const cur=studentMap[key];
+      const curOrder=dayOrder[cur.day]??9;
+      const newOrder=dayOrder[l.day]??9;
+      if(newOrder < curOrder){
+        studentMap[key].extraDay=cur.day;
+        studentMap[key].extraTime=cur.time;
+        studentMap[key].day=l.day;
+        studentMap[key].time=l.time;
+      } else {
+        studentMap[key].extraDay=l.day;
+        studentMap[key].extraTime=l.time;
+      }
+    }
+  });
+
+  const sorted=Object.values(studentMap).sort((a,b)=>{
     const ac=a.course==='입시'?0:1,bc=b.course==='입시'?0:1;
     if(ac!==bc)return ac-bc;
     const ad=dayOrder[a.day]??9,bd=dayOrder[b.day]??9;
     if(ad!==bd)return ad-bd;
     return (parseInt(a.time)||0)-(parseInt(b.time)||0);
   });
-  const uniq=[];
-  sorted.forEach(l=>{
-    if(l.pairId){const pk=[l._id,l.pairId].sort().join('_');if(!seenPair.has(pk)){seenPair.add(pk);uniq.push(l);}}
-    else uniq.push(l);
-  });
+
   let h=`<div style="padding:10px 14px 4px;display:flex;align-items:center;justify-content:space-between">
-    <div style="font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''} 담당 (${uniq.length}명)</div>
+    <div style="font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''} 담당 (${sorted.length}명)</div>
     <div style="display:flex;gap:6px">
       <button class="add-btn" style="width:auto;padding:5px 12px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
       <button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px;background:#FF6600" onclick="openBlockTime(${ti})">🚫 수업불가</button>
     </div>
   </div>`;
   if(ntc.length){h+=`<div class="nbar"><div class="nt">📢 수강 안내 필요</div>`;ntc.forEach(l=>h+=`<div class="nr">• ${l.student} — ${calcW(l)}/${l.maxWeek||4}주차 완료</div>`);h+=`</div>`;}
-  uniq.forEach(l=>{
-    const idx=lessons.indexOf(l),w=calcW(l),mw=l.maxWeek||4,mk=mks.filter(m=>m.ti===l.ti&&m.student===l.student),isN=ntc.some(n=>n.student===l.student);
-    const pct=Math.min(100,Math.round(w/mw*100));const wc=w>=mw?'#C00000':w>=(mw*.7)?'#854F0B':'#3B6D11';const wbg=w>=mw?'#FFEBEE':w>=(mw*.7)?'#FAEEDA':'#EAF3DE';
-    const isW2=(l.freq||1)>=2||l.pairId;
+
+  sorted.forEach(l=>{
+    const idx=lessons.indexOf(myL.find(x=>x.student===l.student)),w=calcW(l),mw=l.maxWeek||4;
+    const mk=mks.filter(m=>m.ti===l.ti&&m.student===l.student),isN=ntc.some(n=>n.student===l.student);
+    const pct=Math.min(100,Math.round(w/mw*100));
+    const wc=w>=mw?'#C00000':w>=(mw*.7)?'#854F0B':'#3B6D11';
+    const wbg=w>=mw?'#FFEBEE':w>=(mw*.7)?'#FAEEDA':'#EAF3DE';
+    const isW2=l.extraDay!==null&&l.extraDay!==undefined;
     let timeStr=`${DL[l.day]||''} ${l.time}`;
-    if(isW2&&l.pairId){const pair=lessons.find(x=>x._id===l.pairId);if(pair)timeStr+=` · ${DL[pair.day]||''} ${pair.time}`;}
+    if(isW2) timeStr+=` · ${DL[l.extraDay]||''} ${l.extraTime}`;
+    const realIdx=lessons.findIndex(x=>x.student===l.student&&x.ti===ti&&x.day===l.day);
     h+=`<div class="li" style="border-left-color:${t.c||'#ccc'}">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px;cursor:pointer" onclick="goToStudent(${ti},'${l.student}')">
+        <div style="flex:1;cursor:pointer" onclick="goToStudent(${ti},'${l.student}')">
+          <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px">
             ${l.student}${mk.length?`<span class="upd">보강</span>`:''}${l.course==='입시'?`<span class="course-i">입시</span>`:''}${isW2?`<span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 3px">주2회</span>`:''}${isN?'<span class="ntc">안내필요</span>':''}
           </div>
           <div style="font-size:10px;color:#8e8e93;margin-top:2px">${timeStr} · ${l.level||''} ${l.gender||''}</div>
@@ -2322,11 +2415,12 @@ function rMyStud(){
           ${l.memo?`<div style="font-size:10px;color:#8e8e93;margin-top:3px">📝 ${l.memo}</div>`:''}
         </div>
         <div style="display:flex;flex-direction:column;gap:4px">
-          <button class="btn-sm" onclick="openEdit(${idx})">수정</button>
-          <button class="mk-b" style="height:26px;margin-left:0" onclick="openMk(${idx})">보강</button>
+          <button class="btn-sm" onclick="openEdit(${realIdx})">수정</button>
+          <button class="mk-b" style="height:26px;margin-left:0" onclick="openMk(${realIdx})">보강</button>
         </div>
       </div>
-    </div>`;});
+    </div>`;
+  });
   document.getElementById('page').innerHTML=h;
 }
 
@@ -2863,14 +2957,22 @@ function showLoading(msg){
 // 학생 이름 클릭 → 해당 선생님 학생 페이지로
 let _detailTi=null,_detailStudent=null;
 
-function goToStudent(ti,studentName){
+function goToStudent(ti,studentName,from){
   if(isLoginAdm()&&isAdm()){
-    // 관리자 모드: 수업 수정 팝업
-    const idx=lessons.findIndex(l=>l.student===studentName&&l.ti===ti&&l.type==='individual');
-    if(idx>=0)openEdit(idx);
-    else openAddIndiv(null,null,ti);
+    if(from==='att'){
+      // 출결관리에서 클릭 → 출석기록 페이지
+      _detailTi=ti;_detailStudent=studentName;
+      document.getElementById('page').innerHTML='';
+      document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+      rStudentDetail();
+    } else {
+      // 전체학생 등 → 수업 수정 팝업
+      const idx=lessons.findIndex(l=>l.student===studentName&&l.ti===ti&&l.type==='individual');
+      if(idx>=0)openEdit(idx);
+      else openAddIndiv(null,null,ti);
+    }
   } else {
-    // 선생님 모드 (선생님 로그인 or 관리자가 선생님 선택): 출석기록 페이지
+    // 선생님 모드 → 출석기록 페이지
     _detailTi=ti;_detailStudent=studentName;
     document.getElementById('page').innerHTML='';
     document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
