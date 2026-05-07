@@ -865,7 +865,7 @@ function buildTabs(){
      <button class="tb" onclick="showView('alert',this)">📣 출석 알림</button>
      <button class="tb" onclick="showView('mgr',this)">선생님 관리</button>
      <button class="tb" onclick="showView('set',this)">⚙️ 설정</button>`:
-    `<button class="tb" onclick="showView('my-tt',this)">내 시간표</button>
+    `${isLoginAdm()?'<button class="tb" onclick="switchToAdmin()" style="color:#C00000;font-weight:700">◀ 전체시간표</button>':''}<button class="tb" onclick="showView('my-tt',this)">내 시간표</button>
      <button class="tb" onclick="showView('my-day',this)">출석 체크</button>
      <button class="tb" onclick="showView('my-stud',this)">내 학생</button>
      <button class="tb" onclick="showView('set',this)">⚙️ 설정</button>`;
@@ -1156,7 +1156,9 @@ function rStud(){
       if(isW2) timeStr+=` · ${DL[l.extraDay]||''} ${l.extraTime}`;
       const mk=mks.filter(m=>m.ti===l.ti&&m.student===l.student);
       const border=i<studs.length-1?'border-bottom:.5px solid #f5f5f5':'';
-      h+=`<div style="padding:9px 12px;${border};cursor:pointer;display:flex;align-items:center;gap:8px" onclick="goToStudent(${l.ti},'${l.student}')">
+      // 클릭 시 첫번째(빠른) 요일 레슨의 실제 인덱스 찾기
+      const realIdx=lessons.findIndex(x=>x.student===l.student&&x.ti===ti&&x.day===l.day&&x.time===l.time&&x.type==='individual');
+      h+=`<div style="padding:9px 12px;${border};cursor:pointer;display:flex;align-items:center;gap:8px" onclick="${isAdm()?`openEdit(${realIdx})`:`goToStudent(${ti},'${l.student}')`}">
         <div style="width:28px;height:28px;border-radius:50%;background:${bg(t.c)};color:${t.c};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:3px">
@@ -2473,7 +2475,14 @@ function saveBlockTime(ti){
   const obj={type:'block',ti,day,time};
   if(window._db){
     window._db.collection('lessons').doc(id).set(obj)
-      .then(()=>{showToast('🚫 수업불가 시간 설정됨');document.getElementById('_block_pop')?.remove();})
+      .then(()=>{
+        showToast('🚫 수업불가 시간 설정됨');
+        document.getElementById('_block_pop')?.remove();
+        // 즉시 반영 - 현재 시간표 새로고침
+        const at=document.querySelector('.tb.on');
+        if(at){const v=at.getAttribute('onclick')||'';if(v.includes("'my-tt'")||v.includes("'tt'"))at.click();}
+        else showView('my-tt');
+      })
       .catch(e=>showToast('❌ 실패: '+e.message));
   }
 }
@@ -2481,7 +2490,12 @@ function saveBlockTime(ti){
 function deleteBlockTime(id,ti){
   if(!id||!window._db)return;
   window._db.collection('lessons').doc(id).delete()
-    .then(()=>{showToast('✅ 삭제됨');document.getElementById('_block_pop')?.remove();})
+    .then(()=>{
+      showToast('✅ 삭제됨');
+      document.getElementById('_block_pop')?.remove();
+      const at=document.querySelector('.tb.on');
+      if(at){const v=at.getAttribute('onclick')||'';if(v.includes("'my-tt'")||v.includes("'tt'"))at.click();}
+    })
     .catch(e=>showToast('❌ 실패: '+e.message));
 }
 
