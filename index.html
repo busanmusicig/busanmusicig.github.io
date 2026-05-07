@@ -1100,17 +1100,26 @@ function rStud(){
   // 학생별 그룹핑 (student+ti 기준, 주2회 두 요일 합침)
   function getStudentMap(filterTi){
     const studentMap={};
+    // 1단계: 모든 레슨 수집 (key별 배열)
+    const rawMap={};
     lessons.filter(l=>l.type==='individual'&&(filterTi===undefined?l.ti!==DTI:l.ti===filterTi)).forEach(l=>{
       const key=l.student+'_'+l.ti;
-      if(!studentMap[key]){
-        studentMap[key]={...l,extraDay:null,extraTime:null};
-      } else {
-        const cur=studentMap[key];
-        const curOrder=dayOrder[cur.day]??9;
-        const newOrder=dayOrder[l.day]??9;
-        if(newOrder<curOrder){studentMap[key].extraDay=cur.day;studentMap[key].extraTime=cur.time;studentMap[key].day=l.day;studentMap[key].time=l.time;}
-        else{studentMap[key].extraDay=l.day;studentMap[key].extraTime=l.time;}
-      }
+      if(!rawMap[key])rawMap[key]=[];
+      rawMap[key].push(l);
+    });
+    // 2단계: 요일 순서로 정렬 후 1번=빠른요일, 2번=늦은요일
+    Object.entries(rawMap).forEach(([key,arr])=>{
+      arr.sort((a,b)=>{
+        const ao=dayOrder[a.day]??9,bo=dayOrder[b.day]??9;
+        if(ao!==bo)return ao-bo;
+        return (parseInt(a.time)||0)-(parseInt(b.time)||0);
+      });
+      const first=arr[0];
+      const second=arr[1];
+      studentMap[key]={...first,
+        extraDay:second?second.day:null,
+        extraTime:second?second.time:null
+      };
     });
     return Object.values(studentMap).sort((a,b)=>{
       const ac=a.course==='입시'?0:1,bc=b.course==='입시'?0:1;
@@ -1263,43 +1272,57 @@ function rAtt(){
   </div>`;
 
   if(_attView==='list'){
-    // 기존 선생님별 학생 목록 - 통계에서 왔으면 뒤로가기 버튼 표시
-    const fromStat=document.referrer===''||true; // 항상 표시
     h+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 12px 4px">
       <button onclick="showView('stat')" style="background:none;border:none;font-size:13px;color:#8e8e93;cursor:pointer;padding:4px 8px;border-radius:8px;background:#f2f2f7;font-family:inherit">‹ 통계</button>
       <span style="font-size:12px;font-weight:700;color:#1c1c1e">출결 관리</span>
     </div>`;
+    const dayOrder={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
     T.forEach((t,ti)=>{
-      const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
-      const uniqS=[...new Map(myL.map(l=>[l.student,l])).values()];
-      if(!uniqS.length) return;
+      // 전체학생과 동일한 그룹핑 - 주2회 두 요일 합침
+      const rawMap={};
+      lessons.filter(l=>l.ti===ti&&l.type==='individual').forEach(l=>{
+        const key=l.student;
+        if(!rawMap[key])rawMap[key]=[];
+        rawMap[key].push(l);
+      });
+      const studs=Object.entries(rawMap).map(([student,arr])=>{
+        arr.sort((a,b)=>{const ao=dayOrder[a.day]??9,bo=dayOrder[b.day]??9;if(ao!==bo)return ao-bo;return (parseInt(a.time)||0)-(parseInt(b.time)||0);});
+        return {...arr[0], extraDay:arr[1]?arr[1].day:null, extraTime:arr[1]?arr[1].time:null};
+      }).sort((a,b)=>{
+        const ac=a.course==='입시'?0:1,bc=b.course==='입시'?0:1;if(ac!==bc)return ac-bc;
+        const ad=dayOrder[a.day]??9,bd=dayOrder[b.day]??9;if(ad!==bd)return ad-bd;
+        return (parseInt(a.time)||0)-(parseInt(b.time)||0);
+      });
+      if(!studs.length) return;
       h+=`<div style="margin:10px 12px 4px;padding:10px 14px;background:${bg(t.c||'#888')};border-radius:12px 12px 0 0;border-left:3px solid ${t.c||'#888'}">
         <div style="display:flex;align-items:center;gap:8px">
           <div style="width:28px;height:28px;border-radius:50%;background:${t.c||'#888'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${t.s||''}</div>
           <div style="font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''}</div>
-          <div style="font-size:11px;color:#8e8e93;margin-left:auto">${uniqS.length}명</div>
+          <div style="font-size:11px;color:#8e8e93;margin-left:auto">${studs.length}명</div>
         </div>
       </div>
       <div style="margin:0 12px 4px;background:#fff;border-radius:0 0 12px 12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)">`;
-      uniqS.forEach((l,i)=>{
+      studs.forEach((l,i)=>{
         const attD=(att[ti]||{})[l.student]||{};
         const allD=Object.keys(attD);
         const present=allD.filter(d=>attD[d]==='present'||attD[d]==='makeup').length;
         const absent=allD.filter(d=>attD[d]==='absent').length;
+        const isW2=l.extraDay!==null&&l.extraDay!==undefined;
+        let timeStr=`${DL[l.day]||''} ${l.time}`;
+        if(isW2) timeStr+=` · ${DL[l.extraDay]||''} ${l.extraTime}`;
         const maxW=l.maxWeek||4;
-        const total=maxW*((l.freq||1)>=2?2:1);
+        const total=maxW*(isW2?2:1);
         const pct=Math.min(100,Math.round(present/total*100));
-        const border=i<uniqS.length-1?'border-bottom:.5px solid #f0f0f0':'';
+        const border=i<studs.length-1?'border-bottom:.5px solid #f0f0f0':'';
         h+=`<div style="padding:10px 14px;${border};cursor:pointer;display:flex;align-items:center;gap:10px" onclick="goToStudent(${ti},'${l.student}','att')">
           <div style="width:32px;height:32px;border-radius:50%;background:${bg(t.c||'#888')};color:${t.c||'#888'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${l.student[0]}</div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:600;color:#1c1c1e">${l.student} ${l.course==='입시'?'<span class="course-i">입시</span>':''}<span style="font-size:10px;color:#8e8e93;font-weight:400"> ${l.level||''} ${l.gender||''}</span></div>
-            <div style="font-size:10px;color:#8e8e93;margin-top:2px">${DL[l.day]||''} ${l.time} · ${(l.freq||1)>=2?'주2회':'주1회'}</div>
+            <div style="font-size:13px;font-weight:600;color:#1c1c1e">${l.student} ${l.course==='입시'?'<span class="course-i">입시</span>':''}${isW2?'<span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 2px;margin-left:2px">주2</span>':''}<span style="font-size:10px;color:#8e8e93;font-weight:400"> ${l.level||''} ${l.gender||''}</span></div>
+            <div style="font-size:10px;color:#8e8e93;margin-top:2px">${timeStr}</div>
             <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
               <div style="flex:1;height:4px;background:#f0f0f0;border-radius:2px"><div style="height:4px;background:${t.c||'#888'};border-radius:2px;width:${pct}%"></div></div>
               <span style="font-size:10px;color:#2E7D32;font-weight:600">${present}출</span>
               <span style="font-size:10px;color:#C00000;font-weight:600">${absent}결</span>
-              <span style="font-size:10px;color:#8e8e93">${present}/${total}</span>
             </div>
           </div>
           <div style="font-size:16px;color:#ccc">›</div>
@@ -2354,26 +2377,22 @@ function rMyStud(){
   const ntc=getNtc().filter(l=>l.ti===ti);
   const dayOrder={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
 
-  // 학생별 그룹핑 (주2회 두 요일 합침)
-  const studentMap={};
+  // 학생별 그룹핑 (주2회 두 요일 합침) - 요일 순서 보장
+  const rawMap2={};
   myL.forEach(l=>{
     const key=l.student;
-    if(!studentMap[key]){
-      studentMap[key]={...l,extraDay:null,extraTime:null};
-    } else {
-      const cur=studentMap[key];
-      const curOrder=dayOrder[cur.day]??9;
-      const newOrder=dayOrder[l.day]??9;
-      if(newOrder < curOrder){
-        studentMap[key].extraDay=cur.day;
-        studentMap[key].extraTime=cur.time;
-        studentMap[key].day=l.day;
-        studentMap[key].time=l.time;
-      } else {
-        studentMap[key].extraDay=l.day;
-        studentMap[key].extraTime=l.time;
-      }
-    }
+    if(!rawMap2[key])rawMap2[key]=[];
+    rawMap2[key].push(l);
+  });
+  const studentMap={};
+  Object.entries(rawMap2).forEach(([key,arr])=>{
+    arr.sort((a,b)=>{
+      const ao=dayOrder[a.day]??9,bo=dayOrder[b.day]??9;
+      if(ao!==bo)return ao-bo;
+      return (parseInt(a.time)||0)-(parseInt(b.time)||0);
+    });
+    const first=arr[0],second=arr[1];
+    studentMap[key]={...first,extraDay:second?second.day:null,extraTime:second?second.time:null};
   });
 
   const sorted=Object.values(studentMap).sort((a,b)=>{
@@ -3012,7 +3031,15 @@ function rStudentDetail(){
   const freqLabel=(l.freq||1)>=2?'주 2회':(l.freq||1)===0?'단기':'주 1회';
   const maxW=parseInt(l.maxWeek)||4;
   const totalSession=maxW*((l.freq||1)>=2?2:1);
-  const dayLabel=(l.freq||1)>=2?`${DL[l.day]||''} ${l.time} / ${DL[l.day2]||''} ${l.time2||''}`:`${DL[l.day]||''} ${l.time}`;
+  // 주2회: 실제 두 레슨에서 요일/시간 가져오기
+  const dayOrder2={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
+  const lsSorted=[...ls].sort((a,b)=>{
+    const ao=dayOrder2[a.day]??9,bo=dayOrder2[b.day]??9;
+    if(ao!==bo)return ao-bo;
+    return (parseInt(a.time)||0)-(parseInt(b.time)||0);
+  });
+  const l1=lsSorted[0],l2=lsSorted[1];
+  const dayLabel=l2?`${DL[l1.day]||''} ${l1.time} · ${DL[l2.day]||''} ${l2.time}`:`${DL[l1.day]||''} ${l1.time}`;
   const presentCount=allDates.filter(d=>attData[d]==='present'||attData[d]==='makeup').length;
 
   let h=`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border-bottom:.5px solid #e5e5e5;position:sticky;top:0;z-index:10">
