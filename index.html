@@ -532,6 +532,7 @@ body.force-portrait #page{grid-column:auto !important;}
   </div>
   <div class="br">
     <button class="btn-c" onclick="closeLsn()">취소</button>
+    <button class="btn-c" style="background:#FF6600;color:#fff;border-color:#FF6600" onclick="closeLsn();openBlockTime(gTi())">🚫 수업불가</button>
     <button class="btn-s" id="bsave" onclick="(window._saveLsn||saveLsn)()">저장</button>
     <button class="btn-s" id="bedit" style="display:none;background:#1565C0" onclick="(window._saveLsn||saveLsn)()">수정</button>
     <button class="btn-d" id="bdel" style="display:none" onclick="(window._delLsn||delLsn)()">삭제</button>
@@ -1026,7 +1027,7 @@ function rTT(){
       row+=`<td style="${tdStyle}vertical-align:top;padding:2px;min-width:${dance?26:48}px">`;
       indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
       grps.forEach(l=>{const t=T[l.ti]||{},idx=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx})"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
-      blocks.forEach(l=>{const t=T[l.ti]||{};row+=`<div style="background:#1c1c1e;border-radius:3px;padding:2px 4px;font-size:11px;color:#fff;font-weight:700;text-align:center;cursor:pointer" onclick="deleteBlockTime('${l._id||''}',${l.ti})">✕</div>`;});
+      // block타입은 전체시간표에서 숨김
       if(!indiv.length&&!grps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(${d},'${time}',null)"></div>`;
       row+=`</td>`;
     });
@@ -1797,25 +1798,25 @@ function rStat(){
   </div>`;
   let h=`
   <!-- 학생 인원 정보 요약 바 -->
-  <div style="background:linear-gradient(135deg,#C00000,#8B0000);padding:14px 16px;display:flex;align-items:center;justify-content:space-around;flex-wrap:wrap;gap:8px">
+  <div style="background:linear-gradient(135deg,#C00000,#8B0000);padding:8px 16px;display:flex;align-items:center;justify-content:space-around;gap:4px">
     <div style="text-align:center;color:#fff">
-      <div style="font-size:26px;font-weight:800">${total}</div>
-      <div style="font-size:10px;opacity:.85">총 수강생</div>
+      <div style="font-size:18px;font-weight:800;line-height:1.2">${total}</div>
+      <div style="font-size:9px;opacity:.8">수강생</div>
     </div>
-    <div style="width:1px;height:36px;background:rgba(255,255,255,.3)"></div>
+    <div style="width:1px;height:28px;background:rgba(255,255,255,.3)"></div>
     <div style="text-align:center;color:#fff">
-      <div style="font-size:26px;font-weight:800">${totalHrs}</div>
-      <div style="font-size:10px;opacity:.85">주간 수업시간</div>
+      <div style="font-size:18px;font-weight:800;line-height:1.2">${totalHrs}</div>
+      <div style="font-size:9px;opacity:.8">주간시간</div>
     </div>
-    <div style="width:1px;height:36px;background:rgba(255,255,255,.3)"></div>
+    <div style="width:1px;height:28px;background:rgba(255,255,255,.3)"></div>
     <div style="text-align:center;color:#fff">
-      <div style="font-size:26px;font-weight:800">${ips}</div>
-      <div style="font-size:10px;opacity:.85">입시생</div>
+      <div style="font-size:18px;font-weight:800;line-height:1.2">${ips}</div>
+      <div style="font-size:9px;opacity:.8">입시생</div>
     </div>
-    <div style="width:1px;height:36px;background:rgba(255,255,255,.3)"></div>
+    <div style="width:1px;height:28px;background:rgba(255,255,255,.3)"></div>
     <div style="text-align:center;color:#fff">
-      <div style="font-size:26px;font-weight:800">${hby}</div>
-      <div style="font-size:10px;opacity:.85">취미생</div>
+      <div style="font-size:18px;font-weight:800;line-height:1.2">${hby}</div>
+      <div style="font-size:9px;opacity:.8">취미생</div>
     </div>
   </div>
   <div class="sec-lbl" style="padding:12px 16px 8px;font-size:13px;font-weight:700">📊 수강 현황</div>
@@ -1988,9 +1989,8 @@ function rMyTT(){
     <div class="av" style="width:36px;height:36px;background:${bg(t.c||'#888')};color:${t.c||'#888'};font-size:14px">${t.s||''}</div>
     <div><div style="font-size:14px;font-weight:700;color:${t.c||'#888'}">${t.name||''}</div>
     <div style="font-size:11px;color:#8e8e93">${t.sub||''} · 담당 ${myL.length}명</div></div>
-    <div style="margin-left:auto;display:flex;gap:6px">
+    <div style="margin-left:auto">
       <button class="add-btn" style="width:auto;padding:6px 12px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
-      <button class="add-btn" style="width:auto;padding:6px 10px;font-size:11px;margin:0;border-radius:8px;background:#FF6600" onclick="openBlockTime(${ti})">🚫 수업불가</button>
     </div>
   </div>
   <div class="legend" id="mytt-leg"></div>`;
@@ -2386,7 +2386,6 @@ function rMyStud(){
     <div style="font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''} 담당 (${sorted.length}명)</div>
     <div style="display:flex;gap:6px">
       <button class="add-btn" style="width:auto;padding:5px 12px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
-      <button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px;background:#FF6600" onclick="openBlockTime(${ti})">🚫 수업불가</button>
     </div>
   </div>`;
   if(ntc.length){h+=`<div class="nbar"><div class="nt">📢 수강 안내 필요</div>`;ntc.forEach(l=>h+=`<div class="nr">• ${l.student} — ${calcW(l)}/${l.maxWeek||4}주차 완료</div>`);h+=`</div>`;}
