@@ -1056,7 +1056,7 @@ function rDay(){
   const tio=T.map((_,i)=>i);
   const dayL=lessons.filter(l=>l.day===selDay&&(ti===null||l.ti===ti));
   const indiv=[...dayL.filter(l=>l.type==='individual')].sort((a,b)=>tio.indexOf(a.ti)-tio.indexOf(b.ti)||a.time.localeCompare(b.time));
-  const grps=dayL.filter(l=>l.type==='group');
+  const grps=dayL.filter(l=>l.type==='group').sort((a,b)=>(parseInt(a.time)||0)-(parseInt(b.time)||0));
   if(!indiv.length&&!grps.length)h+=`<div class="empty">이 요일 수업이 없습니다</div>`;
   else{
     h+='<div style="height:8px"></div>';
@@ -2646,19 +2646,19 @@ function openEdit(idx){
     document.getElementById('mmaxw').value=l.maxWeek||4;
     const csEl=document.getElementById('mcurrsession');if(csEl)csEl.value=l.currSession||0;
     if(fv==='2'){
-      // 두 레슨을 요일 순서로 정렬
+      // pairId 또는 같은 학생+선생님의 모든 레슨에서 두 요일 찾기
       const _do={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
-      const pair=l.pairId?lessons.find(x=>x._id===l.pairId):null;
-      const twoLessons=[l, ...(pair?[pair]:[])].sort((a,b)=>{
+      const allL=lessons.filter(x=>x.student===l.student&&x.ti===l.ti&&x.type==='individual');
+      const twoLessons=allL.sort((a,b)=>{
         const ao=_do[a.day]??9,bo=_do[b.day]??9;
         if(ao!==bo)return ao-bo;
         return (parseInt(a.time)||0)-(parseInt(b.time)||0);
       });
-      const la=twoLessons[0],lb2=twoLessons[1];
-      const d2a=document.getElementById('mday2a');if(d2a)d2a.value=la.day||0;
+      const la=twoLessons[0]||l, lb2=twoLessons[1];
+      const d2a=document.getElementById('mday2a');if(d2a)d2a.value=la.day??0;
       const t2a=document.getElementById('mtime2a');if(t2a)t2a.value=la.time||'15:00';
-      const d2b=document.getElementById('mday2b');if(d2b)d2b.value=lb2?lb2.day:0;
-      const t2b=document.getElementById('mtime2b');if(t2b)t2b.value=lb2?lb2.time:'15:00';
+      const d2b=document.getElementById('mday2b');if(d2b)d2b.value=lb2?lb2.day??0:0;
+      const t2b=document.getElementById('mtime2b');if(t2b)t2b.value=lb2?lb2.time||'15:00':'15:00';
     }
     document.getElementById('mstart').value=l.startDate||'';
     document.getElementById('mmemo').value=l.memo||'';
