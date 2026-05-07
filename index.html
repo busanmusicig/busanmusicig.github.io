@@ -1021,10 +1021,12 @@ function rTT(){
       const indiv=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='individual'&&!_seen.has(l._id)&&_seen.add(l._id)).sort((a,b)=>a.ti-b.ti);
       const _seenG=new Set();
       const grps=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='group'&&!_seenG.has(l._id)&&_seenG.add(l._id)).sort((a,b)=>a.ti-b.ti);
+      const blocks=lessons.filter(l=>l.time===time&&l.day===d&&l.type==='block');
       let tdStyle=dance?'':'';
       row+=`<td style="${tdStyle}vertical-align:top;padding:2px;min-width:${dance?26:48}px">`;
       indiv.forEach(l=>{const t=T[l.ti]||{};const mk=hasMk(l.ti,l.student);row+=`<div class="lb-t" style="background:${bg(t.c||'#888')};color:${t.c||'#888'};border:1px solid ${t.c||'#888'}40;cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">${t.name||''}${(l.freq||1)>=2||l.pairId?'<span style="font-size:7px;background:#1565C0;color:#fff;border-radius:2px;padding:0 2px;margin-left:1px">주2</span>':''}${mk?'<span style="color:#1565C0;font-size:8px"> (보)</span>':''}</div>`;});
       grps.forEach(l=>{const t=T[l.ti]||{},idx=lessons.indexOf(l);row+=`<div class="gb" style="cursor:pointer" onclick="openEdit(${idx})"><b>${l.groupname}</b>&nbsp;<span style="opacity:.7;font-size:8px">${t.s||''}</span></div>`;});
+      blocks.forEach(l=>{const t=T[l.ti]||{};row+=`<div style="background:#FFF3E0;border:1px solid #FF6600;border-radius:3px;padding:1px 4px;font-size:9px;color:#FF6600;font-weight:700;text-align:center;cursor:pointer" onclick="deleteBlockTime('${l._id||''}',${l.ti})">🚫${t.s||''}</div>`;});
       if(!indiv.length&&!grps.length&&isLoginAdm())row+=`<div style="min-height:14px;cursor:pointer" onclick="openAdd(${d},'${time}',null)"></div>`;
       row+=`</td>`;
     });
@@ -1091,12 +1093,36 @@ function crd(l,ti){
 
 // ── 전체 학생 ────────────────────────────────────────────
 function rStud(){
-  const ntc=getNtc();const tio=T.map((_,i)=>i);
-  const uniq=[...new Map(lessons.filter(l=>l.type==='individual').map(l=>[l.student+'_'+l.ti+'_'+l.day,l])).values()].sort((a,b)=>tio.indexOf(a.ti)-tio.indexOf(b.ti));
-  const tot=totSt();
+  const ntc=getNtc();
+  // 주2회: pairId 쌍 중 빠른 요일 기준 1개만 표시
+  const seenPair=new Set();
+  const allL=lessons.filter(l=>l.type==='individual'&&l.ti!==DTI);
+  const uniq=[];
+  // 입시 먼저, 그 다음 요일+시간 빠른 순
+  const dayOrder={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
+  const sorted=[...allL].sort((a,b)=>{
+    // 입시 먼저
+    const ac=a.course==='입시'?0:1,bc=b.course==='입시'?0:1;
+    if(ac!==bc)return ac-bc;
+    // 요일 순
+    const ad=dayOrder[a.day]??9,bd=dayOrder[b.day]??9;
+    if(ad!==bd)return ad-bd;
+    // 시간 순
+    return (parseInt(a.time)||0)-(parseInt(b.time)||0);
+  });
+  sorted.forEach(l=>{
+    if(l.pairId){
+      const pk=[l._id,l.pairId].sort().join('_');
+      if(!seenPair.has(pk)){seenPair.add(pk);uniq.push(l);}
+    } else {
+      uniq.push(l);
+    }
+  });
+  const tot=new Set(uniq.map(l=>l.student)).size;
   let h=`<div class="sec-lbl">전체 학생 (총 ${tot}명)</div>`;
   if(ntc.length){h+=`<div class="nbar"><div class="nt">📢 오늘 수강 안내 대상 (${ntc.length}명)</div>`;ntc.forEach(l=>{const t=T[l.ti]||{};h+=`<div class="nr">• ${l.student} · ${t.name||''} · 주${l.freq}회 · ${calcW(l)}/${l.maxWeek||4}주차</div>`;});h+=`</div>`;}
-  const reg=uniq.filter(l=>l.ti!==DTI),dance=uniq.filter(l=>l.ti===DTI);
+  const dance=uniq.filter(l=>l.ti===DTI);
+  const reg=uniq.filter(l=>l.ti!==DTI);
   reg.forEach(l=>{h+=liH(l,ntc);});
   if(dance.length){h+=`<div class="dance-lbl">🕺 댄스조 (금요일)</div>`;dance.forEach(l=>{h+=liH(l,ntc);});}
   document.getElementById('page').innerHTML=h;
@@ -1106,17 +1132,24 @@ function liH(l,ntc){
   const pct=Math.min(100,Math.round(w/mw*100));
   const wc=w>=mw?'#C00000':w>=(mw*.7)?'#854F0B':'#3B6D11';
   const wbg=w>=mw?'#FFEBEE':w>=(mw*.7)?'#FAEEDA':'#EAF3DE';
-  const idx=lessons.indexOf(l);
+  const isW2=(l.freq||1)>=2||l.pairId;
+  // 주2회: 두 번째 요일/시간 찾기
+  let timeStr=`${DL[l.day]||''} ${l.time}`;
+  if(isW2&&l.pairId){
+    const pair=lessons.find(x=>x._id===l.pairId);
+    if(pair) timeStr+=` · ${DL[pair.day]||''} ${pair.time}`;
+  }
   return `<div class="li" style="border-left-color:${t.c||'#ccc'};cursor:pointer" onclick="goToStudent(${l.ti},'${l.student}')">
     <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px">
       ${l.student}${mk.length?`<span class="upd">보강</span>`:''}
-      ${l.course==='입시'?`<span class="course-i">입시</span>`:''}${isN?'<span class="ntc">안내필요</span>':''}
+      ${l.course==='입시'?`<span class="course-i">입시</span>`:''}
+      ${isW2?`<span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 3px">주2회</span>`:''}
+      ${isN?'<span class="ntc">안내필요</span>':''}
     </div>
-    <div style="font-size:10px;color:${t.c||'#888'};margin-top:2px">${t.name||''} · ${DL[l.day]||''} ${l.time} · ${l.level||''}</div>
+    <div style="font-size:10px;color:${t.c||'#888'};margin-top:2px">${t.name||''} · ${timeStr} · ${l.level||''}</div>
     <div style="margin-top:4px;display:flex;align-items:center;gap:6px">
       <div class="progress-wrap"><div class="progress-bar" style="background:${t.c||'#888'};width:${pct}%"></div></div>
       <span class="wb" style="background:${wbg};color:${wc}">${w}/${mw}주차</span>
-      <span style="font-size:9px;color:#8e8e93">주${l.freq}회</span>
     </div>
   </div>`;
 }
@@ -1694,7 +1727,30 @@ function rStat(){
     <div><div style="font-size:11px;color:#8e8e93">${label}</div>
     <div style="font-size:22px;font-weight:800;color:${color}">${val}</div></div>
   </div>`;
-  let h=`<div class="sec-lbl" style="padding:16px 16px 8px;font-size:13px;font-weight:700">📊 수강 현황</div>
+  let h=`
+  <!-- 학생 인원 정보 요약 바 -->
+  <div style="background:linear-gradient(135deg,#C00000,#8B0000);padding:14px 16px;display:flex;align-items:center;justify-content:space-around;flex-wrap:wrap;gap:8px">
+    <div style="text-align:center;color:#fff">
+      <div style="font-size:26px;font-weight:800">${total}</div>
+      <div style="font-size:10px;opacity:.85">총 수강생</div>
+    </div>
+    <div style="width:1px;height:36px;background:rgba(255,255,255,.3)"></div>
+    <div style="text-align:center;color:#fff">
+      <div style="font-size:26px;font-weight:800">${totalHrs}</div>
+      <div style="font-size:10px;opacity:.85">주간 수업시간</div>
+    </div>
+    <div style="width:1px;height:36px;background:rgba(255,255,255,.3)"></div>
+    <div style="text-align:center;color:#fff">
+      <div style="font-size:26px;font-weight:800">${ips}</div>
+      <div style="font-size:10px;opacity:.85">입시생</div>
+    </div>
+    <div style="width:1px;height:36px;background:rgba(255,255,255,.3)"></div>
+    <div style="text-align:center;color:#fff">
+      <div style="font-size:26px;font-weight:800">${hby}</div>
+      <div style="font-size:10px;opacity:.85">취미생</div>
+    </div>
+  </div>
+  <div class="sec-lbl" style="padding:12px 16px 8px;font-size:13px;font-weight:700">📊 수강 현황</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 12px">
     ${card('👥','총 수강생',total+'명','#C00000','all')}
     ${card('⏰','주간 총 수업',totalHrs+'시간','#1565C0','all')}
@@ -1860,10 +1916,14 @@ function rMyTT(){
   const isDance=(ti===DTI); // 댄스 선생님 여부
 
   let h=`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border-bottom:.5px solid #e5e5e5">
+    ${isLoginAdm()?`<button onclick="switchToAdmin();showView('tt')" style="background:none;border:none;font-size:22px;cursor:pointer;padding:0 4px;color:#1c1c1e">‹</button>`:''}
     <div class="av" style="width:36px;height:36px;background:${bg(t.c||'#888')};color:${t.c||'#888'};font-size:14px">${t.s||''}</div>
     <div><div style="font-size:14px;font-weight:700;color:${t.c||'#888'}">${t.name||''}</div>
     <div style="font-size:11px;color:#8e8e93">${t.sub||''} · 담당 ${myL.length}명</div></div>
-    <button class="add-btn" style="width:auto;padding:6px 12px;font-size:11px;margin:0 0 0 auto;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="add-btn" style="width:auto;padding:6px 12px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
+      <button class="add-btn" style="width:auto;padding:6px 10px;font-size:11px;margin:0;border-radius:8px;background:#FF6600" onclick="openBlockTime(${ti})">🚫 수업불가</button>
+    </div>
   </div>
   <div class="legend" id="mytt-leg"></div>`;
   document.getElementById('page').innerHTML=h;
@@ -2218,23 +2278,43 @@ function rMyDay(){
 function rMyStud(){
   const ti=gTi(),t=T[ti]||{};
   const myL=lessons.filter(l=>l.ti===ti&&l.type==='individual');
-  const uniq=[...new Map(myL.map(l=>[l.student+'_'+l.day,l])).values()];
   const ntc=getNtc().filter(l=>l.ti===ti);
+  const dayOrder={0:0,1:1,2:2,3:3,4:4,41:4,5:5};
+  // 입시 먼저, 요일+시간 순 정렬, 주2회 중복 제거
+  const seenPair=new Set();
+  const sorted=[...myL].sort((a,b)=>{
+    const ac=a.course==='입시'?0:1,bc=b.course==='입시'?0:1;
+    if(ac!==bc)return ac-bc;
+    const ad=dayOrder[a.day]??9,bd=dayOrder[b.day]??9;
+    if(ad!==bd)return ad-bd;
+    return (parseInt(a.time)||0)-(parseInt(b.time)||0);
+  });
+  const uniq=[];
+  sorted.forEach(l=>{
+    if(l.pairId){const pk=[l._id,l.pairId].sort().join('_');if(!seenPair.has(pk)){seenPair.add(pk);uniq.push(l);}}
+    else uniq.push(l);
+  });
   let h=`<div style="padding:10px 14px 4px;display:flex;align-items:center;justify-content:space-between">
     <div style="font-size:13px;font-weight:700;color:${t.c||'#888'}">${t.name||''} 담당 (${uniq.length}명)</div>
-    <button class="add-btn" style="width:auto;padding:5px 12px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
+    <div style="display:flex;gap:6px">
+      <button class="add-btn" style="width:auto;padding:5px 12px;font-size:11px;margin:0;border-radius:8px" onclick="openAddIndiv(null,null,${ti})">+ 개인레슨 추가</button>
+      <button class="add-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0;border-radius:8px;background:#FF6600" onclick="openBlockTime(${ti})">🚫 수업불가</button>
+    </div>
   </div>`;
   if(ntc.length){h+=`<div class="nbar"><div class="nt">📢 수강 안내 필요</div>`;ntc.forEach(l=>h+=`<div class="nr">• ${l.student} — ${calcW(l)}/${l.maxWeek||4}주차 완료</div>`);h+=`</div>`;}
   uniq.forEach(l=>{
     const idx=lessons.indexOf(l),w=calcW(l),mw=l.maxWeek||4,mk=mks.filter(m=>m.ti===l.ti&&m.student===l.student),isN=ntc.some(n=>n.student===l.student);
     const pct=Math.min(100,Math.round(w/mw*100));const wc=w>=mw?'#C00000':w>=(mw*.7)?'#854F0B':'#3B6D11';const wbg=w>=mw?'#FFEBEE':w>=(mw*.7)?'#FAEEDA':'#EAF3DE';
+    const isW2=(l.freq||1)>=2||l.pairId;
+    let timeStr=`${DL[l.day]||''} ${l.time}`;
+    if(isW2&&l.pairId){const pair=lessons.find(x=>x._id===l.pairId);if(pair)timeStr+=` · ${DL[pair.day]||''} ${pair.time}`;}
     h+=`<div class="li" style="border-left-color:${t.c||'#ccc'}">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px;cursor:pointer" onclick="openEdit(${idx})">
-            ${l.student}${mk.length?`<span class="upd">보강</span>`:''}${l.course==='입시'?`<span class="course-i">입시</span>`:''}${isN?'<span class="ntc">안내필요</span>':''}
+          <div style="font-size:13px;font-weight:600;color:#1c1c1e;display:flex;align-items:center;gap:4px;cursor:pointer" onclick="goToStudent(${ti},'${l.student}')">
+            ${l.student}${mk.length?`<span class="upd">보강</span>`:''}${l.course==='입시'?`<span class="course-i">입시</span>`:''}${isW2?`<span style="font-size:9px;background:#1565C0;color:#fff;border-radius:3px;padding:0 3px">주2회</span>`:''}${isN?'<span class="ntc">안내필요</span>':''}
           </div>
-          <div style="font-size:10px;color:#8e8e93;margin-top:2px">${DL[l.day]||''} ${l.time} · ${l.level||''} · 주${l.freq}회</div>
+          <div style="font-size:10px;color:#8e8e93;margin-top:2px">${timeStr} · ${l.level||''} ${l.gender||''}</div>
           <div style="margin-top:5px;display:flex;align-items:center;gap:6px">
             <div class="progress-wrap"><div class="progress-bar" style="background:${t.c||'#888'};width:${pct}%"></div></div>
             <span class="wb" style="background:${wbg};color:${wc}">${w}/${mw}주차</span>
@@ -2248,6 +2328,68 @@ function rMyStud(){
       </div>
     </div>`;});
   document.getElementById('page').innerHTML=h;
+}
+
+// ── 수업불가 시간 ──────────────────────────────────────────
+function openBlockTime(ti){
+  const t=T[ti]||{};
+  const pop=document.createElement('div');
+  pop.id='_block_pop';
+  pop.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+  pop.innerHTML=`<div style="background:#fff;border-radius:18px 18px 0 0;padding:20px;width:100%;max-width:480px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:14px;color:#FF6600">🚫 수업불가 시간 설정</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1">
+        <label style="font-size:11px;color:#8e8e93">요일</label>
+        <select id="blk-day" class="fi" style="margin-top:4px">
+          <option value="0">월</option><option value="1">화</option><option value="2">수</option>
+          <option value="3">목</option><option value="4">금</option><option value="5">토</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:11px;color:#8e8e93">시간</label>
+        <select id="blk-time" class="fi" style="margin-top:4px">
+          ${['11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'].map(t=>`<option>${t}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button onclick="saveBlockTime(${ti})" style="flex:1;background:#FF6600;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">설정</button>
+      <button onclick="document.getElementById('_block_pop').remove()" style="padding:12px 20px;border:none;border-radius:10px;background:#f2f2f7;color:#8e8e93;font-size:14px;cursor:pointer;font-family:inherit">취소</button>
+    </div>
+    <div style="margin-top:14px">
+      <div style="font-size:11px;font-weight:700;color:#8e8e93;margin-bottom:6px">현재 수업불가 시간</div>
+      <div id="blk-list" style="display:flex;flex-wrap:wrap;gap:6px">${
+        (lessons.filter(l=>l.type==='block'&&l.ti===ti)).map(l=>
+          `<span style="background:#FFF3E0;color:#FF6600;border-radius:8px;padding:4px 10px;font-size:11px;display:flex;align-items:center;gap:4px">
+            🚫 ${DL[l.day]||''} ${l.time}
+            <button onclick="deleteBlockTime('${l._id||''}',${l.ti})" style="background:none;border:none;color:#C00000;cursor:pointer;font-size:12px;padding:0">✕</button>
+          </span>`
+        ).join('')||'<span style="font-size:11px;color:#ccc">없음</span>'
+      }</div>
+    </div>
+  </div>`;
+  document.body.appendChild(pop);
+  pop.addEventListener('click',e=>{if(e.target===pop)pop.remove();});
+}
+
+function saveBlockTime(ti){
+  const day=parseInt(document.getElementById('blk-day').value);
+  const time=document.getElementById('blk-time').value;
+  const id='BLK'+Date.now();
+  const obj={type:'block',ti,day,time};
+  if(window._db){
+    window._db.collection('lessons').doc(id).set(obj)
+      .then(()=>{showToast('🚫 수업불가 시간 설정됨');document.getElementById('_block_pop')?.remove();})
+      .catch(e=>showToast('❌ 실패: '+e.message));
+  }
+}
+
+function deleteBlockTime(id,ti){
+  if(!id||!window._db)return;
+  window._db.collection('lessons').doc(id).delete()
+    .then(()=>{showToast('✅ 삭제됨');document.getElementById('_block_pop')?.remove();})
+    .catch(e=>showToast('❌ 실패: '+e.message));
 }
 
 // ── 출석 ────────────────────────────────────────────────
