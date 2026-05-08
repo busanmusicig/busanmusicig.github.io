@@ -14,7 +14,7 @@
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="theme-color" content="#C00000"/>
 <title>부산뮤직 일광점</title>
-<link rel="manifest" href="./manifest.json"/>
+<link rel="manifest" href="./manifest.json?v=1778214509"/>
 <!-- iOS 아이콘 -->
 <link rel="apple-touch-icon" href="./icon-192.png"/>
 <link rel="apple-touch-icon" sizes="152x152" href="./icon-192.png"/>
@@ -2771,10 +2771,12 @@ function toggleFreq(v){
 
 // 서비스워커 - 기존 모두 해제 후 새로 등록
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(regs=>{
-    return Promise.all(regs.map(r=>r.unregister()));
-  }).then(()=>{
-    return navigator.serviceWorker.register('./sw.js');
+  // 모든 서비스워커 해제 + 캐시 전체 삭제 → 강제 최신 버전 로드
+  Promise.all([
+    navigator.serviceWorker.getRegistrations().then(regs=>Promise.all(regs.map(r=>r.unregister()))),
+    caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))))
+  ]).then(()=>{
+    navigator.serviceWorker.register('./sw.js?v='+Date.now()).catch(()=>{});
   }).catch(()=>{});
 }
 
